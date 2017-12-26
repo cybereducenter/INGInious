@@ -50,12 +50,7 @@ $var Navbar: $:NavbarF()
     $for submission in data:
         $ succeeded = "result" in submission and submission["result"] == "success"
     	<tr
-            $if succeeded:
-                class="success"
-            $elif submission['status'] == 'waiting':
-                class="warning"
-            $else:
-                class="danger"
+            class="$submission['grade_css_class']"
         >
             <td>
                 $if submission["_id"] == submissionid:

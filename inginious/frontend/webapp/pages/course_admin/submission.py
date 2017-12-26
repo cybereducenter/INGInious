@@ -9,7 +9,7 @@ import web
 
 from os import path
 from inginious.frontend.common.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
-from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage, get_task_and_lesson
 
 
 class CourseStudentTaskSubmission(INGIniousAdminPage):
@@ -40,11 +40,15 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
     def page(self, course, username, task, submissionid):
         """ Get all data and display the page """
         submission = self.submission_manager.get_submission(submissionid, False)
+        course_id = course.get_id()
+        task_id = task.get_id()
+        task_object = task
         if not submission or username not in submission["username"] or submission["courseid"] != course.get_id() or submission["taskid"] != \
                 task.get_id():
             raise web.notfound()
         submission = self.submission_manager.get_input_from_submission(submission)
-        submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=True)
+        submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=True, inginious_page_object=self)
+        submission = self.submission_manager.get_input_extra_data(submission, task_object, course_id, task_id)
 
         to_display = []
         for problem in task.get_problems():
@@ -52,6 +56,8 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                 data = {
                     "id": problem.get_id(),
                     "name": problem.get_name(),
+                    "problem_type": problem.get_type(),
+                    "download_link": submission.get('download_link'),
                     "defined": True,
                     "present": True,
                     "context": problem.get_header(),
@@ -111,7 +117,8 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
 
         done_id = [d["id"] for d in to_display]
         for pid in submission["input"]:
-            if pid not in done_id:
+            # html_template is used to display html in submissions to students and it's irrelevant here 
+            if pid not in done_id and not "html_template":
                 data = {
                     "id": pid,
                     "name": pid,
@@ -138,5 +145,6 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     data["content"] = submission["input"][pid]
                     data["base64"] = base64.b64encode(str(submission["input"][pid]).encode('utf-8')).decode('utf-8')
                 to_display.append(data)
+
 
         return self.template_helper.get_renderer().course_admin.submission(course, username, task, submissionid, submission, to_display)

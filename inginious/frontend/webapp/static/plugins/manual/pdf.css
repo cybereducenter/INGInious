@@ -1,0 +1,51 @@
+body {
+    /*font-family: arial;*/
+    direction: ltr;
+    text-align: left;
+    padding: 20px;
+}
+
+hr {
+    border: 1px solid gray
+}
+
+h1 {
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+.space {
+    height: 20px;
+}
+
+table {
+    width: 100%;
+    max-width: 100%;
+}
+
+table thead tr th {
+    border-bottom: 2px solid gray;
+    padding: 20px;
+    text-align: left;
+}
+
+table tbody td {
+    padding: 20px;
+    border-bottom: 1px solid gray;
+}
+
+.feedback {
+    direction: rtl;
+    text-align: right;
+    float: right;
+}
+
+

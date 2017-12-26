@@ -19,27 +19,8 @@ $def ColumnF():
         </div>
     </div>
 
-    <h3>Last tried exercises</h3>
 
-    <div class="list-group">
-        $if submissions:
-            $for submission in submissions:
-                <a class="list-group-item
-                    $if submission['status'] == 'done' and submission['result'] == 'success':
-                        list-group-item-success
-                    $elif submission['status'] == 'done' and submission['result'] == 'save':
-                        list-group-item-info
-                    $elif submission['status'] == 'waiting':
-                        list-group-item-warning
-                    $else:
-                        list-group-item-danger
-                    "
-                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    $submission['taskname']
-                </a>
-        $else:
-            <a class="list-group-item disabled submission-empty">No submissions</a>
-    </div>
+    $:template_helper.call('last_tried_exercises', submissions=submissions, template_helper=template_helper)
     <div class="list-group">
         $if course.allow_unregister():
             $:include.unregister_button(course)

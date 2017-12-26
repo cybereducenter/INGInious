@@ -1,0 +1,14 @@
+$def with(submissions)
+
+<h3>Last tried exercises</h3>
+
+<div class="list-group">
+    $if submissions:
+        $for submission in submissions:
+            <a class="list-group-item $submission.get('grade_css_class')"
+               href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
+                $submission.get('taskname', 'no task name')
+            </a>
+    $else:
+        <a class="list-group-item disabled submission-empty">No submissions</a>
+</div>

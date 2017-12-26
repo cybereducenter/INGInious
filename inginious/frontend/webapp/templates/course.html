@@ -1,4 +1,4 @@
-$def with (course,submissions, tasks, tasks_data, grade)
+$def with (course,submissions, tasks, tasks_data, grade, plugins_menu_entries)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -17,27 +17,7 @@ $def ColumnF():
         </div>
     </div>
 
-    <h3>Last tried exercises</h3>
-    
-    <div class="list-group">
-        $if submissions:
-            $for submission in submissions:
-                <a class="list-group-item 
-                    $if submission['status'] == 'done' and submission['result'] == 'success':
-                        list-group-item-success
-                    $elif submission['status'] == 'done' and submission['result'] == 'save':
-                        list-group-item-info
-                    $elif submission['status'] == 'waiting':
-                        list-group-item-warning
-                    $else:
-                        list-group-item-danger
-                    "
-                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    $submission['taskname']
-                </a>
-        $else:
-            <a class="list-group-item disabled submission-empty">No submissions</a>
-    </div>
+    $:template_helper.call('last_tried_exercises', submissions=submissions, template_helper=template_helper)
     $if user_manager.has_staff_rights_on_course(course):
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
@@ -48,6 +28,11 @@ $def ColumnF():
             <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; Course administration
             </a>
+            $for link, name in plugins_menu_entries:
+                <a href="$get_homepath()/admin/${course.get_id()}/${link}" class="list-group-item list-group-item-info
+                  $if link=='danger':
+                      list-group-item-danger
+                  ">$:name</a>
         </div>
     $else:
         <div class="list-group">

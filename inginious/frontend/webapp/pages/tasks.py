@@ -10,12 +10,14 @@ import mimetypes
 import os
 import posixpath
 import urllib.request, urllib.parse, urllib.error
-
+import traceback
+import codecs
+import locale
 import web
 
 from bson.objectid import ObjectId
 from inginious.common import exceptions
-from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
+from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files, indent
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
@@ -77,12 +79,13 @@ class TaskPage(INGIniousAuthPage):
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
-            submission = self.submission_manager.get_submission(userinput["submissionid"], True)
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=True, course=course)
             if submission is None:
                 raise web.notfound()
             sinput = self.submission_manager.get_input_from_submission(submission, True)
             if userinput["questionid"] not in sinput:
                 raise web.notfound()
+
 
             if isinstance(sinput[userinput["questionid"]], dict):
                 # File uploaded previously
@@ -114,9 +117,12 @@ class TaskPage(INGIniousAuthPage):
                     students = group["groups"][0]["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
+            submissions = self.submission_manager.get_user_submissions(task)
+            submissions = [self.submission_manager.get_feedback_from_submission(submission, inginious_page_object=self) for submission in submissions]
+
             # Display the task itself
             return self.template_helper.get_renderer().task(course, task,
-                                                            self.submission_manager.get_user_submissions(task),
+                                                            submissions,
                                                             students, eval_submission, user_task, self.webterm_link)
 
     def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
@@ -162,8 +168,13 @@ class TaskPage(INGIniousAuthPage):
                         debug = "ssh"
                     del userinput['@debug-mode']
 
+                if len(task._problems) > 0 and task._problems[0].get_type() == 'code':
+                    userinput = self.add_feedback_html_to_user_input(userinput, taskid)
+
+
                 # Start the submission
                 try:
+                    self.logger.info('before submitting to docker')
                     submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
@@ -179,19 +190,21 @@ class TaskPage(INGIniousAuthPage):
                 elif self.submission_manager.is_done(result):
                     web.header('Content-Type', 'application/json')
                     result = self.submission_manager.get_input_from_submission(result)
-                    result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
+                    result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff, inginious_page_object=self)
 
+                    # per ana's design, this alert box should always be gray no matter what the grade is.
+                    result['grade_css_class'] = ' grade gray feedback-box'
                     # user_task always exists as we called user_saw_task before
                     user_task = self.database.user_tasks.find_one({
                         "courseid":task.get_course_id(),
                         "taskid": task.get_id(),
                         "username": self.user_manager.session_username()
                     })
-
                     submissionid = user_task.get('submissionid', None)
                     default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
+
                     return submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
 
                 else:
@@ -210,7 +223,7 @@ class TaskPage(INGIniousAuthPage):
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
                 submission = self.submission_manager.get_input_from_submission(submission)
-                submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
+                submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff, inginious_page_object=self)
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
@@ -235,6 +248,32 @@ class TaskPage(INGIniousAuthPage):
                 raise
             else:
                 raise web.notfound()
+
+    def add_feedback_html_to_user_input(self, user_input, task_id):
+        self.logger.info('before opening feebdack.html')
+        try:
+
+            # couldn't open with  get_renderer, errors on js, tries to render the page and run the js
+            file_path = self.template_helper._root_path + '/'+ self.template_helper._template_dir + '/task_page/feedback.html'
+            self.logger.info('file_path ' +repr(file_path))
+            with codecs.open(file_path,'r',encoding='utf8') as f:
+                feedback_html = f.read()
+            # todo, in order to support multiple scenario boxes in the same html page,
+            # it might be a good idea to render the html with the task id in it (05-06, for example)
+            # that way, the way the js will render in the appropriate modal
+            feedback_html_injected_with_id = feedback_html.replace('task_id_to_replace', task_id)
+            feedback_html_injected_with_id = '.. raw:: html' + '\n' + indent(feedback_html_injected_with_id, 4)
+            user_input['html_template'] = feedback_html_injected_with_id
+        except Exception as err:
+            prefered_encoding = locale.getpreferredencoding()
+            self.logger.error( ' ---- prefered_encoding ' + repr(prefered_encoding))
+            # text = 'error template_helper --- ' + repr(err)
+            # self.logger.error(text)
+            self.logger.error('traceback data is ' + traceback.format_exc())
+            user_input['html_template'] = ''
+
+        return user_input
+
 
 
 class TaskPageStaticDownload(INGIniousAuthPage):

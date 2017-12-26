@@ -1,0 +1,64 @@
+$def with (currentuser, lessonid, data)
+
+$var title: pdf
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="pdfkit-page-size" content="Legal"/>
+        <link rel="stylesheet" href="/static/webapp/plugins/manual/pdf.css">
+    </head>
+
+    <body style="white-space: pre-line">
+        <h1>$currentuser.title() - Lesson $lessonid</h1>
+
+        <hr>
+
+        <h2>Overall Feedback</h2>
+        <p class="feedback">
+            $if data['overall']['feedback'] == '':
+                --
+            $else:
+                $data['overall']['feedback']
+
+            <br>
+            Grade:
+            $if data['overall']['grade'] == '':
+                ---
+            $else:
+                $data['overall']['grade']
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Feedback</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                $for task in data:
+                    $if task != 'avg' and task != 'overall':
+                        <tr>
+                            <td>$task</td>
+                            <td style="direction: rtl; white-space: pre-line">
+                                Feedback:<br>
+                                $if data[task]['feedback'] == '':
+                                    ---
+                                $else:
+                                    $data[task]['feedback']
+                                <br><br>
+
+                                Grade:
+                                $if data[task]['grade'] == '':
+                                    ---
+                                $else:
+                                    $data[task]['grade']
+
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+    </body>
+</html>

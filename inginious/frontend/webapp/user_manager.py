@@ -386,18 +386,19 @@ class UserManager(AbstractUserManager):
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
         if newsub:
-            old_submission = self._database.user_tasks.find_one_and_update(
-                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
+            if result_str != 'crash': # in case of crashed, we don't want to update the attempts
+                old_submission = self._database.user_tasks.find_one_and_update(
+                    {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
 
-            # Check if the submission is the default download
-            set_default = task.get_evaluate() == 'last' or \
-                          (task.get_evaluate() == 'student' and old_submission is None) or \
-                          (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= grade)
+                # Check if the submission is the default download
+                set_default = task.get_evaluate() == 'last' or \
+                              (task.get_evaluate() == 'student' and old_submission is None) or \
+                              (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= grade)
 
-            if set_default:
-                self._database.user_tasks.find_one_and_update(
-                    {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                    {"$set": {"succeeded": result_str == "success", "grade": grade, "submissionid": submission['_id']}})
+                if set_default:
+                    self._database.user_tasks.find_one_and_update(
+                        {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                        {"$set": {"succeeded": result_str == "success", "grade": grade, "submissionid": submission['_id']}})
         else:
             old_submission = self._database.user_tasks.find_one(
                 {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]})

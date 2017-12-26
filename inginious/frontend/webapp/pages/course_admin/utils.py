@@ -11,6 +11,7 @@ import csv
 
 import web
 from bson.objectid import ObjectId
+from datetime import datetime
 from inginious.common.base import id_checker
 from collections import OrderedDict
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
@@ -244,6 +245,28 @@ def make_csv(data):
     return csv_string.read()
 
 
+def calculate_time_passed_since(time_of_event):
+    '''
+
+    :param time_of_event: datetime
+    :return: time passed in string.
+    if more than 3 months, than X months ago
+    if more than a day, than X days ago
+    if more than an hour, than X hours ago
+    if less than an hour, than X minutes ago
+    '''
+    time_passed = datetime.now() - time_of_event
+    if time_passed.days > 90:
+        return str(int(time_passed.days / 30)) + ' months ago'
+    elif time_passed.days > 0:
+        return str(time_passed.days) + ' days ago'
+    else: # time_passed.days  == 0
+        if time_passed.seconds > 60 * 60:
+            return str(int(time_passed.seconds / 60 / 60)) + ' hours ago'
+        else:
+            return str(int(time_passed.seconds / 60)) + ' minutes ago'
+
+
 def get_menu(course, current, renderer, plugin_manager, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []
@@ -264,6 +287,23 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     additional_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]
 
     return renderer.course_admin.menu(course, default_entries + additional_entries, current)
+
+
+def get_course_menu(course, user_manager, plugin_manager):
+    default_entries = []
+    admin_entries = []
+    if user_manager.has_admin_rights_on_course(course):
+        admin_entries += [entry for entry in plugin_manager.call_hook('course_admin_main_menu', course=course) if entry is not None]
+
+    return admin_entries + default_entries
+
+# according to a naming convention lesson-task
+def get_task_and_lesson(task_name):
+    task_splitted = task_name.split('-')
+    lesson_name = task_splitted[0]
+    task_name = task_splitted[len(task_splitted) - 1]
+
+    return lesson_name, task_name
 
 
 class CourseRedirect(INGIniousAdminPage):

@@ -7,6 +7,7 @@
 from typing import List
 
 import web
+import logging
 from gridfs import GridFS
 from pymongo.database import Database
 
@@ -93,6 +94,11 @@ class INGIniousPage(object):
     def webterm_link(self) -> str:
         """ Returns the link to the web terminal """
         return self.app.webterm_link
+
+    @property
+    def logger(self) -> logging.Logger:
+        """ Logger """
+        return logging.getLogger('inginious.lti.pages')
 
 
 class INGIniousAuthPage(INGIniousPage):

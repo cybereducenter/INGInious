@@ -1,0 +1,136 @@
+.color-index {
+    margin-bottom: 15px;
+}
+
+.color-title {
+    text-align: center;
+    font-size: 12px;
+}
+
+.color-box {
+    width: 15px;
+    height: 15px;
+    margin: 0 auto;
+}
+
+.color-item {
+    margin-top: 10px;
+}
+
+.notviewed {
+    background: #b9b9b9;
+}
+
+.notattempted {
+    background: #fff361;
+}
+
+.gray{
+    background: #e6e6e6;
+}
+.grade_0 {
+    background: #d9534f;
+}
+
+.grade_20 {
+    background: #dd5c58;
+}
+
+.grade_40 {
+    background: #e26562;
+}
+
+.grade_50 {
+    background: #ff9900;
+}
+
+.grade_60 {
+    background: #f0750f;
+}
+
+.grade_70 {
+    background: #f07500;
+}
+
+.grade_80 {
+    background: #5cb85c;
+}
+
+.grade_90 {
+    background: #387F2E;
+}
+
+.grade_100 {
+    background: #237f00;
+}
+
+
+a.grade{
+    color: white;
+}
+
+td.grade a{
+    text-align: center;
+    color: white;
+    text-decoration: underline;
+}
+
+td.grade{
+    text-align: center;
+}
+
+.manual {
+    background: #337ab7;
+}
+
+.grades-table {
+    overflow-x:scroll;
+    overflow-y:visible;
+    margin-left: 3em;
+    color: white;
+}
+
+.grades-header,
+.grades-column {
+    min-width: 150px;
+    min-height: 38px;
+    text-align: center;
+    padding: 17px !important;
+}
+
+
+
+.headcol {
+    position: absolute;
+    width: 5em;
+    min-height: 38px;
+    left: 0;
+    top: auto;
+    border-top-width: 1px;
+    margin-top: -1px;
+    background: white;
+
+}
+
+.header-cell{
+    margin-top: 24px;
+    z-index: 1;
+}
+
+.grades-table th:first-child{
+    padding: 10px 0 ;
+    
+}
+
+.grades-table tbody tr td:nth-child(2){
+    border-left: 5px solid black;
+
+}
+
+.grades-table tbody tr td:not(:first-child) {
+    border: 1px solid white;
+}
+
+#students-cell{
+    color: black;
+}

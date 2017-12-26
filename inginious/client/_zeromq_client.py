@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 import abc
 import asyncio
+import logging
 
 import zmq
 
@@ -23,6 +24,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
     """
 
     def __init__(self, context, router_addr):
+        self._logger = logging.getLogger("inginious.client")
         self._context = context
         self._router_addr = router_addr
         self._socket = self._context.socket(zmq.DEALER)

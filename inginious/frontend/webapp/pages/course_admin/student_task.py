@@ -26,10 +26,15 @@ class CourseStudentTaskPage(INGIniousAdminPage):
         data = list(self.database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
             [("submitted_on", pymongo.DESCENDING)]))
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
+        data = [self.submission_manager.get_feedback_from_submission(submission, inginious_page_object=self) for submission in data]
         if "csv" in web.input():
             return make_csv(data)
 
         user_task = self.database.user_tasks.find_one({"username": username, "courseid": course.get_id(), "taskid": task.get_id()})
+        grade = 0 if not user_task else user_task.get('grade', 0)
+        color_css_class = self.task_factory.get_relevant_color_class_for_grade(grade)
+        if color_css_class:
+            user_task["grade_css_class"] = color_css_class
         submissionid = None if not user_task else user_task.get("submissionid", None)
 
         return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data, submissionid)

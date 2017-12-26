@@ -143,12 +143,7 @@ $def ColumnF():
 	        $if submissions:
 	            $for submission in submissions:
 	                <li class="submission list-group-item
-	                    $if submission['status'] == 'done' and submission['result'] == 'success':
-	                        list-group-item-success
-	                    $elif submission['status'] == 'waiting':
-	                        list-group-item-warning
-	                    $else:
-	                        list-group-item-danger
+	                    $submission.get('grade_css_class', '')
 	                    "
 	                    data-submission-id="$submission['_id']">
                         $if task.get_accessible_time().is_open() or user_manager.has_admin_rights_on_course(course):
@@ -200,7 +195,6 @@ $if user_manager.has_admin_rights_on_course(course):
             </div>
         </div>
     </div>
-
 <form id="task" method="post" action="$get_homepath()/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
@@ -211,20 +205,26 @@ $if user_manager.has_admin_rights_on_course(course):
     $if webterm_link is not None:
         <input type="hidden" value="$webterm_link" id="webterm_link"/>
     <input type="hidden" name="@action" value="submit"/>
-    $for key, problem in enumerate(task.get_problems()):
+    $for index, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">
             $if len(task.get_problems()) != 1 or problem.get_name() != "":
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         $if len(task.get_problems()) != 1:
-                            Question ${key+1}:
+                            Question ${index+1}:
                         $problem.get_name()
                     </h3>
                 </div>
             <div class="panel-body">
+
                 <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
+                $if problem.get_type() in ['code']:
+                    <button class="btn btn-sm btn-ignore-click">upload solution from computer</button>
+                    <input type="file" class="hidden optional-upload-file-btn-js" data-index="$index">
+                    <br/>
                 $:problem.get_header()
                 $:problem.show_input(template_helper.get_common_renderer())
+
             </div>
         </div>
 

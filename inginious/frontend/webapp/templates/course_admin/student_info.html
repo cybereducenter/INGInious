@@ -48,24 +48,20 @@ $var Navbar: $:NavbarF()
     <tbody>
     $for task in data:
     	<tr
-            $if task["status"] == "notattempted":
-                class="warning"
-            $elif task["status"] == "succeeded":
-                class="success"
-            $elif task["status"] == "failed":
-                class="danger"
+            class="${task.get('grade_css_class', '')}"
+            $ css_class='grade' if 'grade_css_class' in task else ''
         >
-    		<td><a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']">$task["name"]</a></td>
+    		<td><a class="$css_class" href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']">$task["name"]</a></td>
     		<td>
                 $if task["status"] == "notviewed":
                     Not viewed
                 $elif task["status"] == "notattempted":
                     Not attempted (viewed)
                 $elif task["status"] == "succeeded":
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
+                    <a class="grade" href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
                         data-toggle="tooltip" data-placement="bottom">Succeeded ($task["grade"]%)</a>
                 $else:
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
+                    <a class="grade" href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
                         data-toggle="tooltip" data-placement="bottom">Failed ($task["grade"]%)</a>
             </td>
             <td>$task["tried"]</td>

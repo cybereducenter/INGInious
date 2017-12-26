@@ -1,0 +1,127 @@
+$def with (course, data_users, order_tasks, possible_grades)
+
+$var title: $:course.get_name() - Matrix
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='matrix')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li>
+            <a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a>
+        </li>
+
+        <li>
+            <a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i>
+            </a>
+        </li>
+
+        <li class="active">
+            <a href="#"><i class="fa fa-graduation-cap"></i> Matrix <span class="sr-only">(current)</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+$def tr(value):
+    $for user in data_users:
+        <tr>
+            <th class="headcol">
+                <a href="/admin/$:course.get_id()/student/$user['name']['username']">
+                    $if user['name']['realname'] is not None:
+                        $user['name']['realname']
+                    $else:
+                        $user['name']['username']
+                </a>
+            </th>
+
+            $for task in user['tasks']:
+                <td class="grades-column $user['tasks'][task]['status']">
+                    $ specific_task = user['tasks'][task]
+                    $if 'grade' in specific_task['status']:
+                        $if specific_task['submissionid'] == 'None':
+                            $int(specific_task['grade'])
+                        $else:
+                            <a href="/admin/$:course.get_id()/student/$user['name']['username']/$task/$specific_task['submissionid']">
+                                $int(specific_task['grade'])
+                            </a>
+                        $if 'submission_data' in specific_task:
+                            (<a target="_blank" href="$specific_task['submission_data']['url']">$specific_task['submission_data']['time_passed']</a>)
+
+                </td>
+        </tr>
+
+
+$def th(value):
+    $for x in value
+        <th class="grades-header">
+            <a href="/course/$:course.get_id()/$x.get_id()">
+                $x.get_id()
+            </a><br/>
+
+            <div class="btn-group" role="group">
+                <a href="/admin/$:course.get_id()/edit/task/$x.get_id()" class="btn btn-default btn-xs"
+                   title data-toggle="tooltip"
+                   data-placement="bottom"
+                   data-original-title="Edit task">
+                    <i class="fa fa-edit"></i>
+                </a>
+            </div>
+        </th>
+
+
+
+<h2>Matrix</h2>
+
+<div class="color-index">
+    <div class="row">
+        <div class="col-xs-2 color-item">
+            <div class="color-title">Not viewed</div>
+
+            <div class="color-box notviewed"></div>
+        </div>
+
+        <div class="col-xs-2 color-item">
+            <div class="color-title">Not attempted</div>
+
+            <div class="color-box notattempted"></div>
+        </div>
+
+        <div class="col-xs-2 color-item">
+            <div class="color-title">Manual:</div>
+
+            <div class="color-box manual"></div>
+        </div>
+        <!-- from here is dynamic grades from the server -->
+        $for possible_grade_data in possible_grades:
+            <div class="col-xs-2 color-item">
+                <div class="color-title">
+                     $int(possible_grade_data['max_value'])
+                </div>
+
+                <div class="color-box grade_$:int(possible_grade_data['max_value'])"></div>
+            </div>
+
+
+    </div>
+</div>
+
+
+<div class="grades-table">
+    <table class="table matrix-table">
+        <thead>
+            <tr>
+                <th id="students-cell"class="headcol header-cell">Students</th>
+                $:th(order_tasks)
+            </tr>
+        </thead>
+
+        <tbody>
+            $if len(data_users) != 0:
+                $:tr(data_users)
+            $else:
+                <tr>
+                    <td>No students</td>
+                </tr>
+        </tbody>
+    </table>
+</div>

@@ -24,7 +24,8 @@ install_requires = [
     "msgpack-python >= 0.4.7",
     "pyzmq >= 15.3.0",
     "natsort >= 5.0.1",
-    "psutil >= 4.4.2"
+    "psutil >= 4.4.2",
+    "pdfkit >= 0.6.1"
 ]
 
 # for custom PyLTI: TODO remove me once PyLTI PR is accepted

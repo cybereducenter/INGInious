@@ -47,9 +47,9 @@ class DatabaseAuthMethod(AuthMethod):
             "input": OrderedDict((
                 ("login", {"type": "text", "placeholder": "Login"}),
                 ("password", {"type": "password", "placeholder": "Password"}))),
-            "info": '<div class="text-center"><a href="' + web.ctx.home +
-                    '/register">Register</a> / <a href="' + web.ctx.home +
-                    '/register#lostpasswd">Lost password?</a></div>'
+                      # <a href="' + web.ctx.home + '/register">Register</a> /
+                      "info": '<div class="text-center"> <a href="' + web.ctx.home +
+                              '/register#lostpasswd">Lost password?</a></div>'
         }
 
     def should_cache(self):
@@ -195,9 +195,9 @@ To activate your account, please click on the following link :
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
 """ + web.ctx.home + "/register?reset=" + reset_hash)
                     msg = "An email has been sent to you to reset your password."
-                except:
+                except Exception as err:
                     error = True
-                    msg = "Something went wrong while sending you reset email. Please contact the administrator."
+                    msg = "Something went wrong while sending you reset email ("+repr(err)+"). Please contact the administrator."
 
         return msg, error
 
@@ -222,7 +222,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
                 error = True
                 msg = "Invalid reset hash."
             else:
-                msg = "Your password has been successfully changed."
+                msg = "Your password has been successfully changed. click <a href='/' id='reset-get-back'>here</a> to re login"
 
         return msg, error
 
@@ -235,11 +235,13 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         msg = ""
         error = False
         data = web.input()
+
         if "register" in data:
             msg, error = self.register_user(data)
         elif "lostpasswd" in data:
             msg, error = self.lost_passwd(data)
         elif "resetpasswd" in data:
+            _, _, reset = self.get_reset_data(data)
             msg, error = self.reset_passwd(data)
 
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').register(reset, msg, error)
@@ -354,6 +356,11 @@ def main_menu(template_helper, database):
     return str(template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth', layout=False).main_menu(is_user_in_db))
 
 
+def last_tried_exercises(template_helper, submissions):
+    return str(template_helper.get_custom_renderer('frontend/webapp/templates', layout=False).last_tried_exercises(submissions))
+
+
+
 def init(plugin_manager, _, _2, conf):
     """
         Allow authentication from database
@@ -363,5 +370,7 @@ def init(plugin_manager, _, _2, conf):
     allow_deletion = conf.get("allow_deletion", False)
     plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
     plugin_manager.add_hook("main_menu", lambda template_helper: main_menu(template_helper, plugin_manager.get_database()))
+    # get out of here to main 
+    plugin_manager.add_hook("last_tried_exercises", lambda template_helper, submissions: last_tried_exercises(template_helper, submissions))
     plugin_manager.add_page('/register', RegistrationPage)
     plugin_manager.add_page('/profile', ProfilePage)

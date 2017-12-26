@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="he">
+    <head>
+
+        <!-- Basic Page Needs
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <meta charset="utf-8">
+        <title>Scenario Feedback</title>
+        <meta name="description" content="scenario feedback">
+        <meta name="author" content="">
+
+        <!-- Mobile Specific Metas
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- FONT
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <link href="https://fonts.googleapis.com/css?family=Arimo" rel="stylesheet">
+        <!--<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">-->
+        <!--<link href="//fonts.googleapis.com/css?family=Alef|Open+Sans" rel="stylesheet">-->
+
+        <!-- CSS
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <!-- Loaded by Ingenious. Font Awesome https://www.w3schools.com/icons/fontawesome_icons_intro.asp -->
+        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+        <!--bootstrap is already loaded by Inginious remove after testing -->
+        <!--Loaded by Ingenious. if loaded twice, causes a bug in inginious <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+
+        <!--Loaded by Ingenious. <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
+        <!-- Right to lef -->
+        <!--Loaded by Ingenious. <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">-->
+        <!--Loaded by Ingenious. <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" crossorigin="anonymous"></script>-->
+
+        <!-- Frontend templates js -->
+        <!--Loaded by Ingenious. <script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js" crossorigin="anonymous"></script>-->
+
+        <!-- task-feedback.css will be loaded by inginious -->
+    </head>
+    <body>
+    
+        <!-- Primary Page Layout
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <table class="table table-condensed feedback-table">
+            <!--Single item row -->
+            <tr class="row feedback-row">
+                <td class="col-md-1 col-xs-1 red">
+                    <i class="fa fa-times-circle-o feedback-icon" aria-hidden="true"></i>
+                </td>
+
+                <td class="col-md-9 col-xs-9 black-text">
+                    <div class="col-md-1 col-xs-1 pull-right">
+                        #1
+                    </div>
+                    <div class="col-md-10 col-xs-10 pull-right">
+                        <div class="row">scenraio name and description </div>
+                        <div class="row red-text">
+                            long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text
+                        </div>
+                    </div>
+                    
+                </td>
+                <td class="col-md-2 col-xs-2">
+                    <a href="#" class="feedback-link" data-toggle="modal" data-target="#myModal">more details</a>
+                </td>
+
+            </tr>
+
+        </table>
+
+        <div id="myModal" class="modal modal-wide fade feedback-modal" role="dialog"></div>
+
+    <!-- End Document
+
+
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <script type="text/x-tmpl" id="tmpl-modal">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title feedback-modal-title">
+                            long text long text long text long text long text long text long text long text
+                            <span class="red-text">not success</span>
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row feedback-modal-failure-text">
+                            <b>
+                                The program finished running but the second output is not where it should be .....
+                            </b>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <tr class="row feedback-row">
+                                <td class="col-md-1 col-xs-1">
+                                    <b>scenario:</b>
+                                </td>
+                                <td class="col-md-11 col-xs-11">
+                                            long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text .
+                                </td>
+                            </tr>
+
+                            <tr class="row feedback-row">
+                                <td id="empty-column" class="col-md-1 col-xs-1">
+
+                                </td>
+                                <td class="col-md-11 col-xs-11">
+                                    <div class="shell-wrap feedback-shell">
+                                        <p class="shell-top-bar">Command Line</p>
+                                        <ul class="shell-body">
+                                            <div id="commentable-container-1" class="commentable-container">
+                                                <div id="scenario_log-1"></div>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </script>
+
+        <script>
+//            TODO use this tmpl to render the hidden modals
+
+            var data = {
+                "title": "JavaScript Templates"
+            };
+            document.getElementById("myModal").innerHTML = tmpl("tmpl-modal", data);
+
+//            document.getElementById("").innerHTML = tmpl("tmpl-feedback-row", data);
+
+        </script>
+
+        <script>
+            var feedbackData1 = {
+                    "args": [
+                        "foo",
+                        "bar",
+                        "spam"
+                    ],
+                    "description": "\u05d4\u05ea\u05db\u05e0\u05d9\u05ea \u05ea\u05e7\u05dc\u05d5\u05d8 \u05d7\u05de\u05d9\u05e9\u05d4 \u05e6\u05d9\u05d5\u05e0\u05d9\u05dd (88, 100, 73, 56, 96) \u05d5\u05ea\u05e6\u05d9\u05d2 \u05d0\u05ea \u05d4\u05de\u05de\u05d5\u05e6\u05e2 (\u05d0\u05e4\u05e9\u05e8\u05d5\u05ea 1 \u05d1\u05ea\u05e4\u05e8\u05d9\u05d8) \u05e9\u05dc\u05d4\u05dd (82.60). \u05dc\u05d0\u05db\u05df \u05de\u05db\u05df, \u05e8\u05d9\u05e6\u05ea \u05d4\u05ea\u05db\u05e0\u05d9\u05ea \u05ea\u05e1\u05ea\u05d9\u05d9\u05dd (\u05d0\u05e4\u05e9\u05e8\u05d5\u05ea 5 \u05d1\u05ea\u05e4\u05e8\u05d9\u05d8).",
+                    "dialogue": [
+                        {
+                            "name": "\u05de\u05e1\u05e4\u05e8 \u05e6\u05d9\u05d5\u05e0\u05d9\u05dd",
+                            "type": "input",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05e6\u05d9\u05d5\u05df \u05e8\u05d0\u05e9\u05d5\u05df",
+                            "type": "input",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05e6\u05d9\u05d5\u05df \u05e9\u05e0\u05d9",
+                            "type": "input",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05e6\u05d9\u05d5\u05df \u05e9\u05dc\u05d9\u05e9\u05d9",
+                            "type": "input",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05e6\u05d9\u05d5\u05df \u05e8\u05d1\u05d9\u05e2\u05d9",
+                            "type": "input",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05e6\u05d9\u05d5\u05df \u05d7\u05de\u05d9\u05e9\u05d9",
+                            "type": "input",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05d0\u05d5\u05e4\u05e6\u05d9\u05d4 1 \u05d1\u05ea\u05e4\u05e8\u05d9\u05d8 - \u05d7\u05d9\u05e9\u05d5\u05d1 \u05de\u05de\u05d5\u05e6\u05e2",
+                            "type": "input",
+                            "value": "1"
+                        },
+                        {
+                            "name": "\u05de\u05de\u05d5\u05e6\u05e2 \u05d7\u05de\u05e9\u05ea \u05d4\u05e6\u05d9\u05d5\u05e0\u05d9\u05dd",
+                            "type": "output",
+                            "value": "5"
+                        },
+                        {
+                            "name": "\u05d0\u05d5\u05e4\u05e6\u05d9\u05d4 5 \u05d1\u05ea\u05e4\u05e8\u05d9\u05d8 - \u05d9\u05e6\u05d9\u05d0\u05d4",
+                            "type": "input",
+                            "value": "5"
+                        }
+                    ],
+                    "exit_code": 0,
+                    "feedback": {
+                        "text": "\u05e8\u05d9\u05e6\u05ea \u05d4\u05ea\u05db\u05e0\u05d9\u05ea \u05d4\u05e1\u05ea\u05d9\u05d9\u05de\u05d4, \u05d0\u05da \u05d4\u05ea\u05db\u05e0\u05d9\u05ea \u05d0\u05de\u05d5\u05e8\u05d4 \u05d4\u05d9\u05d9\u05ea\u05d4 \u05dc\u05e7\u05dc\u05d5\u05d8 \u05d0\u05ea \u05d4\u05e7\u05dc\u05d8 \u05de\u05e1\u05e4\u05e8 \u05e6\u05d9\u05d5\u05e0\u05d9\u05dd (5).",
+                        "type": "ShouldInputBeforeEOF"
+                    },
+                    "flow": true,
+                    "id": "01-calc-grades-average",
+                    "log": {
+                        "quotes": [
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "Printing:\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "9 6 7 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 5 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 6 2 1 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "Sorted rows:\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 7 9 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 5 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "1 2 5 6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "Ordered array:\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 5 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 7 9 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "1 2 5 6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "Printing:\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "9 6 7 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 5 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 6 2 1 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "Sorted rows:\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 7 9 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 5 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "1 2 5 6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "Ordered array:\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "\r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "5 5 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "6 7 9 \r\n"
+                            },
+                            {
+                                "type": {
+                                    "en": "printing",
+                                    "he": "\u05d4\u05d3\u05e4\u05e1\u05d4"
+                                },
+                                "value": "1 2 5 6 \r\n"
+                            }
+                        ],
+                        "text": "Printing:\r\n9 6 7 \r\n5 5 \r\n\r\n6 \r\n5 6 2 1 \r\nSorted rows:\r\n6 7 9 \r\n5 5 \r\n\r\n6 \r\n1 2 5 6 \r\nOrdered array:\r\n\r\n6 \r\n5 5 \r\n6 7 9 \r\n1 2 5 6 \r\nPrinting:\r\n9 6 7 \r\n5 5 \r\n\r\n6 \r\n5 6 2 1 \r\nSorted rows:\r\n6 7 9 \r\n5 5 \r\n\r\n6 \r\n1 2 5 6 \r\nOrdered array:\r\n\r\n6 \r\n5 5 \r\n6 7 9 \r\n1 2 5 6 \r\n"
+                    },
+                    "name": "\u05d7\u05d9\u05e9\u05d5\u05d1 \u05de\u05de\u05d5\u05e6\u05e2 \u05e6\u05d9\u05d5\u05e0\u05d9\u05dd",
+                    "result": {
+                        "bool": false,
+                        "text": "\u05d0\u05d9-\u05d4\u05e6\u05dc\u05d7\u05d4"
+                    },
+                    "signal_code": null,
+                    "strictness": false,
+                    "timeout": 10.0,
+                    "verbosity": 5
+                };
+        </script>
+
+        <script type="application/javascript">
+            var COMMENTS_IMAGES = {
+                output: "$get_homepath()/static/common/images/side-comments/output.png",
+                input: "$get_homepath()/static/common/images/side-comments/input.png",
+                false_: "$get_homepath()/static/common/images/side-comments/false.png",
+            };
+            
+            processFeedback(feedbackData1, 1);
+            // loading jquery twice creates a bug in inginious.
+            // https://github.com/UCL-INGI/INGInious/issues/243
+            // This code prevents it from happening
+            if(typeof jQuery=='undefined') {{
+                // right now, relaying on iniginious to load the jquery
+                // todo , return this if later
+    //            loadScript("js/jquery.js", function(){{
+    //                loadProcessJs()
+    //            }})
+    //        }} else {{
+    //            loadProcessJs()
+            }}
+    
+        </script>
+    </body>
+</html>

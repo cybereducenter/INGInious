@@ -70,17 +70,7 @@ $var Navbar: $:NavbarF()
 <div class="student_view">
     $:task.get_context()
 </div>
-$if submission["status"] == "waiting":
-    $ color="warning"
-$elif "result" not in submission:
-    $ color="danger"
-$elif submission["result"] == "success":
-    $ color="success"
-$elif submission["result"] in ["timeout", "overflow"]:
-    $ color="warning"
-$else:
-    $ color="danger"
-<div class="alert alert-$color">
+<div class="alert ${submission['grade_css_class']}">
     $if submission["status"] == "waiting":
         Grading in progress, reload the page to refresh status.
     $elif "result" not in submission:
@@ -134,6 +124,8 @@ $for key, problem in enumerate(to_display):
                 <object data="data:$problem['mime'];base64,$problem['base64']" type="application/pdf" style="width: 100%; min-height: 800px;">
                     <embed src="data:$problem['mime'];base64,$problem['base64']" type="application/pdf"/>
                 </object>
+            $elif problem.get('download_link'):
+                <a href="$problem['download_link']" target="_blank">Download Submission</a>
             $else:
                 <span class="text-warning">There is input, but it can't be read as an UTF-8 file.</span>
         </div>

@@ -130,6 +130,7 @@ class ParsableText(object):
         if mode not in ["rst", "html"]:
             raise Exception("Unknown text parser: " + mode)
         self._content = content
+        self.content = content
         self._parsed = None
         self._mode = mode
         self._show_everything = show_everything
@@ -148,6 +149,7 @@ class ParsableText(object):
                     self._parsed = self.rst(self._content, self._show_everything)
             except:
                 self._parsed = "<b>Parsing failed</b>: <pre>" + html.escape(self._content) + "</pre>"
+
         return self._parsed
 
     def __str__(self):

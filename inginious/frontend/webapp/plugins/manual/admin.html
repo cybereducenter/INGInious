@@ -1,0 +1,279 @@
+$def with (course, lessons, users, current_lesson, current_user, buttons, webterm_link, user_submission, user_data)
+
+$var title: $:course.get_name() - Manual Feedback
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='manual')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li>
+            <a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a>
+        </li>
+
+        <li>
+            <a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i>
+            </a>
+        </li>
+
+        <li class="active">
+            <a href="#"><i class="fa fa-graduation-cap"></i> Manual Feedback <span class="sr-only">(current)</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+
+
+<h2 class="manual-title">Manual Feedback</h2>
+
+<div class="lessons">
+    <div class="row">
+        <div class="col-lg-1">
+            <span class="lesson-title">
+                Lesson:
+            </span>
+        </div>
+
+        <div class="col-lg-11">
+            $if len(lessons) <= 0:
+                No lessons
+            $else:
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle lesson-btn" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        $current_lesson
+                        <span class="caret"></span>
+                    </button>
+
+                    $if current_user is None:
+                        <h3>No students are registered here</h3>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu4">
+                        $if current_user is None:
+                            <li>
+                              $for lesson in lessons:
+                                <a href="/admin/$course.get_id()/manual">$lessons[lesson]['name']</a>
+                            </li>
+                        $else:
+                            <li>
+                              $for lesson in lessons:
+                                <a href="/admin/$course.get_id()/manual/$lessons[lesson]['name']/$current_user">$lessons[lesson]['name']</a>
+                            </li>
+                    </ul>
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="students">
+    <span class="student-title">
+        Student:
+    </span>
+
+    $if len(users) <= 0:
+        No students
+    $else:
+        <div class="btn-group" role="group" aria-label="...">
+          <a class="btn btn-default btn-arrow btn-left
+               $if list(users)[0] == current_user:
+                btn-disabled
+            " href="/admin/$course.get_id()/manual/$current_lesson/$buttons['back']"
+            $if buttons['back'] != current_user:
+                data-toggle="tooltip"
+                data-placement="bottom"
+                data-original-title="$users[buttons['back']]['realname']"
+            >
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          </a>
+
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default dropdown-toggle users" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              $if users[current_user]['realname'] is not None:
+                $users[current_user]['realname']
+              $else:
+                $users[current_user]['username']
+              <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu">
+              $for ind, user in enumerate(users):
+                <li>
+                    <a href="/admin/$course.get_id()/manual/$current_lesson/$users[user]['username']">
+                        $if users[user]['realname'] is not None:
+                            $users[user]['realname']
+                        $else:
+                            $users[user]['username']
+                    </a>
+                </li>
+            </ul>
+          </div>
+
+          <a class="btn btn-default btn-arrow btn-right
+            $if list(users)[(len(users) - 1)] == current_user:
+                btn-disabled
+            "
+            href="/admin/$course.get_id()/manual/$current_lesson/$buttons['next']"
+            $if buttons['next'] != current_user:
+                data-toggle="tooltip"
+                data-placement="bottom"
+                data-original-title="$users[buttons['next']]['realname']"
+            >
+              <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+
+</div>
+
+<div class="buttons">
+    <div class="btn-group" role="group">
+        <a href="#" class="btn btn-default btn-xs submit-all">
+            Submit all
+        </a>
+
+        <a href="#" class="btn btn-default btn-xs save-btn">
+            Save
+        </a>
+
+        <a href="#" class="btn btn-default btn-xs export-btn">
+            Export
+        </a>
+
+        <a href="#" class="btn btn-default btn-xs export-next-btn">
+            Export & Next
+        </a>
+    </div>
+</div>
+
+<div class="overall-feedback">
+    <h3>Overall feedback</h3>
+
+    <textarea class="feedback" cols="50" rows="10">$user_data['overall']['feedback']</textarea>
+</div>
+
+<div class="overall-grade">
+    <table class="table sorted_table">
+        <thead>
+            <tr>
+                <th style="border-right: 2px solid black">
+                    Overall Grade
+                </th>
+
+                <th style="border-right: 2px solid black">
+                    Avg. Grade
+                </th>
+
+                $for task in lessons[current_lesson]['tasks']:
+                    <th>
+                        $task['id']
+                    </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td style="border-right: 2px solid black">
+                    <input type="number" class="overall-grade-input" min="0" max="100" value="$user_data['overall']['grade']">
+                </td>
+
+                <td class="avg-grade" style="border-right: 2px solid black">$user_data['avg']['grade']</td>
+
+                $for task in lessons[current_lesson]['tasks']:
+                    <td class="grade-$task['id']">
+                        $user_data[task['id']]['grade']
+                    </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+<hr>
+
+$for index, task in enumerate(lessons[current_lesson]['tasks']):
+    <div class="task task-$task['id']">
+        <h3>Task $current_lesson-$task['id']</h3>
+
+        <h4>Feedback</h4>
+        <textarea name="" class="feedback" cols="50" rows="10">$user_data[task['id']]['feedback']</textarea>
+
+        <h4>Grade</h4>
+        <input type="number" class="grade" min="0" max="100" value="$user_data[task['id']]['grade']">
+
+        <h4>Submission</h4>
+
+        <div class="task-submit-alert" id="task_alert"></div>
+
+        <form action="$get_homepath()/admin/$task['taskid'].get_course().get_id()/task-manual/$task['taskid'].get_id()" method="POST">
+            $if webterm_link is not None:
+                <input type="hidden" value="$webterm_link" id="webterm_link"/>
+            <input type="hidden" name="@action" value="submit"/>
+            $ problem_type = ''
+            $for key, problem in enumerate(task['taskid'].get_problems()):
+                $if task['id'] in user_submission:
+                    $ problem_type = user_submission[task['id']].get('problem_type')
+                    $ submission = user_submission[task['id']]
+                    $ submission_input = submission.get('input', {})
+
+                    $if problem_type == 'code-file':
+                        $ has_submission = submission.get('download_link')
+                    $elif problem_type == 'multiple-choice':
+                        $ has_submission = submission_input.get('mcq')
+                    $else:
+                        $ has_submission = submission_input.get('program')
+                    $if has_submission:
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
+                                    $if problem_type == 'code-file':
+                                        <a href="$submission['download_link']" target="_blank">Download Submission</a>
+                                    $elif problem_type == 'multiple-choice':
+                                        $ submission_answer = submission_input['mcq']
+                                        $ answer_text = problem.get_choice_with_index(0)['text'].content
+                                        <p> answer number "$submission_answer". answer is "$answer_text"</p>
+                                    $else:
+                                        <textarea class="code-editor form-control" name="program" data-x-language="$problem.get_original_content().get('language', 'no lang specified')" data-x-lines="1">$submission_input.get('program')</textarea>
+                            </div>
+                        </div>
+            $if problem_type != 'code-file':
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button type="submit" class="btn btn-default btn-lg btn-block center-block submit-btn" id="task-submit-$task['id']">Submit</button>
+                    </div>
+                </div>
+        </form>
+
+
+
+        <div class="task-anchor">
+            <div class="btn-group" role="group">
+                <a href="#" class="btn btn-default btn-xs to-feedback">
+                    <i class="fa fa-comment-o" aria-hidden="true"></i>
+                    To feedback
+                </a>
+
+                <a href="#" class="btn btn-default btn-xs to-top">
+                    <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                    To top
+                </a>
+            </div>
+        </div>
+
+        <script>
+            ManualPlugin.initManualTask("$task['id']");
+        </script>
+    </div>
+
+    $if (index + 1) != len(lessons[current_lesson]['tasks']):
+        <hr>
+
+<script>
+    ManualPlugin.onSubmitAllBtn();
+    ManualPlugin.onClickSave("$:course.get_id()", "$current_lesson", "$current_user");
+    ManualPlugin.onClickExport("$:course.get_id()", "$current_lesson", "$current_user");
+    ManualPlugin.onClickExportAndNext("$:course.get_id()", "$current_lesson", "$current_user");
+    ManualPlugin.onCloseWindow(ManualPlugin.getDefaultFeedbacksValue());
+    ManualPlugin.onClickArrowBtn();
+    ManualPlugin.onChangeOverallGrade();
+
+</script>
+

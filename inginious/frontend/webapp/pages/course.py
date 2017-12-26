@@ -7,6 +7,7 @@
 import web
 
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
+from inginious.frontend.webapp.pages.course_admin.utils import get_course_menu
 
 
 class CoursePage(INGIniousAuthPage):
@@ -45,6 +46,7 @@ class CoursePage(INGIniousAuthPage):
         else:
             tasks = course.get_tasks()
             last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
+            last_submissions = [self.submission_manager.get_feedback_from_submission(submission, inginious_page_object=self) for submission in last_submissions]
 
             for submission in last_submissions:
                     submission["taskname"] = tasks[submission['taskid']].get_name()
@@ -68,5 +70,6 @@ class CoursePage(INGIniousAuthPage):
                 tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
+            menu_dynamic_entries = get_course_menu(course, self.user_manager, self.plugin_manager)
 
-            return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade)
+            return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade, menu_dynamic_entries)
