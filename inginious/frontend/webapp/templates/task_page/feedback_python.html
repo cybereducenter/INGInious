@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="he">
+    <head>
+
+        <!-- Basic Page Needs ––––––––––––––––––––––––––––––––––––––––––––––––––-->
+        <meta charset="utf-8">
+        <title>Scenario Feedback</title>
+        <meta name="description" content="scenario feedback">
+        <meta name="author" content="">
+
+        <!-- FONT
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <link href="https://fonts.googleapis.com/css?family=Arimo" rel="stylesheet">
+
+    </head>
+    <body>
+
+
+        <!-- Primary Page Layout
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <table id="scenarios-table-task_id_to_replace" class="table table-condensed table-bordered feedback-table-python">
+            <thead class="thead-light text-center python-feedback-table-head">
+                <tr>
+                    <th class="col-md-10 col-xs-10">התקבל בפועל</th>
+                    <th class="col-md-10 col-xs-10">צפוי</th>
+                    <th class="col-md-10 col-xs-10 print-head"></th>
+                    <th class="col-md-9 col-xs-9" id="method-signature"></th>
+                    <th class="fix-feedback-column-green-red"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+
+        </table>
+
+        <!--Template for a single scenario row -->
+        <script type="text/x-tmpl" id="tmpl-scenario-row">
+            <tr>
+                <td class="col-md-10 col-xs-10 wrap-word">
+                    {{%=o.returned_value == undefined ? o.noValue : o.returned_value%}}
+                </td>
+
+                <td class="col-md-10 col-xs-10 wrap-word">
+                    {{%=o.expected == undefined ? o.noValue : o.expected%}}
+                </td>
+
+                <td class="col-md-9 col-xs-9 wrap-word">
+                   {{%=o.sentToFunction || 'אין מידע'%}}
+                </td>
+
+                <td class="{{%=o.color%}}">
+                    <i class="fa
+
+                    {{% if (!o.result.bool) {{ %}}
+                        fa-times-circle-o
+                    {{% }} else {{ %}}
+                        fa-check-circle-o
+                    {{% }} %}}
+                    
+                        feedback-icon feedback-icon-python" aria-hidden="true"></i>
+                </td>
+            </tr>
+        </script>
+
+        <script type="text/x-tmpl" id="tmpl-scenario-row-print-out">
+            <tr>
+                <td class="col-md-8 col-xs-8 wrap-word">
+                    {{%=o.returned_value == undefined ? o.noValue : o.returned_value%}}
+                </td>
+
+                <td class="col-md-8 col-xs-8 wrap-word">
+                    {{%=o.expected == undefined ? o.noValue : o.expected%}}
+                </td>
+
+                <td class="col-md-10 col-xs-10 wrap-word td-print-result">
+                    <div class="row no-margin">
+                        <div class="col-xs-11 col-md-11 no-padding">
+                                        ערך החזרה
+
+                        </div>
+                        <div class="col-xs-1 col-md-1 no-padding">
+                            <i class="fa
+
+                             {{% if (o.colorIconExpected != 'icon-color-green') {{ %}}
+                                fa-times-circle-o
+                            {{% }} else {{ %}}
+                                fa-check-circle-o
+                            {{% }} %}}
+
+                             {{%=o.colorIconExpected%}}" aria-hidden="true"></i>
+                        </div>
+                    </div>
+
+                </td>
+
+                <td class="col-md-11 col-xs-11 wrap-word" rowspan="2">
+                   {{%=o.sentToFunction || 'אין מידע'%}}
+                </td>
+
+                <td class="{{%=o.color%}}" rowspan="2">
+                    <i class="fa
+
+                    {{% if (!o.result.bool) {{ %}}
+                        fa-times-circle-o
+                    {{% }} else {{ %}}
+                        fa-check-circle-o
+                    {{% }} %}}
+
+                        feedback-icon feedback-icon-python" aria-hidden="true"></i>
+                </td>
+            </tr>
+
+            <tr>
+                    <td>
+                        {{%=o.actual_stdout == undefined ? o.noValue : o.actual_stdout%}}
+                    </td>
+                    <td>
+                        {{%=o.expectedPrint == undefined ? o.noValue : o.expectedPrint%}}
+                    </td>
+
+                    <td class="col-md-10 col-xs-10 wrap-word td-print-result">
+                        <div class="row no-margin">
+                            <div class="col-xs-11 col-md-11 no-padding">
+                    הדפסה למסך
+                             </div>
+                            <div class="col-xs-1 col-md-1 no-padding">
+                                <i class="fa
+                                     {{% if (o.colorIconPrint != 'icon-color-green') {{ %}}
+                                        fa-times-circle-o
+                                     {{% }} else {{ %}}
+                                         fa-check-circle-o
+                                     {{% }} %}}
+                                    {{%=o.colorIconPrint%}}" aria-hidden="true">
+                                 </i>
+                            </div>
+                         </div>
+                      </td>
+            </tr>
+        </script>
+
+                    <!--Template for a single scenario hidden modal explanation -->
+        <script type="text/x-tmpl" id="tmpl-modal">
+            <div id="myModal{{%=o.id%}}" class="modal modal-wide fade feedback-modal" role="dialog">
+
+
+            </div>
+        </script>
+
+        <script>
+            // will be injected by run.py after run of scenarios
+            var feedbackData = {feedback_json}
+        </script>
+
+        <script>
+            var taskId = 'task_id_to_replace';
+            renderScenarioRows(feedbackData, taskId)
+        </script>
+
+    </body>
+    <script type="application/javascript">
+        // loading jquery twice creates a bug in inginious.
+        // https://github.com/UCL-INGI/INGInious/issues/243
+        // This code prevents it from happening
+        // right now, relaying on iniginious to load the jquery
+
+        $.each(feedbackData, function(id, data) {{
+            fillModalTerminalBoxes(data, id);
+        }});
+
+
+    </script>
+</html>

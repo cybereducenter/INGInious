@@ -21,6 +21,7 @@ from inginious.frontend.common.task_page_helpers import submission_to_json, list
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
+
 class TaskPage(INGIniousAuthPage):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
 
@@ -141,6 +142,7 @@ class TaskPage(INGIniousAuthPage):
 
             is_staff = self.user_manager.has_staff_rights_on_course(course, username)
             is_admin = self.user_manager.has_admin_rights_on_course(course, username)
+            task_type = task._type
 
             # TODO: this is nearly the same as the code in the webapp.
             # We should refactor this.
@@ -169,7 +171,7 @@ class TaskPage(INGIniousAuthPage):
                     del userinput['@debug-mode']
 
                 if len(task._problems) > 0 and task._problems[0].get_type() == 'code':
-                    userinput = self.add_feedback_html_to_user_input(userinput, taskid)
+                    userinput = self.add_feedback_html_to_user_input(userinput, taskid, task_type)
 
 
                 # Start the submission
@@ -249,12 +251,13 @@ class TaskPage(INGIniousAuthPage):
             else:
                 raise web.notfound()
 
-    def add_feedback_html_to_user_input(self, user_input, task_id):
+    def add_feedback_html_to_user_input(self, user_input, task_id, task_type):
         self.logger.info('before opening feebdack.html')
         try:
 
             # couldn't open with  get_renderer, errors on js, tries to render the page and run the js
-            file_path = self.template_helper._root_path + '/'+ self.template_helper._template_dir + '/task_page/feedback.html'
+            feedback_file_name = self.get_feedback_file_name(task_type)
+            file_path = self.template_helper._root_path + '/'+ self.template_helper._template_dir + '/task_page/' +feedback_file_name
             self.logger.info('file_path ' +repr(file_path))
             with codecs.open(file_path,'r',encoding='utf8') as f:
                 feedback_html = f.read()
@@ -273,6 +276,13 @@ class TaskPage(INGIniousAuthPage):
             user_input['html_template'] = ''
 
         return user_input
+
+
+    def get_feedback_file_name(self, task_type):
+        if task_type == 'python-unit-test':
+            return 'feedback_python.html'
+
+        return 'feedback.html'
 
 
 

@@ -60,6 +60,11 @@ class Task(object):
         # Order
         self._order = int(self._data.get('order', -1))
 
+        # support for a few types of tasks. if not specified,
+        # it's scenraio's (checks exit code)
+        # other option is python - different run file
+        self._type = self._data.get("type")
+
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """

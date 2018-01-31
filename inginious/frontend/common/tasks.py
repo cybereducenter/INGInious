@@ -58,6 +58,10 @@ class FrontendTask(inginious.common.tasks.Task):
         vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=self._context)
         return vals[0] if len(vals) else self._context
 
+    def get_context_auto_dir(self):
+        context = self.get_context()
+        return '<div dir="auto">' + str(context) + '</div>'
+
     def get_authors(self):
         """ Return the list of this task's authors """
         return self._author

@@ -173,7 +173,7 @@ $var Navbar: $:NavbarF()
 
 $# Start content
 <h2>$task.get_name()</h2>
-$:task.get_context()
+$:task.get_context_auto_dir()
 <hr/>
 <div id="task_alert"></div>
 $if user_manager.has_admin_rights_on_course(course):

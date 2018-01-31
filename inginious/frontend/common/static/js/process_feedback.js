@@ -11,10 +11,9 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
     var comments = [];
     console.log('scenarioIdStr is ' + scenarioIdStr);
 
-
     if (feedbackData.args) {
         // The modal's Terminal initialization
-        var command_line = "C:\\Magshimim> program.exe";
+        var command_line = feedbackData['prompt'];
         for (var i = 0; i < feedbackData.args.length; i++) {
             command_line += " " + feedbackData.args[i];
         }
@@ -58,31 +57,78 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
     window.sideComments = new SideComments('#commentable-container' + scenarioIdStr, currentUser, comments);
 }
 
+function generateSentSignature(data){
+    var methodName = data.method_name || 'solution';
+    var argumentsSent = data.arguments_sent;
+    //var argsString = convertArgs(argumentsSent);
+    return methodName + '(' +  String(argumentsSent) + ')';
+}
 
-function renderScenarioRows(feedbackData, taskId){
+function renderScenarioRows(feedbackData, taskId) {
     var scenario_row,
         modal;
     console.log('here is feedbackData. ');
     console.log(feedbackData);
 
-    $.each(feedbackData, function(id, data) {{
-        console.log('here is feedbackData. data is -- ');
-        data.id = id;
-        data.indexId = parseInt(id) + 1;
-        if (isSuccess(data)){{
-            data.color = 'green'
-        }}else{{
-            data.color = 'red'
-        }}
-        //add the hidden modal
-        modal = $(tmpl('tmpl-modal', data));
-        $('#modals-' + taskId).append(modal);
 
-        // add row to scenario table
-        scenario_row = $(tmpl('tmpl-scenario-row', data));
-        $('#scenarios-table-' + taskId).append(scenario_row);
+    $.each(feedbackData, function (id, data) {
+        {
+            //feedbackData[id]['expected'] = convertToString(feedbackData[id]['expected'])
+            //feedbackData[id]['returned_value'] = convertToString(feedbackData[id]['returned_value'])
+            console.log('here is feedbackData. data is -- ');
+            data.id = id;
+            data.indexId = parseInt(id) + 1;
+            data.noValue = 'אין ערך החזרה'
+            if (isSuccess(data)) {
+                {
+                    data.color = 'green'
+                    data.colorIconExpected = 'icon-color-green'
+                    data.colorIconPrint = 'icon-color-green'
+                }
+            } else {
+                {
+                    data.color = 'red'
+                    data.colorIconExpected = 'icon-color-red'
+                }
+                if(feedbackData[id]['feedback']['text']=='PrintOutException'){
+                    data.colorIconPrint = 'icon-color-red'
+                    if(feedbackData[id]['returned_value'] == feedbackData[id]['expected']){
+                        data.colorIconExpected = 'icon-color-green'
+                    }
+                }
+            }
 
-    }});
+
+
+            var checkPrint = feedbackData[id]['test'][0]['expected_stdout']
+
+            //add the hidden modal
+            modal = $(tmpl('tmpl-modal', data));
+            $('#modals-' + taskId).append(modal);
+
+            // in python's case, this data wil be presented in the feedback table like so
+            // my_function(1,"foo", "bar")
+
+            data.sentToFunction = generateSentSignature(data);
+            // add row to scenario table
+            if(checkPrint){
+                data.expectedPrint = checkPrint
+                scenario_row = $(tmpl('tmpl-scenario-row-print-out', data));
+                $('.print-head').show()
+            }else{
+                scenario_row = $(tmpl('tmpl-scenario-row', data));
+                $('.print-head').hide()
+            }
+            $('#scenarios-table-' + taskId).append(scenario_row);
+
+        }
+    });
+
+    // relevant to python's feedback only, will do nothing in other courses
+    if (feedbackData[0] && feedbackData[0].method_signature) {
+        $('#scenarios-table-' + taskId + ' #method-signature').html(feedbackData[0].method_signature)
+    }
+
 }
 
 
@@ -90,3 +136,41 @@ function renderScenarioRows(feedbackData, taskId){
 function isSuccess(data) {{
     return data.result.bool
 }}
+
+function convertArgs(args) {
+
+    if(args == undefined){
+     return ''
+    }
+
+    var stringArgs = [];
+
+    $.each(args, function (index, data) {
+
+        stringArgs[index] = convertToString(data)
+    })
+
+    return stringArgs;
+}
+
+function convertToString(data) {
+
+     var type = typeof (data);
+
+     switch (type) {
+         case "object":
+             return "[" + data.join(", ") + "]";
+             break;
+         case "number":
+             return data;
+             break;
+         case "string":
+             return '"' + data + '"';
+             break;
+         case "boolean":
+             return data.toString();
+             break;
+         default:
+             return data;
+     }
+}
