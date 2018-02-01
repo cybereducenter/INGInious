@@ -66,7 +66,7 @@ function generateSentSignature(data){
 
 function renderScenarioRows(feedbackData, taskId) {
     var scenario_row,
-        modal;
+        modal, checkPrint;
     console.log('here is feedbackData. ');
     console.log(feedbackData);
 
@@ -81,17 +81,17 @@ function renderScenarioRows(feedbackData, taskId) {
             data.noValue = 'אין ערך החזרה'
             if (isSuccess(data)) {
                 {
-                    data.color = 'green'
-                    data.colorIconExpected = 'icon-color-green'
+                    data.color = 'green';
+                    data.colorIconExpected = 'icon-color-green';
                     data.colorIconPrint = 'icon-color-green'
                 }
             } else {
                 {
-                    data.color = 'red'
+                    data.color = 'red';
                     data.colorIconExpected = 'icon-color-red'
                 }
                 if(feedbackData[id]['feedback']['text']=='PrintOutException'){
-                    data.colorIconPrint = 'icon-color-red'
+                    data.colorIconPrint = 'icon-color-red';
                     if(feedbackData[id]['returned_value'] == feedbackData[id]['expected']){
                         data.colorIconExpected = 'icon-color-green'
                     }
@@ -100,7 +100,12 @@ function renderScenarioRows(feedbackData, taskId) {
 
 
 
-            var checkPrint = feedbackData[id]['test'][0]['expected_stdout']
+            if (feedbackData[id]['test']){
+                checkPrint = feedbackData[id]['test'][0]['expected_stdout']
+            }else{
+                checkPrint = false
+            }
+
 
             //add the hidden modal
             modal = $(tmpl('tmpl-modal', data));
