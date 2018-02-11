@@ -114,6 +114,10 @@
     border-bottom: 1px solid black;
 }
 
+.close-feedback-modal {
+        padding-right: 15px !important;
+}
+
 .scenario-text{
     font-weight: 900;
 }
