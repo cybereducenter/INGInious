@@ -21,20 +21,21 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
     $("#scenario_log" + scenarioIdStr).append('<li>' + command_line + '<li>');
     if (feedbackData.log) {
         for (var i = 0; i < feedbackData.log.quotes.length; i++) {
+            var cleanStr = checkForTabs(feedbackData.log.quotes[i].value)
             if(i == 0) {
                 var line = $('<li></li>');
                 var text = '';
-                text += feedbackData.log.quotes[i].value;
+                text += cleanStr;
             }
             else if(feedbackData.log.quotes[i].value.includes(String.fromCharCode(13))){
                 if(i != 0){
-                    text += feedbackData.log.quotes[i].value;
+                    text += cleanStr;
                     line.text(text);
                 }
                  var line = $('<li></li>');
                  var text = '';
             }else{
-                text += feedbackData.log.quotes[i].value;
+                text += cleanStr;
                 line.text(text);
             }
 
@@ -44,6 +45,7 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
             // }else{
             //     line.text(feedbackData.log.quotes[i].value);
             // }
+
             // todo, return this if
             if (feedbackData.log.quotes[i].type.en == "input" || feedbackData.log.quotes[i].type.en == "output") {
                 line.addClass("commentable-section");
@@ -76,6 +78,14 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
 
     var SideComments = require('side-comments');
     window.sideComments = new SideComments('#commentable-container' + scenarioIdStr, currentUser, comments);
+}
+
+function checkForTabs(str){
+
+    var needle = String.fromCharCode(9);
+    var regex = new RegExp(needle, 'g');
+    var replaceWith = String.fromCharCode(160);
+    return str.replace(regex, replaceWith);
 }
 
 function generateSentSignature(data){
