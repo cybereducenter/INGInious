@@ -39,13 +39,6 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
                 line.text(text);
             }
 
-            // if(feedbackData.log.quotes[i].value.includes(String.fromCharCode(13))){
-            //     line = $('<li> &nbsp; '+feedbackData.log.quotes[i].value+'</li>');
-            //     //line.text(feedbackData.log.quotes[i].value);
-            // }else{
-            //     line.text(feedbackData.log.quotes[i].value);
-            // }
-
             // todo, return this if
             if (feedbackData.log.quotes[i].type.en == "input" || feedbackData.log.quotes[i].type.en == "output") {
                 line.addClass("commentable-section");
