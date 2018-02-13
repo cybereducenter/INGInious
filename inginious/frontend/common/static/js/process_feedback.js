@@ -21,41 +21,25 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
     $("#scenario_log" + scenarioIdStr).append('<li>' + command_line + '<li>');
     if (feedbackData.log) {
         for (var i = 0; i < feedbackData.log.quotes.length; i++) {
+
             var cleanStr = checkForTabs(feedbackData.log.quotes[i].value)
-            if(i == 0) {
-                var line = $('<li></li>');
-                var text = '';
-                text += cleanStr;
-            }
-            else if(feedbackData.log.quotes[i].value.includes(String.fromCharCode(13))){
-                if(i != 0){
-                    text += cleanStr;
-                    line.text(text);
+            var line = $('<li></li>');
+            $(line).addClass('quote'+i);
+            var priorFlag = true
+
+            if(cleanStr.includes(String.fromCharCode(13))){
+                var priorLine = $("#scenario_log" + scenarioIdStr).find('.quote'+(i-1));
+                if(priorLine) {
+                    var temp = priorLine[0].innerText;
+                    priorLine[0].innerText = temp + cleanStr
+                        addComment(comments, priorLine, feedbackData, i, priorFlag)
+                        priorFlag = false
                 }
-                 var line = $('<li></li>');
-                 var text = '';
-            }else{
-                text += cleanStr;
-                line.text(text);
+            }else {
+                line.text(cleanStr);
             }
 
-            // todo, return this if
-            if (feedbackData.log.quotes[i].type.en == "input" || feedbackData.log.quotes[i].type.en == "output") {
-                line.addClass("commentable-section");
-                line.attr("data-section-id", i.toString());
-
-                comments.push({
-                    "sectionId": i.toString(),
-                    "comments": [
-                        {
-                            "id": i.toString(),
-                            "authorAvatarUrl": COMMENTS_IMAGES[feedbackData.log.quotes[i].type.en],
-                            "authorName": feedbackData.log.quotes[i].type.he,
-                            "comment": feedbackData.log.quotes[i].name
-                        }
-                    ]
-                });
-            }
+            addComment(comments, line, feedbackData, i, priorFlag)
             $("#scenario_log" + scenarioIdStr).append(line);
         }
     }
@@ -73,11 +57,30 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
     window.sideComments = new SideComments('#commentable-container' + scenarioIdStr, currentUser, comments);
 }
 
+function addComment(comments, line, feedbackData, i, priorFlag){
+    if ((feedbackData.log.quotes[i].type.en == "input" || feedbackData.log.quotes[i].type.en == "output") && priorFlag ) {
+        line.addClass("commentable-section");
+        line.attr("data-section-id", i.toString());
+
+        comments.push({
+            "sectionId": i.toString(),
+            "comments": [
+                {
+                    "id": i.toString(),
+                    "authorAvatarUrl": COMMENTS_IMAGES[feedbackData.log.quotes[i].type.en],
+                    "authorName": feedbackData.log.quotes[i].type.he,
+                    "comment": feedbackData.log.quotes[i].name
+                }
+            ]
+        });
+    }
+}
+
 function checkForTabs(str){
 
     var needle = String.fromCharCode(9);
     var regex = new RegExp(needle, 'g');
-    var replaceWith = String.fromCharCode(160);
+    var replaceWith = String.fromCharCode(160)+String.fromCharCode(160)+String.fromCharCode(160);
     return str.replace(regex, replaceWith);
 }
 
