@@ -19,27 +19,29 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
         }
     }
     $("#scenario_log" + scenarioIdStr).append('<li>' + command_line + '<li>');
+    var text = '';
+    var line = $('<li></li>');
+
     if (feedbackData.log) {
-        for (var i = 0; i < feedbackData.log.quotes.length; i++) {
+        for (var i = 0, j=0; i < feedbackData.log.quotes.length; i++) {
 
-            var cleanStr = checkForTabs(feedbackData.log.quotes[i].value)
-            var line = $('<li></li>');
-            $(line).addClass('quote'+i);
-            var priorFlag = true
+            var tmp = feedbackData.log.quotes[i].value;
 
-            if(cleanStr.includes(String.fromCharCode(13))){
-                var priorLine = $("#scenario_log" + scenarioIdStr).find('.quote'+(i-1));
-                if(priorLine) {
-                    var temp = priorLine[0].innerText;
-                    priorLine[0].innerText = temp + cleanStr
-                        addComment(comments, priorLine, feedbackData, i, priorFlag)
-                        priorFlag = false
-                }
+            $(line).addClass('quote'+j);
+            if(tmp.includes(String.fromCharCode(13))){
+                text += checkForTabs(tmp)
+                line.text(text)
+                addComment(comments, line, feedbackData, i)
+                text = '';
+                line = $('<li></li>');
+                j++;
             }else {
-                line.text(cleanStr);
+                text += checkForTabs(tmp)
+                line.text(text)
+                j++
+                addComment(comments, line, feedbackData, i)
             }
 
-            addComment(comments, line, feedbackData, i, priorFlag)
             $("#scenario_log" + scenarioIdStr).append(line);
         }
     }
@@ -57,8 +59,8 @@ function fillModalTerminalBoxes(feedbackData, scenarioId) {
     window.sideComments = new SideComments('#commentable-container' + scenarioIdStr, currentUser, comments);
 }
 
-function addComment(comments, line, feedbackData, i, priorFlag){
-    if ((feedbackData.log.quotes[i].type.en == "input" || feedbackData.log.quotes[i].type.en == "output") && priorFlag ) {
+function addComment(comments, line, feedbackData, i){
+    if (feedbackData.log.quotes[i].type.en == "input" || feedbackData.log.quotes[i].type.en == "output") {
         line.addClass("commentable-section");
         line.attr("data-section-id", i.toString());
 
