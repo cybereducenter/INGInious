@@ -22,7 +22,7 @@ def init_logging(log_level=logging.DEBUG):
     root_path = inginious.get_root_path()
     log_file_path = os.path.join(root_path, 'log', 'inginious.log')
     fmt = "%(asctime)s - PID %(process)s - TID %(thread)d - %(name)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
-    ten_mb_in_bytes = 10 * 1000 * 1000
+    ten_mb_in_bytes = 100 * 1000 * 1000    # some how 10Milion is 1
     logging.basicConfig(format= fmt, handlers=[RotatingFileHandler(log_file_path, encoding='utf-8', maxBytes=ten_mb_in_bytes, backupCount=10)], level=logging.INFO)
 
 
