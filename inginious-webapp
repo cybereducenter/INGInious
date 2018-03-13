@@ -29,9 +29,15 @@ from inginious.common.base import load_json_or_yaml
 
 import inginious.frontend.webapp.app
 
+##TODO before deploying this to your production!!!!!
+## make sure write permissions
+## cd inginious home page - for example cd /lib/python3.5/site-packages/inginious/
+## sudo mkdir log
+## sudo chmod -R 777 log/
 root_path = inginious.get_root_path()
 log_file_path = os.path.join(root_path, 'log', 'inginious.log')
-logging.basicConfig(handlers=[RotatingFileHandler(log_file_path, maxBytes=100000, backupCount=5)])
+fmt = "%(asctime)s - PID %(process)s - TID %(thread)d - %(name)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
+logging.basicConfig(format= fmt, handlers=[RotatingFileHandler(log_file_path, maxBytes=100000, backupCount=5)])
 
 
 if __name__ == "__main__":
