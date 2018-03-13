@@ -5,12 +5,27 @@
 
 """ Some common functions for logging """
 import logging
+import inginious
+import os
+from logging.handlers import RotatingFileHandler
 
 def init_logging(log_level=logging.DEBUG):
     """
     Init logging
     :param log_level: An integer representing the log level or a string representing one
     """
+    ##TODO before deploying this to your production!!!!!
+    ## make sure write permissions
+    ## cd inginious home page - for example cd /lib/python3.5/site-packages/inginious/
+    ## sudo mkdir log
+    ## sudo chmod -R 777 log/
+    root_path = inginious.get_root_path()
+    log_file_path = os.path.join(root_path, 'log', 'inginious.log')
+    fmt = "%(asctime)s - PID %(process)s - TID %(thread)d - %(name)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
+    ten_mb_in_bytes = 10 * 1000 * 1000
+    logging.basicConfig(format= fmt, handlers=[RotatingFileHandler(log_file_path, encoding='utf-8', maxBytes=ten_mb_in_bytes, backupCount=10)], level=logging.INFO)
+
+
     logger = logging.getLogger("inginious")
     logger.setLevel(log_level)
     ch = logging.StreamHandler()

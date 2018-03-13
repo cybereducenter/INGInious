@@ -15,4 +15,4 @@ node_modules/
 INGInious.egg-info/
 dist/
 tasks/
-inginious/log/*.log
+/inginious/log/*.log
