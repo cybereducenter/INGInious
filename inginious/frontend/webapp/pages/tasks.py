@@ -187,9 +187,11 @@ class TaskPage(INGIniousAuthPage):
             elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
                 result = self.submission_manager.get_submission(userinput['submissionid'])
                 if result is None:
+                    self.logger.error('error in getting results for ' + repr(username) + ' submissionid ' +repr(userinput['submissionid']))
                     web.header('Content-Type', 'application/json')
                     return json.dumps({'status': "error"})
                 elif self.submission_manager.is_done(result):
+                    self.logger.info('student got results ' + repr(username) + ' submissionid ' +repr(userinput['submissionid']))
                     web.header('Content-Type', 'application/json')
                     result = self.submission_manager.get_input_from_submission(result)
                     result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff, inginious_page_object=self)
@@ -210,6 +212,7 @@ class TaskPage(INGIniousAuthPage):
                     return submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
 
                 else:
+                    self.logger.info('student is waiting for results ' + repr(username) + ' submissionid ' +repr(userinput['submissionid']))
                     web.header('Content-Type', 'application/json')
                     if "ssh_host" in result:
                         return json.dumps({'status': "waiting",

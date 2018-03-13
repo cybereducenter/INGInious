@@ -37,7 +37,7 @@ import inginious.frontend.webapp.app
 root_path = inginious.get_root_path()
 log_file_path = os.path.join(root_path, 'log', 'inginious.log')
 fmt = "%(asctime)s - PID %(process)s - TID %(thread)d - %(name)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s"
-logging.basicConfig(format= fmt, handlers=[RotatingFileHandler(log_file_path, maxBytes=100000, backupCount=5)])
+logging.basicConfig(format= fmt, handlers=[RotatingFileHandler(log_file_path, maxBytes=100000, backupCount=5)], level=logging.INFO)
 
 
 if __name__ == "__main__":
