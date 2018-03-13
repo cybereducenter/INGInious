@@ -29,7 +29,10 @@ from inginious.common.base import load_json_or_yaml
 
 import inginious.frontend.webapp.app
 
-logging.basicConfig(handlers=[RotatingFileHandler('inginious.log', maxBytes=100000, backupCount=5)])
+root_path = inginious.get_root_path()
+log_file_path = os.path.join(root_path, 'log', 'inginious.log')
+logging.basicConfig(handlers=[RotatingFileHandler(log_file_path, maxBytes=100000, backupCount=5)])
+
 
 if __name__ == "__main__":
     # Parse the paramaters from command line arguments
@@ -60,6 +63,7 @@ if not configfile:
 # Load configuration and application (!!! For mod_wsgi, application identifier must be present)
 config = load_json_or_yaml(configfile)
 application, close_app_func = inginious.frontend.webapp.app.get_app(config)
+
 
 # Init logging
 init_logging(config.get('log_level', 'INFO'))
