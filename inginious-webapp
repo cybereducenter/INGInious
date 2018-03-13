@@ -13,7 +13,7 @@ import argparse
 import web
 import signal
 import logging
-from logging.handlers import RotatingFileHandler
+# from logging.handlers import RotatingFileHandler
 
 # Apache wsgi module only set env vars when a request is done
 os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
@@ -29,7 +29,7 @@ from inginious.common.base import load_json_or_yaml
 
 import inginious.frontend.webapp.app
 
-logging.basicConfig(handlers=[RotatingFileHandler('inginious.log', maxBytes=100000, backupCount=5)])
+# logging.basicConfig(handlers=[RotatingFileHandler('inginious.log', maxBytes=100000, backupCount=5)])
 
 if __name__ == "__main__":
     # Parse the paramaters from command line arguments
