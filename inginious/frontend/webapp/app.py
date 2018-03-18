@@ -8,6 +8,8 @@ from gridfs import GridFS
 from pymongo import MongoClient
 import web
 from web.debugerror import debugerror
+from web.webapi import _InternalError
+import logging
 
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.webapp.database_updater import update_database
@@ -62,6 +64,12 @@ urls = (
 urls_maintenance = (
     '/.*', 'inginious.frontend.webapp.pages.maintenance.MaintenancePage'
 )
+
+# to log to file the stacktrace in case of crash
+def logInternalerror():
+    logger = logging.getLogger()
+    logger.exception('failed in inginious')
+    return _InternalError()
 
 
 def _put_configuration_defaults(config):
@@ -153,6 +161,7 @@ def get_app(config):
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
+    appli.internalerror = logInternalerror
     # Enable stacktrace display if logging is at level DEBUG
     if config.get('log_level', 'INFO') == 'DEBUG':
         appli.internalerror = debugerror
