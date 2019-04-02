@@ -8,3 +8,4 @@ recursive-include inginious/frontend/webapp/plugins/scoreboard *
 recursive-include inginious/frontend/webapp/plugins/auth/db_auth *
 recursive-include inginious/frontend/webapp/plugins/matrix *
 recursive-include inginious/frontend/webapp/plugins/manual *
+recursive-include inginious/frontend/webapp/plugins/bulk_date_change *
