@@ -34,8 +34,12 @@ class MatrixPage(INGIniousAdminPage):
             data_user = self._calc_user_data(course, order_tasks, users[user])
             data_users.append(data_user)
 
+        if first_id:
+            first_id = first_id.get_id()
+        else:
+            first_id = 0
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/matrix')\
-            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE, first_id.get_id())
+            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE, first_id)
 
 
     def _get_ordered_task(self, course):
@@ -71,7 +75,10 @@ class MatrixPage(INGIniousAdminPage):
 
         order_tasks = past_future_tasks + always_tasks + past_tasks + never_tasks
 
-        return order_tasks, never_tasks[0]
+        if never_tasks:
+            return order_tasks, never_tasks[0]
+        else:
+            return order_tasks, None
 
     def _calc_user_data(self, course, order_tasks, user_data):
         username = user_data['username']
