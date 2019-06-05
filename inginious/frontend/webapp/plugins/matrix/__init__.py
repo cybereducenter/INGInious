@@ -28,15 +28,14 @@ class MatrixPage(INGIniousAdminPage):
                                      "realname": user[1][0] if user[1] is not None else None}) for user in users])
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
-        order_tasks = self._get_ordered_task(course)
-
+        order_tasks, first_id = self._get_ordered_task(course)
         """ Get all user tasks """
         for user in users:
             data_user = self._calc_user_data(course, order_tasks, users[user])
             data_users.append(data_user)
 
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/matrix')\
-            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE)
+            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE, first_id.get_id())
 
 
     def _get_ordered_task(self, course):
@@ -70,9 +69,9 @@ class MatrixPage(INGIniousAdminPage):
                     """ Future tasks that will not show in tasks """
                     future_tasks.append(tasks[task])
 
-        order_tasks = past_future_tasks + always_tasks + past_tasks
+        order_tasks = past_future_tasks + always_tasks + past_tasks + never_tasks
 
-        return order_tasks
+        return order_tasks, never_tasks[0]
 
     def _calc_user_data(self, course, order_tasks, user_data):
         username = user_data['username']
@@ -128,7 +127,7 @@ class MatrixPage(INGIniousAdminPage):
         get all the relevant submissions - the last ones and not the ones with the highest score
         group by taskid and select the latest one,
         since we are sorting by date, the first we'll encounter
-        will be the latest one 
+        will be the latest one
         '''
         user_task_submissions = list(self.database.submissions.find({"username":  username, "courseid": course_id})
                                      .sort([("submitted_on", pymongo.DESCENDING)]))
@@ -151,11 +150,25 @@ def add_css_file():
     """ Add matrix css file to the admin page """
     return web.ctx.homepath + '/static/webapp/plugins/matrix/matrix.css'
 
+def add_js_file():
+    """ Add matrix js file to the admin page """
+    return web.ctx.homepath + '/static/webapp/plugins/matrix/matrix.js'
+
+def add_qTip_css_file():
+    """ Add matrix css file to the admin page """
+    return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.css'
+
+def add_qTip_js_file():
+    """ Add matrix js file to the admin page """
+    return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.js'
 
 def init(plugin_manager, _, _2, _3):
     """ Init the matrix plugin """
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
     plugin_manager.add_hook('course_admin_main_menu', add_admin_menu)
     plugin_manager.add_hook('css', add_css_file)
+    plugin_manager.add_hook('css', add_qTip_css_file)
+    plugin_manager.add_hook('javascript_header', add_js_file)
+    plugin_manager.add_hook('javascript_header', add_qTip_js_file)
     plugin_manager.add_page("/admin/([^/]+)/matrix", MatrixPage)
 

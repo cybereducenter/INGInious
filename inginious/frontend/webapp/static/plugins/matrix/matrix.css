@@ -65,15 +65,18 @@
 }
 
 
-a.grade{
+.graded a{
     color: white;
 }
 
-td.grade a{
+.graded{
     text-align: center;
     color: white;
     text-decoration: underline;
+    display:inline-block;
+    padding-top: 4px;
 }
+
 
 td.grade{
     text-align: center;
@@ -86,20 +89,50 @@ td.grade{
 .grades-table {
     overflow-x:scroll;
     overflow-y:visible;
-    margin-left: 3em;
+    margin-left: 4em;
     color: white;
+}
+
+table {
+    table-layout: fixed;
 }
 
 .grades-header,
 .grades-column {
-    min-width: 150px;
-    min-height: 38px;
+    width: 40px;
+    height: 40px;
     text-align: center;
-    padding: 17px !important;
+    position: relative;
+    /* padding: 17px !important; */
 }
 
+.grades-header-passed {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    position: relative;
+    background: #eeeeee;
+    border-top: 3px solid black !important;
+    /* padding: 17px !important; */
+}
 
+.first-passed {
+    border-left: 3px solid black !important;
+}
 
+    /*.grades-column:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+	width: 0;
+	height: 0;
+    display: block;
+	border-left: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	border-top: 15px solid #4d4d4d;
+}
+*/
 .headcol {
     position: absolute;
     width: 5em;
@@ -119,7 +152,7 @@ td.grade{
 
 .grades-table th:first-child{
     padding: 10px 0 ;
-    
+
 }
 
 .grades-table tbody tr td:nth-child(2){
@@ -133,4 +166,15 @@ td.grade{
 
 #students-cell{
     color: black;
+}
+.graded_icon {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #4d4d4d;
+}
+
+.tooltiptext{
+    display: none;
 }

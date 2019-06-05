@@ -1,7 +1,6 @@
-$def with (course, data_users, order_tasks, possible_grades)
+$def with (course, data_users, order_tasks, possible_grades, first_id)
 
 $var title: $:course.get_name() - Matrix
-
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='matrix')
 
 $def NavbarF():
@@ -35,40 +34,53 @@ $def tr(value):
             </th>
 
             $for task in user['tasks']:
+            $ specific_task = user['tasks'][task]
+            $if (specific_task['taskid'].get_id() == first_id):
+                <td class="grades-column $user['tasks'][task]['status'] first-passed">
+            $else:
                 <td class="grades-column $user['tasks'][task]['status']">
-                    $ specific_task = user['tasks'][task]
-                    $if 'grade' in specific_task['status']:
-                        $if specific_task['submissionid'] == 'None':
-                            $int(specific_task['grade'])
-                        $else:
-                            <a href="/admin/$:course.get_id()/student/$user['name']['username']/$task/$specific_task['submissionid']">
-                                $int(specific_task['grade'])
-                            </a>
-                        $if 'submission_data' in specific_task:
-                            (<a target="_blank" href="$specific_task['submission_data']['url']">$specific_task['submission_data']['time_passed']</a>)
 
-                </td>
+             $if 'grade' in specific_task['status']:
+                $if specific_task['submissionid'] == 'None':
+                    $int(specific_task['grade'])
+                $else:
+                    <div class="graded" >
+                        <a target="_blank" href="$specific_task['submission_data']['url']">
+                        <span class="graded_icon" id="$user['tasks'][task]['submission_data']">
+                            <i class="fa fa-external-link-square"></i>
+                        </span>
+                            <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
+                                <b>Last submission:</b> $user['tasks'][task]['submission_data']['time_passed'] <br><br>Click for submission history</b></p>
+                            </div>
+                        </a>
+                        <a href="/admin/$:course.get_id()/student/$user['name']['username']/$task/$specific_task['submissionid']">$int(specific_task['grade'])</a>
+                    </div>
+                    </td>
         </tr>
 
 
 $def th(value):
     $for x in value
-        <th class="grades-header">
-            <a href="/course/$:course.get_id()/$x.get_id()">
-                $x.get_id()
-            </a><br/>
+        $if x.get_deadline() == "It's too late":
+            $if x.get_id() == first_id:
+                <th class="grades-header-passed first-passed">
+            $else:
+                <th class="grades-header-passed">
+        $else:
+            <th class="grades-header">
+        <a href="/course/$:course.get_id()/$x.get_id()">
+            $x.get_id()
+        </a><br/>
 
-            <div class="btn-group" role="group">
-                <a href="/admin/$:course.get_id()/edit/task/$x.get_id()" class="btn btn-default btn-xs"
-                   title data-toggle="tooltip"
-                   data-placement="bottom"
-                   data-original-title="Edit task">
-                    <i class="fa fa-edit"></i>
-                </a>
-            </div>
-        </th>
-
-
+        <div class="btn-group" role="group">
+            <a href="/admin/$:course.get_id()/edit/task/$x.get_id()" class="btn btn-default btn-xs"
+               title data-toggle="tooltip"
+               data-placement="bottom"
+               data-original-title="Edit task">
+                <i class="fa fa-edit"></i>
+            </a>
+        </div>
+    </th>
 
 <h2>Matrix</h2>
 
@@ -86,21 +98,6 @@ $def th(value):
             <div class="color-box notattempted"></div>
         </div>
 
-        <div class="col-xs-2 color-item">
-            <div class="color-title">Manual:</div>
-
-            <div class="color-box manual"></div>
-        </div>
-        <!-- from here is dynamic grades from the server -->
-        $for possible_grade_data in possible_grades:
-            <div class="col-xs-2 color-item">
-                <div class="color-title">
-                     $int(possible_grade_data['max_value'])
-                </div>
-
-                <div class="color-box grade_$:int(possible_grade_data['max_value'])"></div>
-            </div>
-
 
     </div>
 </div>
@@ -109,6 +106,7 @@ $def th(value):
 <div class="grades-table">
     <table class="table matrix-table">
         <thead>
+
             <tr>
                 <th id="students-cell"class="headcol header-cell">Students</th>
                 $:th(order_tasks)
@@ -125,3 +123,9 @@ $def th(value):
         </tbody>
     </table>
 </div>
+
+<script>
+
+    MatrixPlugin.onHover("$data_users");
+
+</script>
