@@ -193,3 +193,7 @@ td.grade a{
 td.grade{
     text-align: center;
 }
+
+th a {
+    overflow-wrap: break-word;
+}
