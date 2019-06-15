@@ -103,6 +103,7 @@ table {
     height: 40px;
     text-align: center;
     position: relative;
+    background-clip: padding-box;
     /* padding: 17px !important; */
 }
 
@@ -172,9 +173,23 @@ table {
     position: absolute;
     top: 0;
     right: 0;
-    color: #4d4d4d;
+    color: #f4f6f9;
 }
 
 .tooltiptext{
     display: none;
+}
+
+.future{
+color: black;
+}
+
+td.grade a{
+    text-align: center;
+    color: white;
+    text-decoration: underline;
+}
+
+td.grade{
+    text-align: center;
 }

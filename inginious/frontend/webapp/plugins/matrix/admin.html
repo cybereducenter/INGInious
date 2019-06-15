@@ -1,4 +1,4 @@
-$def with (course, data_users, order_tasks, possible_grades, first_id)
+$def with (course, data_users, order_tasks, possible_grades, first_id, now)
 
 $var title: $:course.get_name() - Matrix
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='matrix')
@@ -45,9 +45,9 @@ $def tr(value):
                     $int(specific_task['grade'])
                 $else:
                     <div class="graded" >
-                        <a target="_blank" href="$specific_task['submission_data']['url']">
+                        <a href="$specific_task['submission_data']['url']">
                         <span class="graded_icon" id="$user['tasks'][task]['submission_data']">
-                            <i class="fa fa-external-link-square"></i>
+                            <i class="fa fa-rss fa-rotate-180"></i>
                         </span>
                             <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
                                 <b>Last submission:</b> $user['tasks'][task]['submission_data']['time_passed'] <br><br>Click for submission history</b></p>
@@ -61,13 +61,18 @@ $def tr(value):
 
 $def th(value):
     $for x in value
-        $if x.get_deadline() == "It's too late":
+        $if x.get_deadline() == "It's too late" or x.get_accessible_time().get_end_date() < now:
             $if x.get_id() == first_id:
                 <th class="grades-header-passed first-passed">
             $else:
                 <th class="grades-header-passed">
         $else:
-            <th class="grades-header">
+            $if x.get_accessible_time().get_start_date() > now:
+                <th class="grades-header future">
+                <i class="fa fa-close"></i>
+            $else:
+                <th class="grades-header">
+
         <a href="/course/$:course.get_id()/$x.get_id()">
             $x.get_id()
         </a><br/>

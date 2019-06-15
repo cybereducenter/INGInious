@@ -11,6 +11,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 from inginious.common.tasks_constants import TaskConstants
 from datetime import datetime
 import pymongo
+import time
 
 
 class MatrixPage(INGIniousAdminPage):
@@ -39,8 +40,7 @@ class MatrixPage(INGIniousAdminPage):
         else:
             first_id = 0
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/matrix')\
-            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE, first_id)
-
+            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE, first_id, datetime.now())
 
     def _get_ordered_task(self, course):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
@@ -73,9 +73,17 @@ class MatrixPage(INGIniousAdminPage):
                     """ Future tasks that will not show in tasks """
                     future_tasks.append(tasks[task])
 
-        order_tasks = past_future_tasks + always_tasks + past_tasks + never_tasks
+        tasks_with_future_deadline = past_future_tasks + future_tasks
 
-        if never_tasks:
+        """ Sort By Deadline """
+        tasks_with_future_deadline = sorted(tasks_with_future_deadline, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+        past_tasks = sorted(past_tasks, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+
+        order_tasks = tasks_with_future_deadline + always_tasks + past_tasks + never_tasks
+
+        if past_tasks:
+            return order_tasks, past_tasks[0]
+        elif never_tasks:
             return order_tasks, never_tasks[0]
         else:
             return order_tasks, None
