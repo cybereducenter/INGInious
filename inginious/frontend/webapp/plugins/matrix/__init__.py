@@ -44,6 +44,147 @@ class MatrixPage(INGIniousAdminPage):
 
     def _get_ordered_task(self, course):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
+        """
+        Test-Cases for the sorting:
+        Test Case #1
+        Test Case Description: Task accessibility changed from never to past deadline
+        Expected Result: The task remains to the right of the line, shifts from the right edge (never) to the deadline
+        tasks, depends on the deadline. The more recent deadline passed, will be the leftmost.
+        Result: PASS
+        
+        Test Case #2
+        Test Case Description: Task accessibility changed from never to future deadline and past start date
+        Expected Result: The task moves to the left of the line, over the "always" tasks. The most future
+        deadline will be the leftmost.
+        Result: PASS
+        
+        Test Case #3
+        Test Case Description: Task accessibility changed from never to future deadline and future start date
+        Expected Result: The task moves to the left of the line, over the "always" tasks. The most future
+        deadline will be the leftmost. An "time" icon will be added to notify the user the task is not visible for the
+        students.
+        Result: PASS
+        
+        Test Case #4
+        Test Case Description: Task accessibility changed from never to always
+        Expected Result: The task moves to the left of the line, to the rightmost side, sorted by alphabetical order.
+        Result: PASS
+        
+        Test Case #5
+        Test Case Description: Task accessibility changed from past deadline to never
+        Expected Result: The task remains to the right of the line, shifts to the right edge (never) and sorted by 
+        alphabetical order.
+        Result: PASS
+        
+        Test Case #6
+        Test Case Description: Task accessibility changed from past deadline to future deadline and past start date
+        Expected Result: The task moves to the left of the line, over the "always" tasks. The most future
+        deadline will be the leftmost.
+        Result: PASS
+                
+        Test Case #7
+        Test Case Description: Task accessibility changed from past deadline to future deadline and future start date
+        Expected Result: The task moves to the left of the line, over the "always" tasks. The most future
+        deadline will be the leftmost. An "time" icon will be added to notify the user the task is not visible for the
+        students.
+        Result: PASS
+        
+        Test Case #8
+        Test Case Description: Task accessibility changed from past deadline to always
+        Expected Result: The task moves to the left of the line, to the rightmost side, sorted by alphabetical order.
+        Result: PASS
+        
+        Test Case #9
+        Test Case Description: Task accessibility changed from always deadline to never
+        Expected Result: The task moves to the right of the line, to the rightmost edge (never) and sorted by 
+        alphabetical order.
+        Result: PASS
+        
+        Test Case #10
+        Test Case Description: Task accessibility changed from always to future deadline and past start date
+        Expected Result: The task stays on the left of the line, its shifts left from the "always" tasks. 
+        The most future deadline will be the leftmost.
+        Result: PASS
+                
+        Test Case #11
+        Test Case Description: Task accessibility changed from always to future deadline and future start date
+        Expected Result: The task stays on the left of the line, its shifts left from the "always" tasks. 
+        The most future deadline will be the leftmost. An "time" icon will be added to notify the user the task is 
+        not visible for the students.
+        Result: PASS
+        
+        Test Case #12
+        Test Case Description: Task accessibility changed from always to past deadline
+        Expected Result: The task moves to the right of the line. before the "never" tasks and depends on the deadline.
+        The more recent deadline passed, will be the leftmost.
+        Result: PASS
+        
+        Test Case #13
+        Test Case Description: Task accessibility changed from future deadline and past start date to never
+        Expected Result: The task moves to the right of the line, to the rightmost edge (never) and sorted by 
+        alphabetical order.
+        Result: PASS
+        
+        Test Case #14
+        Test Case Description: Task accessibility changed from future deadline and past start date to past deadline
+        Expected Result: The task moves to the right of the line. before the "never" tasks and depends on the deadline.
+        The more recent deadline passed, will be the leftmost.
+        Result: PASS
+                
+        Test Case #15
+        Test Case Description: Task accessibility changed from future deadline and past start date to future deadline 
+        and future start date
+        Expected Result: The task stays on the left of the line.
+        The most future deadline will be the leftmost. An "time" icon will be added to notify the user the task is 
+        not visible for the students.
+        Result: PASS
+        
+        Test Case #16
+        Test Case Description: Task accessibility changed from future deadline and past start date to always
+        Expected Result: The task stays on the left of the line. it's sifts to the rightmost side before the line with
+        the others "always" tasks, sorted by alphabetical order.
+        Result: PASS
+        
+        Test Case #17
+        Test Case Description: Task accessibility changed from future deadline and future start date to never
+        Expected Result: The task moves to the right of the line, to the rightmost edge (never) and sorted by 
+        alphabetical order. The "time" icon will be removed.
+        Result: PASS
+        
+        Test Case #18
+        Test Case Description: Task accessibility changed from future deadline and future start date to past deadline
+        Expected Result: The task moves to the right of the line. before the "never" tasks and depends on the deadline.
+        The more recent deadline passed, will be the leftmost.  The "time" icon will be removed.
+        Result: PASS
+                
+        Test Case #19
+        Test Case Description: Task accessibility changed from future deadline and future start date to future deadline 
+        and past start date
+        Expected Result: The task stays on the left of the line.
+        The most future deadline will be the leftmost. The "time" icon will be removed.
+        Result: PASS
+        
+        Test Case #20
+        Test Case Description: Task accessibility changed from future deadline and future start date to always
+        Expected Result: The task stays on the left of the line. it's sifts to the rightmost side before the line with
+        the others "always" tasks, sorted by alphabetical order. The "time" icon will be removed.
+        Result: PASS
+        
+        Test Case #21
+        Test Case Description: all the tasks are past deadline or never
+        Expected Result: All the tasks on the right of the line.
+        Result: PASS
+        
+        Test Case #22
+        Test Case Description: all the tasks are feature deadline or always
+        Expected Result: All the tasks on the left of the line.
+        Result: PASS
+        
+        Test Case #23
+        Test Case Description: all the tasks with future deadline and future start
+        Expected Result: All the tasks on the left of the line and hame the time icon.
+        Result: PASS
+        """
         tasks = course.get_tasks()
         past_future_tasks = []
         past_tasks = []
