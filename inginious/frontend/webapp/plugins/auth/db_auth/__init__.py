@@ -47,9 +47,9 @@ class DatabaseAuthMethod(AuthMethod):
             "input": OrderedDict((
                 ("login", {"type": "text", "placeholder": "Login"}),
                 ("password", {"type": "password", "placeholder": "Password"}))),
-                      # <a href="' + web.ctx.home + '/register">Register</a> /
-                      "info": '<div class="text-center"> <a href="' + web.ctx.home +
-                              '/register#lostpasswd">Lost password?</a></div>'
+            "info": '<div class="text-center"><a href="' + web.ctx.home +
+                    '/register">Register</a> / <a href="' + web.ctx.home +
+                    '/register#lostpasswd">Lost password?</a></div>'
         }
 
     def should_cache(self):
