@@ -22,7 +22,7 @@ INGInious needs:
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
-RHEL/Cent OS 7.0+, Fedora 24+
+Cent OS 7.0+
 `````````````````````````````
 
 The previously mentioned dependencies can be installed, for Cent OS 7.0+ :
@@ -31,12 +31,6 @@ The previously mentioned dependencies can be installed, for Cent OS 7.0+ :
     # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
     # yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm
     # yum install -y git mongodb mongodb-server gcc libtidy python35u python35u-pip python35u-devel zeromq-devel
-
-Or, for Fedora 24+:
-::
-
-    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-    # dnf install -y git mongodb mongodb-server gcc libtidy python3 python3-pip python3-devel zeromq-devel
 
 You may also add ``openldap-devel`` if you want to use the LDAP auth plugin and
 ``xmlsec1-openssl-devel libtool-ltdl-devel`` for the SAML2 auth plugin.
@@ -72,34 +66,6 @@ You can now start and enable the ``mongod`` and ``docker`` services:
     # systemctl start docker
     # systemctl enable docker
 
-OS X 10.9+
-``````````
-
-We use brew_ to install some packages. Packages are certainly available too via macPorts.
-
-.. _brew: http://brew.sh/
-
-::
-
-    $ brew install mongodb
-    $ brew install python3
-
-Follow the instruction of brew to enable mongodb.
-
-The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/>`_.
-
-Windows
-```````
-
-.. DANGER::
-    INGInious rely on Docker to run containers. While Docker is supported on Windows 10 (version 1607), INGInious does not
-    provide support for Windows containers yet.
-
-The recommended way to run INGInious under Windows is by using a Linux virtual machine, for much more simplicity. One can
-also only run the Docker agent under a Linux virtual machine and run the backend and selected frontend under Windows.
-
-In the later case, you'll need to install Python 3.5+, MongoDB, LibTidy and LibZMQ.
-
 .. _Installpip:
 
 Installing INGInious
@@ -109,18 +75,9 @@ The recommended setup is to install INGInious via pip and the master branch of t
 This allows you to use the latest development version. This version is currently the supported one for issues.
 ::
 
-    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git
+    $ pip3 install https://github.com/cybereducenter/INGInious.git@campus
 
-This will automatically upgrade an existing version.
-
-.. note::
-
-   You may want to enable the LDAP/SAML2 plugin or use (F)CGI instead of the web.py default webserver.
-   In this case, you have to install more packages: simply add ``[cgi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
-
-   ::
-
-       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git#egg=INGInious[cgi,ldap]
+This will automatically download existing version.
 
 Some releases are also published on Pipy. However, no support is provided for these versions now. To install
 the latest previous release:
@@ -138,19 +95,15 @@ INGInious comes with two frontends:
 .. _LTI Frontend:
 
 * The LTI frontend, which allows to interface with Learning Management System via the LTI_ specification.
-  Any LMS supporting LTI_ is compatible. This includes Moodle, edX and Coursera, among many others.
+  Any LMS supporting LTI_ is compatible. This includes Moodle, edX and Coursera, among many others. *NOT FOR US*
 
 .. _LTI: http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
 .. _Web App:
 
 * The Web App, a mini-LMS made for on-site courses. It provides statistics, group management, and the INGInious studio,
-  that allows to modify and test your tasks directly in your browser.
+  that allows to modify and test your tasks directly in your browser. - *THIS IS WHAT WE USE*
 
 You can use one, or both. Each of them have to be configured independently. This can be done automatically with the
-``inginious-install`` CLI. To configure the LTI frontend:
-::
-
-    $ inginious-install lti
 
 To configure the Web App frontend:
 ::
