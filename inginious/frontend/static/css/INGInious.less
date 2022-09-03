@@ -1,0 +1,175 @@
+//
+// This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+// more information about the licensing of this file.
+//
+
+@sidebar-open-state-wide: 0;
+@sidebar-open-state-medium: 1;
+@sidebar-open-state-small: 1;
+
+@import "common.less";
+
+/*Task debug modal*/
+#task_debug
+{
+    dd
+    {
+        border-left: 1px solid #cccccc;
+        padding-left: 20px;
+        min-height: 20px;
+
+        white-space: pre;
+        text-overflow: ellipsis;
+        overflow: auto;
+
+        dl
+        {
+            margin-bottom: 0;
+        }
+    }
+}
+
+/* Studio files tab close button*/
+.nav-tabs > li.studio_file_editor_tab a .closetab
+{
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+/* Nav menu breadcrumb */
+.breadcrumb {
+    margin: 0 -15px;
+    border: none;
+    height: 50px;
+    border-bottom: 1px solid #D9D9D9;
+    color: #333;
+    border-radius: 0;
+    text-transform: none;
+    line-height: 25px;
+
+    .breadcrumb-item
+    {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 250px;
+        color: #333;
+
+        &:before {
+            font: normal normal normal 24px/1 FontAwesome;
+            content: "\f105";
+            color: #333;
+            position: absolute;
+            font-size: 2em;
+            line-height: 23px;
+        }
+
+        span {
+            padding-left: 1rem;
+        }
+
+        a {
+            color: #333;
+            padding-left: 1rem;
+            font-size: 1.1em;
+
+            &:hover {
+                text-decoration: none;
+                color: black;
+            }
+        }
+    }
+
+    .active {
+        max-width: 100%;
+    }
+}
+
+/* Checked list group download/replay page */
+ul.checked-list-box
+{
+    max-height: 315px;
+    overflow-y: scroll;
+    margin: 0;
+
+    .state-icon {
+        left: -5px;
+    }
+
+    .list-group-item-primary {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+
+    }
+
+    input[type="checkbox"] {
+        display: none;
+    }
+}
+
+
+/* Sorted tables dragging style*/
+.dragging {
+    cursor: move !important;
+}
+
+.dragged {
+    position: absolute;
+    top:0;
+    opacity: 0.5;
+    z-index: 2000;
+}
+
+/* Sorted tables placeholders */
+.placeholder {
+    display: block;
+    background: black;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.placeholder:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-left-color: black;
+  margin-top: -5px;
+  left: -5px;
+  border-right: none;
+}
+
+/* CodeMirror style */
+#edit_task_form .CodeMirror, #edit_course_form .CodeMirror {
+    border: 1px solid #cccccc;
+    border-radius: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+
+    &.CodeMirror-focused {
+        border-color: #66afe9;
+        outline: 0;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    }
+}
+
+.dragin {
+    background-color: lightblue;
+    filter: blur(4px);
+}
+
+/* Course tiles */
+.card-trunc {
+    overflow: hidden;
+    max-height: 200px;
+}

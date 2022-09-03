@@ -1,0 +1,41 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+
+{% block title %} {{ _("Login") }} {% endblock %}
+
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="#">{{ settings.get('name', '') }}</a></li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+        <img src="{{settings.get('imlink', '')}}" style="max-width:150px"/>
+</div>
+<div class="row justify-content-center">
+    <div class="col-sm-4">
+        <div class="card card-body bg-light">
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">{{ _("Close") }}</span></button>
+                    {{ _("Authentication failed") }}: {{ error }}
+                </div>
+            {% endif %}
+            <form role="form" method="post">
+                <div class="form-group">
+                    <label>{{_("Username")}}</label> <input type="text" class="form-control" name="login" placeholder="{{_('Username')}}">
+                </div>
+                <div class="form-group">
+                    <label>{{_("Password")}}</label> <input type="password" class="form-control" name="password" placeholder="{{_('Password')}}">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">{{_("Sign in")}}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

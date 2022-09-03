@@ -7,6 +7,13 @@ backend: local
 # Logging level
 log_level: INFO
 
+# Display errors? Possible values:
+# - false : do not display the error outside the log
+# - true : display the error directly in the browser. useful when debugging locally, but dangerous in production,
+#         as it may expose passwords and other sensitive data
+# - "your@email.com": send error report to the indicated email
+web_debug: false
+
 # Only for backend: local
 local-config:
     # debug_host: localhost  # host that will be indicated to users when they want to use the task remote debug feature. Automatically guessed by
@@ -33,7 +40,7 @@ backup_directory: ./inginious/backup
 
 # Plugins that will be loaded by the webapp
 plugins:
-  - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth
+  - plugin_module: inginious.frontend.plugins.auth.demo_auth
     users:
         # register the user "test" with the password "test"
         test: test
@@ -53,3 +60,9 @@ smtp:
     username: 'configme@gmail.com'
     password: 'secret'
     starttls: True
+
+#reverse proxy fix
+reverse-proxy-config:
+    enable: false
+    x_for: 1
+    x_host: 1

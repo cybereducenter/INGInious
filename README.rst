@@ -1,15 +1,18 @@
 INGInious
 =========
 
-.. image:: http://jenkins2.info.ucl.ac.be/job/INGInious/badge/icon
-    :target: http://jenkins2.info.ucl.ac.be/job/INGInious/
-.. image:: https://landscape.io/github/UCL-INGI/INGInious/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/UCL-INGI/INGInious/master
+.. image:: https://api.codacy.com/project/badge/Grade/7cd8340004ef4d409143d5c24259efc1
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/gh/UCL-INGI/INGInious?utm_source=github.com&utm_medium=referral&utm_content=UCL-INGI/INGInious&utm_campaign=Badge_Grade_Dashboard
+.. image:: https://app.codacy.com/project/badge/Coverage/9102bbf54901478dbe288a386195f77e
+   :alt: Codacy coverage Badge
+   :target: https://www.codacy.com/gh/UCL-INGI/INGInious/dashboard?utm_source=github.com&utm_medium=referral&utm_content=UCL-INGI/INGInious&utm_campaign=Badge_Coverage
+.. image:: https://github.com/UCL-INGI/INGInious/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/UCL-INGI/INGInious/actions
 .. image:: https://readthedocs.org/projects/inginious/badge/?version=latest
     :target: https://readthedocs.org/projects/inginious/?badge=latest
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-    :target: https://gitter.im/UCL-INGI/INGInious?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
+.. image:: http://weblate.info.ucl.ac.be/widgets/inginious/-/frontend/svg-badge.svg
+    :target: http://weblate.info.ucl.ac.be/engage/inginious/?utm_source=widget
 
 INGInious is an intelligent grader that allows secured and automated testing of code made by students.
 
@@ -27,7 +30,10 @@ INGInious can be used as an external grader for EDX. The course `Paradigms of Co
 Documentation
 -------------
 
-The documentation is available on Read the Docs: http://inginious.readthedocs.org/en/latest/index.html
+The documentation is available on Read the Docs:
+
+- For the stable branch : http://inginious.readthedocs.org/
+- For the master (dev) branch (not always up to date) : http://inginious.readthedocs.org/en/latest/index.html
 
 On Linux, run ``make html`` in the directory ``/doc`` to create a html version of the documentation.
 

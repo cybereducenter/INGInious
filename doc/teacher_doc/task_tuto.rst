@@ -5,8 +5,9 @@ In this document we will describe how to create a simple task, that checks that 
 
 .. note::
 
-    Demonstration tasks are made available for download `here <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
-    can also be downloaded and installed automatically via the :ref:`inginious-install` script.
+    Demonstration tasks are made available for download on the `INGInious-demo-tasks repository <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
+    can also be downloaded and installed automatically via the :ref:`inginious-install` script. You can also download courses examples on the marketplace page which allows to easily import courses files. The list of these open source courses is also available on the `INGInious-courses repository <https://github.com/UCL-INGI/INGInious-courses>`_
+	
 
 Creating the task description
 -----------------------------
@@ -60,7 +61,7 @@ Most of the fields are self-explanatory. Some remarks:
   those you downloaded during installation or those you created by creating a grading container.
   Please see :doc:`create_container`.
 
-More documentation is available here: :doc:`create_task`.
+More documentation is available here: :doc:`task_file`.
 
 Creating the run file
 ---------------------
@@ -75,6 +76,7 @@ in the webapp in the *Task files* tab of the *Edit task* page.
            @    @question1@@
 
            func()
+
    The syntax is very simple: put a first ``@`` on the line where you want to put the code of the student.
    Then indent the line and write a second ``@``. Now write the problem id of the problem you want to take the input
    from (``question1``) then write another ``@``, write a possible suffix (not used here), and then finish the line
@@ -83,29 +85,29 @@ in the webapp in the *Task files* tab of the *Edit task* page.
 #. Create the ``run`` file. This file will be the script that is launched when the task is started. Here we will create
    a *bash* script, that parses the template and verifies its content.
 
-   .. code-block:: bash
+   .. code-block:: python
 
-       #! /bin/bash
+        # This line parses the template and put the result in studentcode.py
+        parse_template("template.py", "student/studentcode.py")
 
-       # This line parses the template and put the result in studentcode.py
-       parsetemplate --output student/studentcode.py template.py
+        # Verify the output of the code... (we ignore stderr and retval here)
+        output, _, _ = run_student_simple(python student/studentcode.py)
 
-       # Verify the output of the code...
-       output=$(run_student python student/studentcode.py)
-       if [ "$output" = "Hello World!" ]; then
-           # The student succeeded
-           feedback-result success
-           feedback-msg -m "You solved this difficult task!"
-       else
-           # The student failed
-           feedback-result failed
-           feedback-msg -m "Your output is $output"
-       fi
-   Here we use three commands provided by INGInious, ``parsetemplate``, ``run_student`` and ``feedback``.
-   The code is self-explanatory; just notice the usage of ``run_student`` that ask INGInious (precisely the Docker agent)
-   to start a new *student container* and run inside the command ``python studentcode.py``.
+        if output == "Hello World!":
+            # The student succeeded
+            set_global_result("success")
+            set_global_feedback("You solved this difficult task!")
+        else:
+            # The student succeeded
+            set_global_result("failed")
+            set_global_feedback("Your output is " + output)
 
-   Please note that the ``run_student`` command is fully configurable: you can change the environment on which you run
+   Here we use four commands provided by INGInious, ``parse_template``, ``run_simple``,
+   ``set_global_result`` and ``set_global_feedback``.
+   The code is self-explanatory; just notice the usage of ``run_student_simple`` (a version of `run_student`) that ask INGInious
+   (precisely the Docker agent) to start a new *student container* and run inside the command ``python studentcode.py``.
+
+   Please note that the ``run_student_simple`` command is fully configurable: you can change the environment on which you run
    the task, define new timeouts, memory limits, ... See :ref:`run_student` for more details.
 
 #. If not using the webapp, don't forget to give the ``run`` file the execution rights:
@@ -114,4 +116,4 @@ in the webapp in the *Task files* tab of the *Edit task* page.
       $ chmod +x helloworld/run
 
 
-More documentation is available here: :ref:`run_file`.
+More documentation is available here: :doc:`task_file`.

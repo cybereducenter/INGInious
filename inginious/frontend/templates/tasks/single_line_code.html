@@ -1,0 +1,15 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div id="task_alert_{{inputId}}" class="task_alert_problem"></div>
+{{ header | safe }}
+<input type="{% if type == 'integer' or type == 'decimal' %}number{%else %}text{% endif %}"
+    name="{{inputId}}"
+    value="{{default}}"
+    class="monospace form-control {% if '/' in inputId %}form-inline{% endif %}"
+    {%if maxChars != 0 %}
+        maxlength="{{maxChars}}"
+        style="width:{{maxChars+1}}em"
+    {% endif %}
+    data-optional="{% if optional %}{{True}}{% else %}{{False}}{% endif %}"
+/>

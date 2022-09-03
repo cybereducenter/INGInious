@@ -12,6 +12,7 @@ subdirectory.
 .. code-block:: yaml
 
     author: Your name
+    contact_url: mailto:yourself@example.com?subject=About the task {task_id} (course {course_id}), INGInious username {username}
     context: |-
         The context of this task. Explain here what the students have to do.
     order: 1
@@ -24,7 +25,7 @@ subdirectory.
             header: A header for this question
             type: code
             language: c
-    limits
+    limits:
         time: 30
         memory: 128
     environment: default
@@ -34,6 +35,8 @@ subdirectory.
 -   ``author``, ``context``, ``order``, ``name``, ``language`` and ``header`` are only needed
     if you use the frontend.
     ``context`` and ``header`` are parsed using restructuredText.
+
+-   ``contact_url`` is an url to contact the maintainer of the task. It is a Python format string that will be formatted with values for the keys ``{task_id, course_id, username}``. It must form a valid URL. It can thus also be an HTTP link.
 
 -   ``order`` is an integer, used by the frontend to sort the task list. Task are sorted
     in increasing value of *order*.
@@ -56,6 +59,10 @@ subdirectory.
     ``"START/END"``
         where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or
         "2014-06-18". The task is only accessible between *START* and *END*.
+    ``"START/SOFT_DEADLINE/END"``
+        where *START*, *SOFT_DEADLINE* and *END* are valid dates, like "2014-05-10 10:11:12",
+        or "2014-06-18". The task is only accessible between *START* and *END*, but the
+        publicly communicated end time is *SOFT_DEADLINE*.
 
 -   ``problems`` describes sub-problems of this task. This field is mandatory and must contain
     at least one problem. Problem types are described in the following section
@@ -77,8 +84,8 @@ subdirectory.
     This field is only needed if there is code to correct; a multiple-choice question does
     not need it. This environment will be used by default for the student containers.
 
--   ``groups`` allows to indicate if the submission is to be done individually or per groups/teams.
-    (see Classrooms and Teams).
+-   ``groups`` allows to indicate if the submission is to be done individually or per groups.
+    (see Groups).
 
 -   ``network_grading`` indicates if the grading container should have access to the net. This
     is not the case by default.
@@ -89,11 +96,6 @@ subdirectory.
        This is the default value. In this case, the best submission is used.
    ``last``
        In this case, the last submission is used.
-   ``student``
-       In this case, the student can select the submission for evaluation. This allows student to select the submission
-       for evaluation without submitting it again or if submission replays are planned.
-       This feature is not available in the LTI module due to LTI specifications limitations, and will be considered as
-       best submission.
 
 - ``submission_limit`` indicates the amount of submissions a student can make within a certain period of time.
   It is composed of two fields:
@@ -114,7 +116,7 @@ Code problems
 `````````````
 
 ``type: code`` problems allows students to submit their code. The code is then
-sent to a container where a script made by the teaching team corrects it.
+sent to a container where a script, made by the teaching staff, corrects it.
 
 Here is a simple example for a code problem
 
@@ -140,11 +142,11 @@ id of the problem.
 Single code line problems
 `````````````````````````
 
-``type: code-single-line`` is simply a code box that allows a single line as input.
+``type: code_single_line`` is simply a code box that allows a single line as input.
 
 .. code-block:: yaml
 
-    type: code-single-line
+    type: code_single_line
     language: c
     header: |-
         Hello dear student!
@@ -211,7 +213,7 @@ Multiple choice problems
 .. code-block:: yaml
 
     name: An exercice
-    type: multiple-choice
+    type: multiple_choice
     header: The answer to life, the universe and any other things is
     multiple: true
     limit: 2

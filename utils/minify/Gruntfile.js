@@ -10,32 +10,27 @@ module.exports = function(grunt)
             },
             dist: {
                 files: {
-                    '../../inginious/frontend/webapp/static/js/all-minified.js': [
-                        '../../inginious/frontend/common/static/js/libs/jquery.min.js',
-                        '../../inginious/frontend/common/static/js/libs/jquery.form.min.js',
-                        '../../inginious/frontend/common/static/js/libs/bootstrap.min.js',
-                        '../../inginious/frontend/common/static/js/libs/bootstrap-datetimepicker.min.js',
-                        '../../inginious/frontend/common/static/js/libs/checked-list-group.js',
-                        '../../inginious/frontend/common/static/js/codemirror/codemirror.js',
-                        '../../inginious/frontend/common/static/js/codemirror/mode/meta.js',
-                        '../../inginious/frontend/common/static/js/common.js',
-                        '../../inginious/frontend/common/static/js/task.js',
-                        '../../inginious/frontend/webapp/static/js/jquery-sortable.min.js',
-                        '../../inginious/frontend/webapp/static/js/webapp.js',
-                        '../../inginious/frontend/webapp/static/js/studio.js',
-                        '../../inginious/frontend/webapp/static/js/aggregations.js'
-                    ],
-                    '../../inginious/frontend/lti/static/js/all-minified.js': [
-                        '../../inginious/frontend/common/static/js/libs/jquery.min.js',
-                        '../../inginious/frontend/common/static/js/libs/jquery.form.min.js',
-                        '../../inginious/frontend/common/static/js/libs/bootstrap.min.js',
-                        '../../inginious/frontend/common/static/js/libs/bootstrap-datetimepicker.min.js',
-                        '../../inginious/frontend/common/static/js/libs/checked-list-group.js',
-                        '../../inginious/frontend/common/static/js/codemirror/codemirror.js',
-                        '../../inginious/frontend/common/static/js/codemirror/mode/meta.js',
-                        '../../inginious/frontend/common/static/js/common.js',
-                        '../../inginious/frontend/common/static/js/task.js',
-                        '../../inginious/frontend/lti/static/js/lti.js'
+                    '../../inginious/frontend/static/js/all-minified.js': [
+                        '../../inginious/frontend/static/js/libs/jquery.min.js',
+                        '../../inginious/frontend/static/js/libs/jquery.form.min.js',
+                        '../../inginious/frontend/static/js/libs/popper.min.js',
+                        '../../inginious/frontend/static/js/libs/bootstrap.min.js',
+                        '../../inginious/frontend/static/js/libs/moment.min.js',
+                        '../../inginious/frontend/static/js/libs/bootstrap-datetimepicker.min.js',
+                        '../../inginious/frontend/static/js/libs/Sortable.min.js',
+                        '../../inginious/frontend/static/js/libs/jquery.twbsPagination.min.js',
+                        '../../inginious/frontend/static/js/libs/selectize.min.js',
+                        '../../inginious/frontend/static/js/codemirror/codemirror.js',
+                        '../../inginious/frontend/static/js/codemirror/mode/meta.js',
+                        '../../inginious/frontend/static/js/common.js',
+                        '../../inginious/frontend/static/js/task.js',
+                        '../../inginious/frontend/static/js/webapp.js',
+                        '../../inginious/frontend/static/js/studio.js',
+                        '../../inginious/frontend/static/js/audiences.js',
+                        '../../inginious/frontend/static/js/groups.js',
+                        '../../inginious/frontend/static/js/checked-list-group.js',
+                        '../../inginious/frontend/static/js/task_dispensers.js',
+                        '../../inginious/frontend/static/js/admin.js'
                     ]
                 }
             }
@@ -46,8 +41,7 @@ module.exports = function(grunt)
             },
             dist: {
                 files: {
-                    '../../inginious/frontend/webapp/static/js/all-minified.js': ['../../inginious/frontend/webapp/static/js/all-minified.js'],
-                    '../../inginious/frontend/lti/static/js/all-minified.js': ['../../inginious/frontend/lti/static/js/all-minified.js']
+                    '../../inginious/frontend/static/js/all-minified.js': ['../../inginious/frontend/static/js/all-minified.js'],
                 }
             }
         }

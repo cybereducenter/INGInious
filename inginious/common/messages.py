@@ -2,14 +2,15 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-from typing import Dict, Optional, Any, Union, Tuple, List
+from typing import Dict, Type, Tuple, Union, Any, List, Optional
 
-from inginious.common.message_meta import MessageMeta
+import msgpack
+from dataclasses import dataclass, is_dataclass, asdict
 
-# JobId of the backend, composed with the adress of the client and the client job id
-BackendJobId = Tuple[bytes, str]
+BackendJobId = str
 ClientJobId = str
-SPResult = Tuple[str, str]
+SPResult = Tuple[str, str]  # JobId of the backend, composed with the address of the client and the client job id
+_registered_messages: Dict[str, Type[Any]] = {}
 
 
 #################################################################
@@ -19,76 +20,38 @@ SPResult = Tuple[str, str]
 #################################################################
 
 
-class ClientHello(metaclass=MessageMeta, msgtype="client_hello"):
-    """
-        Let the client say hello to the backend (and thus register to some events)
-    """
-
-    def __init__(self, name: str):
-        """
-        :param name: name of the client (do not need to be unique)
-        """
-        self.name = name
+@dataclass(frozen=True)
+class ClientHello:
+    """ Let the client say hello to the backend (and thus register to some events) """
+    name: str  # name of the client (do not need to be unique)
 
 
-class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
-    """
-        Creates a new job
-        B->A.
-    """
-
-    def __init__(self, job_id: ClientJobId,
-                 course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool], launcher: str):
-        """
-        :param job_id: the client-side job id that is associated to this job
-        :param course_id: course id of the task to run
-        :param task_id: task id of the task to run
-        :param inputdata: student input data
-        :param environment: environment to use
-        :param enable_network: wheter to enable the network or not, in supporting envs
-        :param time_limit: timeout, in seconds, of the task, for supporting envs
-        :param hard_time_limit: timeout, in seconds, of the task, for supporting envs. (hard)
-        :param mem_limit: memory limit in Mo, for supporting envs.
-        :param debug:
-            True to enable debug
-            False to disable it
-            "ssh" to enable ssh debug
-        :param launcher: the name of the entity that launched this job, for logging purposes
-        """
-        self.job_id = job_id
-        self.course_id = course_id
-        self.task_id = task_id
-        self.inputdata = inputdata
-        self.debug = debug
-        self.environment = environment
-        self.enable_network = enable_network
-        self.time_limit = time_limit
-        self.hard_time_limit = hard_time_limit
-        self.mem_limit = mem_limit
-        self.launcher = launcher
+@dataclass(frozen=True)
+class ClientNewJob:
+    """ Creates a new job """
+    job_id: ClientJobId  # the client-side job id that is associated to this job
+    priority: int  # the job priority
+    course_id: str  # course id of the task to run
+    task_id: str  # task id of the task to run
+    task_problems: Dict[str, Any]  # task dictionary
+    inputdata: Dict[str, Any]  # student input data
+    environment_type: str  # environment type
+    environment: str  # environment to use (must exist in the environment type)
+    environment_parameters: Dict[str, Any]  # parameters for the environment (timeouts, limits, ...)
+    debug: Union[str, bool]  # True to enable debug, False to disable it, "ssh" to enable ssh debug
+    launcher: str  # the name of the entity that launched this job, for logging purposes
 
 
-class ClientKillJob(metaclass=MessageMeta, msgtype="client_kill_job"):
-    """
-        Kills a running job.
-        B->A.
-    """
-
-    def __init__(self, job_id: ClientJobId):
-        """
-        :param job_id: the client-side job id that is associated to the job to kill
-        """
-        self.job_id = job_id
+@dataclass(frozen=True)
+class ClientKillJob:
+    """ Kills a running job. """
+    job_id: ClientJobId  # the client-side job id that is associated to the job to kill
 
 
-class ClientGetQueue(metaclass=MessageMeta, msgtype="client_get_queue"):
-    """
-       Ask the backend to send the status of its job queue
-    """
+@dataclass(frozen=True)
+class ClientGetQueue:
+    """ Ask the backend to send the status of its job queue """
 
-    def __init__(self): pass
 
 #################################################################
 #                                                               #
@@ -97,112 +60,82 @@ class ClientGetQueue(metaclass=MessageMeta, msgtype="client_get_queue"):
 #################################################################
 
 
-class BackendUpdateContainers(metaclass=MessageMeta, msgtype="backend_update_containers"):
+@dataclass(frozen=True)
+class BackendUpdateEnvironments:
+    """ Update the information about the environments on the client, from the informations retrieved from the agents """
+    available_environments: Dict[str, List[str]]  # dict of available environment aliases (as keys) and type of the related agent (as value)
+
+
+@dataclass(frozen=True)
+class BackendJobStarted:
+    """ Indicates to the backend that a job started """
+    job_id: ClientJobId  # the client-side job_id associated to the job
+
+
+@dataclass(frozen=True)
+class BackendJobDone:
+    """ Gives the result of a job. """
+    job_id: ClientJobId  # the client-side job id associated with this job
+    result: SPResult  # A tuple containing the result type and the text to be shown to the student
+    # Result type can be:
+    #     - "killed": the environment was killed externally (not really an error)
+    #     - "crash": the environment crashed (INGInious error)
+    #     - "overflow": the environment was killed due to a memory overflow (student/task writer error)
+    #     - "timeout": the environment was killed due to a timeout (student/task writer error)
+    #     - "success": the student succeeded to resolve this task
+    #     - "failed": the student failed to succeed this task
+    #     - "error": an error happenned in the grading script (task writer error)
+    grade: float
+    problems: Dict[str, SPResult]  # particular feedbacks for each subproblem. Keys are subproblem ids.
+    tests: Dict[str, Any]  # tests made in the environment
+    custom: Dict[str, Any]  # custom values
+    state: str
+    archive: Optional[bytes]  # bytes string containing an archive of the content of the environment as a tgz
+    stdout: Optional[str]  # environment stdout
+    stderr: Optional[str]  # environment stderr
+
+
+@dataclass(frozen=True)
+class BackendJobSSHDebug:
+    """ Gives the necessary info to SSH into a job running in ssh debug mode """
+    job_id: ClientJobId  # the client-side job id associated with this job
+    host: str  # host to which the client should connect
+    port: int  # port on which sshd is bound
+    user: str  # user the client should use
+    password: str  # password that allows to connect to the environment
+
+
+@dataclass(frozen=True)
+class BackendGetQueue:
     """
-        Update the information about the containers on the client, from the informations retrieved from the agents
+    Send the status of the job queue to the client. Attributes:
+
+    - ``jobs_running`` : a list of tuples in the form
+      (job_id, is_current_client_job, info, launcher, started_at, max_tuime)
+      where:
+
+        - job_id is a job id. It may be from another client.
+        - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+        - agent_name is the agent name
+        - info is "courseid/taskid"
+        - launcher is the name of the launcher, which may be anything
+        - started_at the time (in seconds since UNIX epoch) at which the job started
+        - max_time the maximum time that can be used, or -1 if no timeout is set
+
+    - ``jobs_waiting`` : a list of tuples in the form
+      (job_id, is_current_client_job, info, launcher, max_time)
+      where:
+
+        - job_id is a job id. It may be from another client.
+        - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+        - info is "courseid/taskid"
+        - launcher is the name of the launcher, which may be anything
+        - max_time the maximum time that can be used, or -1 if no timeout is set
+
     """
+    jobs_running: List[Tuple[ClientJobId, bool, str, str, str, int, int]]
+    jobs_waiting: List[Tuple[ClientJobId, bool, str, str, int]]
 
-    def __init__(self, available_containers: Tuple[str]):
-        """
-            :param available_containers: list of available container aliases
-        """
-        self.available_containers = available_containers
-
-
-class BackendJobStarted(metaclass=MessageMeta, msgtype="backend_job_started"):
-    """
-        Indicates to the backend that a job started
-    """
-
-    def __init__(self, job_id: ClientJobId):
-        """
-        :param job_id: the client-side job_id associated to the job
-        """
-        self.job_id = job_id
-
-
-class BackendJobDone(metaclass=MessageMeta, msgtype="backend_job_done"):
-    """
-        Gives the result of a job.
-    """
-
-    def __init__(self, job_id: ClientJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], tests: Dict[str, Any],
-                 custom: Dict[str, Any], archive: Optional[bytes], stdout: Optional[str], stderr: Optional[str]):
-        """
-        :param job_id: the client-side job id associated with this job
-        :param result: A tuple containing the result type and the text to be shown to the student
-            Result type can be:
-            - "killed": the container was killed externally (not really an error)
-            - "crash": the container crashed (INGInious error)
-            - "overflow": the container was killed due to a memory overflow (student/task writer error)
-            - "timeout": the container was killed due to a timeout (student/task writer error)
-            - "success": the student succeeded to resolve this task
-            - "failed": the student failed to succeed this task
-            - "error": an error happenned in the grading script (task writer error)
-        :param grade: grade
-        :param problems: particular feedbacks for each subproblem. Keys are subproblem ids.
-        :param tests: tests made in the container
-        :param custom: custom values
-        :param archive: bytes string containing an archive of the content of the container as a tgz
-        :param stdout: container stdout
-        :param stderr: container stderr
-        """
-        self.job_id = job_id
-        self.result = result
-        self.grade = grade
-        self.problems = problems
-        self.tests = tests
-        self.custom = custom
-        self.archive = archive
-        self.stdout = stdout
-        self.stderr = stderr
-
-
-class BackendJobSSHDebug(metaclass=MessageMeta, msgtype="backend_job_ssh_debug"):
-    """
-        Gives the necessary info to SSH into a job running in ssh debug mode
-    """
-
-    def __init__(self, job_id: ClientJobId, host: str, port: int, password: str):
-        """
-        :param job_id: the client-side job id associated with this job
-        :param host: host to which the client should connect
-        :param port: port on which sshd is bound
-        :param password: password that allows to connect to the container
-        """
-        self.job_id = job_id
-        self.host = host
-        self.port = port
-        self.password = password
-
-class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
-    """
-        Send the status of the job queue to the client
-    """
-    def __init__(self, jobs_running: List[Tuple[ClientJobId, bool, str, str, str, int, int]],
-                       jobs_waiting: List[Tuple[ClientJobId, bool, str, str, int]]):
-        """
-        :param jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_end)
-            where
-            - job_id is a job id. It may be from another client.
-            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - agent_name is the agent name
-            - info is "courseid/taskid"
-            - launcher is the name of the launcher, which may be anything
-            - started_at the time (in seconds since UNIX epoch) at which the job started
-            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
-        :param jobs_waiting: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, max_time)
-            where
-            - job_id is a job id. It may be from another client.
-            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - info is "courseid/taskid"
-            - launcher is the name of the launcher, which may be anything
-            - max_time the maximum time that can be used, or -1 if no timeout is set
-        """
-        self.jobs_running = jobs_running
-        self.jobs_waiting = jobs_waiting
 
 #################################################################
 #                                                               #
@@ -211,53 +144,25 @@ class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
 #################################################################
 
 
-class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
-    """
-        Creates a new job
-        B->A.
-    """
-
-    def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool]):
-        """
-        :param job_id: the backend-side job id that is associated to this job
-        :param course_id: course id of the task to run
-        :param task_id: task id of the task to run
-        :param inputdata: student input data
-        :param environment: environment to use
-        :param enable_network: wheter to enable the network or not, in supporting envs
-        :param time_limit: timeout, in seconds, of the task, for supporting envs
-        :param hard_time_limit: timeout, in seconds, of the task, for supporting envs. (hard)
-        :param mem_limit: memory limit in Mo, for supporting envs.
-        :param debug:
-            True to enable debug
-            False to disable it
-            "ssh" to enable ssh debug
-        """
-        self.job_id = job_id
-        self.course_id = course_id
-        self.task_id = task_id
-        self.inputdata = inputdata
-        self.debug = debug
-        self.environment = environment
-        self.enable_network = enable_network
-        self.time_limit = time_limit
-        self.hard_time_limit = hard_time_limit
-        self.mem_limit = mem_limit
+@dataclass(frozen=True)
+class BackendNewJob:
+    """ Creates a new job """
+    job_id: BackendJobId  # the backend-side job id that is associated to this job
+    course_id: str  # course id of the task to run
+    task_id: str  # task id of the task to run
+    task_problems: Dict[str, Any]  # task dictionary
+    inputdata: Dict[str, Any]  # student input data
+    environment_type: str  # environment type
+    environment: str  # environment to use (must exist within the environment type)
+    environment_parameters: Dict[str, Any]  # parameters for the environment (timeouts, limits, ...)
+    debug: Union[str, bool]  # debug: True to enable debug, False to disable it, "ssh" to enable ssh debug
 
 
-class BackendKillJob(metaclass=MessageMeta, msgtype="backend_kill_job"):
-    """
-        Kills a running job.
-        B->A.
-    """
-
-    def __init__(self, job_id: BackendJobId):
-        """
-        :param job_id: the backend-side job id that is associated to the job to kill
-        """
-        self.job_id = job_id
+@dataclass(frozen=True)
+class BackendKillJob:
+    """ Kills a running job. """
+    job_id: BackendJobId  # the backend-side job id that is associated to the job to kill
+    state: str  # submission state in case the job is lost at the agent
 
 
 #################################################################
@@ -267,146 +172,61 @@ class BackendKillJob(metaclass=MessageMeta, msgtype="backend_kill_job"):
 #################################################################
 
 
-class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
-    """
-        Let the agent say hello and announce which containers it has available
-    """
-
-    def __init__(self, friendly_name: str, available_job_slots: int, available_containers: Dict[str, Dict[str, str]]):
-        """
-            :param friendly_name: a string containing a friendly name to identify agent
-            :param available_job_slots: an integer giving the number of concurrent
-            :param available_containers: dict of available containers
-            {
-                "name": {                          #for example, "default"
-                    "id": "container img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                    "created": 12345678            # create date
-                }
-            }
-        """
-
-        self.friendly_name = friendly_name
-        self.available_job_slots = available_job_slots
-        self.available_containers = available_containers
-
-class AgentJobStarted(metaclass=MessageMeta, msgtype="agent_job_started"):
-    """
-        Indicates to the backend that a job started
-        A->B.
-    """
-
-    def __init__(self, job_id: BackendJobId):
-        """
-        :param job_id: the backend-side job_id associated to the job
-        """
-        self.job_id = job_id
+@dataclass(frozen=True)
+class AgentHello:
+    """ Let the agent say hello and announce which environments it has available """
+    friendly_name: str  # a string containing a friendly name to identify agent
+    available_job_slots: int  # an integer giving the number of concurrent
+    available_environments: Dict[str, Dict[str, Dict[str, Any]]]  # dict of available environments:
+    ssh_allowed: bool
+    # {
+    #     "type": {
+    #         "name": {                 #  for example, "default"
+    #             "id": "env img id",   # "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
+    #             "created": 12345678,  # create date
+    #             "ports": [22, 434],   # list of ports needed
+    #         }
+    #     }
+    # }
 
 
-class AgentJobDone(metaclass=MessageMeta, msgtype="agent_job_done"):
-    """
-        Gives the result of a job.
-        A->B.
-    """
-
-    def __init__(self, job_id: BackendJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], tests: Dict[str, Any],
-                 custom: Dict[str, Any], archive: Optional[bytes], stdout: Optional[str], stderr: Optional[str]):
-        """
-        :param job_id: the backend-side job id associated with this job
-        :param result: a tuple that contains the result itself, either:
-            - "killed": the container was killed externally (not really an error)
-            - "crash": the container crashed (INGInious error)
-            - "overflow": the container was killed due to a memory overflow (student/task writer error)
-            - "timeout": the container was killed due to a timeout (student/task writer error)
-            - "success": the student succeeded to resolve this task
-            - "failed": the student failed to succeed this task
-            - "error": an error happenned in the grading script (task writer error)
-            and the feedback text.
-        :param grade: grade
-        :param problems: particular feedbacks for each subproblem. Keys are subproblem ids
-        :param tests: tests made in the container
-        :param custom: custom values
-        :param archive: bytes string containing an archive of the content of the container as a tgz
-        :param stdout: container stdout
-        :param stderr : container stderr
-        """
-        self.job_id = job_id
-        self.result = result
-        self.grade = grade
-        self.problems = problems
-        self.tests = tests
-        self.custom = custom
-        self.archive = archive
-        self.stdout = stdout
-        self.stderr = stderr
+@dataclass(frozen=True)
+class AgentJobStarted:
+    """ Indicates to the backend that a job started """
+    job_id: BackendJobId  # the backend-side job_id associated to the job
 
 
-class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agent_job_ssh_debug"):
-    """
-        Gives the necessary info to SSH into a job running in ssh debug mode
-    """
-
-    def __init__(self, job_id: BackendJobId, host: str, port: int, password: str):
-        """
-        :param job_id: the backend-side job id associated with this job
-        :param host: host to which the client should connect
-        :param port: port on which sshd is bound
-        :param password: password that allows to connect to the container
-        """
-        self.job_id = job_id
-        self.host = host
-        self.port = port
-        self.password = password
-
-
-#################################################################
-#                                                               #
-#                  Killer Watcher Pipeline                      #
-#                                                               #
-#################################################################
-
-class KWPKilledStatus(metaclass=MessageMeta, msgtype="kwp_killed_status"):
-    """
-        Ask watchers in the pipeline to fill this message with data about the container.
-        Watchers should send the updated message throught the pipeline
-    """
-
-    def __init__(self, container_id: str, killed_result: Optional[str] = None):
-        """
-        :param container_id: container to check
-        :param killed_result: result that will be sent to the client (timeout, overflow...) if the container was killed, None if it was None
-        """
-        self.container_id = container_id
-        self.killed_result = killed_result
-
-    def killed(self, reason):
-        """
-        :return: a new KilledStatus with killed_result=reason
-        """
-        return KWPKilledStatus(self.container_id, reason)
-
-    def not_killed(self):
-        """
-        :return: the current KilledStatus
-        """
-        return self
+@dataclass(frozen=True)
+class AgentJobDone:
+    """ Gives the result of a job. """
+    job_id: BackendJobId  # the backend-side job id associated with this job
+    result: SPResult  # a tuple that contains the result itself, either:
+    # - "killed": the environment was killed externally (not really an error)
+    # - "crash": the environment crashed (INGInious error)
+    # - "overflow": the environment was killed due to a memory overflow (student/task writer error)
+    # - "timeout": the environment was killed due to a timeout (student/task writer error)
+    # - "success": the student succeeded to resolve this task
+    # - "failed": the student failed to succeed this task
+    # - "error": an error happenned in the grading script (task writer error)
+    # and the feedback text.
+    grade: float  # grade
+    problems: Dict[str, SPResult]  # particular feedbacks for each subproblem. Keys are subproblem ids
+    tests: Dict[str, Any]  # tests made in the environment
+    custom: Dict[str, Any]  # custom values
+    state: str
+    archive: Optional[bytes]  # bytes string containing an archive of the content of the environment as a tgz
+    stdout: Optional[str]  # environment stdout
+    stderr: Optional[str]  # environment stderr
 
 
-class KWPRegisterContainer(metaclass=MessageMeta, msgtype="kwp_register_container"):
-    """
-        Register a container with given limitations
-    """
-
-    def __init__(self, container_id: str, max_mem: int, timeout: int, timeout_hard: int):
-        """
-        :param container_id: container to register
-        :param max_mem: max memory allowed for the container, in MB
-        :param timeout: timeout in seconds
-        :param timeout_hard: hard timeout in seconds
-        """
-        self.container_id = container_id
-        self.max_mem = max_mem
-        self.timeout = timeout
-        self.timeout_hard = timeout_hard
+@dataclass(frozen=True)
+class AgentJobSSHDebug:
+    """ Gives the necessary info to SSH into a job running in ssh debug mode """
+    job_id: BackendJobId  # the backend-side job id associated with this job
+    host: str  # host to which the client should connect
+    port: int  # port on which sshd is bound
+    user: str  # user the client should use
+    password: str  # password that allows to connect to the environment
 
 
 #################################################################
@@ -415,53 +235,145 @@ class KWPRegisterContainer(metaclass=MessageMeta, msgtype="kwp_register_containe
 #                                                               #
 #################################################################
 
-class Ping(metaclass=MessageMeta, msgtype="ping"):
-    """
-    Ping message
-    """
-
-    def __init__(self):
-        pass
+@dataclass(frozen=True)
+class Ping:
+    """ Ping message """
 
 
-class Pong(metaclass=MessageMeta, msgtype="pong"):
-    """
-    Pong message
-    """
-
-    def __init__(self):
-        pass
+@dataclass(frozen=True)
+class Pong:
+    """ Pong message """
 
 
-class Unknown(metaclass=MessageMeta, msgtype="unknown"):
-    """
-    Unknown message. Sent by a server that do not know a specific client; probably because the server restarted
-    """
-
-    def __init__(self):
-        pass
+@dataclass(frozen=True)
+class Unknown:
+    """ Unknown message. Sent by a server that do not know a specific client; probably because the server restarted """
 
 
 #################################################################
 #                                                               #
-#                     Docker event watcher                      #
+#                      Utility functions                        #
 #                                                               #
 #################################################################
 
-class EventContainerDied(metaclass=MessageMeta, msgtype="event_container_died"):
-    """
-    Message used internally in the Docker Agent to signal that a container has closed
-    """
-
-    def __init__(self, container_id: str, retval: int):
-        self.container_id = container_id
-        self.retval = retval
+def register_message(tcls: Type[Any]):
+    """ Register a new type of message """
+    _registered_messages[tcls.__name__] = tcls
 
 
-class EventContainerOOM(metaclass=MessageMeta, msgtype="event_container_oom"):
+# Add automatically all the dataclasses in this file, for simplicity
+for cls in list(globals().values()):
+    if is_dataclass(cls):
+        register_message(cls)
+
+
+def load(bmessage: bytes) -> Any:
     """
-    Message used internally in the Docker Agent to signal that a container has made an OOM
+        From a bytestring given by a (distant) call to dump(), retrieve the original message
+        :param bmessage: bytestring given by a dump() call on a message
+        :return: the original message
+    """
+    message_dict = msgpack.loads(bmessage, use_list=False, strict_map_key=False)
+
+    message_type = message_dict["@type"]
+    del message_dict["@type"]
+
+    try:
+        cls = _registered_messages[message_type]
+    except:
+        raise TypeError("Unknown message type") from None
+
+    try:
+        obj = cls(**message_dict)
+    except:
+        raise TypeError("Invalid message content") from None
+
+    return obj
+
+
+def dump(msg: Any) -> bytes:
+    """
+    :return: a bytestring containing a black-box representation of the message, that can be loaded using messages.load.
+    """
+    d = asdict(msg)
+    d["@type"] = msg.__class__.__name__
+    return msgpack.dumps(d, use_bin_type=True)
+
+
+class ZMQUtils(object):
+    """
+        Utilities that do serializing/unserializing of messages (whose metaclass is MessageMeta)
     """
 
-    def __init__(self, container_id: str):
-        self.container_id = container_id
+    @classmethod
+    async def recv_with_addr(cls, socket):
+        message = await socket.recv_multipart()
+        addr = message[0]
+        obj = load(message[1])
+        return addr, obj
+
+    @classmethod
+    async def send_with_addr(cls, socket, addr: bytes, obj):
+        message = [addr, dump(obj)]
+        await socket.send_multipart(message)
+
+    @classmethod
+    async def recv(cls, socket, skip_first=False):
+        message = await socket.recv_multipart()
+        return load(message[0] if not skip_first else message[1])
+
+    @classmethod
+    async def send(cls, socket, obj, send_white=False):
+        message_obj = dump(obj)
+        await socket.send_multipart([message_obj] if not send_white else ["", message_obj])
+
+
+def run_tests():
+    print("----------------- Verify basic instantiation")
+    obj = ClientHello("test")
+    print(obj.name)
+    assert obj.name == "test"
+    print()
+
+    print("----------------- Dump test")
+    obj2_dump = dump(obj)  # pylint: disable=no-member
+    print(obj2_dump)
+    print()
+
+    print("----------------- Load test")
+    obj3 = load(obj2_dump)
+    print(type(obj3))
+    assert type(obj3) == ClientHello
+    print(obj3.name)
+    assert obj3.name == "test"
+    print()
+
+    print("----------------- Assignation test")
+    ok = True
+    try:
+        obj3.x = "a"
+        ok = False
+    except:
+        pass
+    if not ok:
+        raise Exception("Should never happen")
+
+    print("---------------- Invalid fields")
+    ok = True
+    try:
+        load(msgpack.dumps({"@type": "ClientHello", "lol": "lol"}))
+        ok = False
+    except:
+        pass
+    if not ok:
+        raise Exception("Should never happen")
+
+    print("---------------- Invalid type")
+    ok = True
+    try:
+        load(msgpack.dumps({"@type": "ClientHell", "name": "test"}))
+        ok = False
+    except:
+        pass
+    if not ok:
+        raise Exception("Should never happen")

@@ -1,0 +1,12 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div id="task_alert_{{inputId}}" class="task_alert_problem"></div>
+
+{{ header | safe }}
+
+<textarea name="{{inputId}}"
+          class="code-editor form-control {% if '/' in inputId %} single {% endif %}"
+          data-x-language="{{language}}"
+          data-x-lines="{{lines}}"
+          data-optional="{% if optional %}{{True}}{% else %}{{False}}{% endif %}">{{ default }}</textarea>

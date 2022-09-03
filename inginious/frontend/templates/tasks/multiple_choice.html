@@ -1,0 +1,13 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div id="task_alert_{{pid}}" class="task_alert_problem"></div>
+{{ header | safe}}
+{% for choice in choices %}
+        <div class="form-check">
+            <input class="form-check-input" type="{% if checkbox %}checkbox{% else %}radio{% endif %}" name="{{pid}}" value="{{choice['index']}}" id="{{pid}}_{{choice['index']}}" />
+            <label class="form-check-label" for="{{pid}}_{{choice['index']}}">
+                {{ func(choice['text']) | safe }}
+            </label>
+        </div>
+{% endfor %}

@@ -25,6 +25,8 @@ class CourseUnreadableException(Exception):
 class CourseAlreadyExistsException(Exception):
     pass
 
+class TaskAlreadyExistsException(Exception):
+    pass
 
 class TaskUnreadableException(Exception):
     pass
@@ -32,3 +34,8 @@ class TaskUnreadableException(Exception):
 
 class TaskReaderNotFoundException(Exception):
     pass
+
+
+class ImportCourseException(Exception):
+    pass
+
