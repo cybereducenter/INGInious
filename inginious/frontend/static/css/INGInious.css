@@ -487,3 +487,11 @@ ul.checked-list-box input[type="checkbox"] {
   overflow: hidden;
   max-height: 200px;
 }
+
+#reset-get-back{
+  color: red;
+}
+
+.btn-ignore-click{
+  background-color: gainsboro;
+}
