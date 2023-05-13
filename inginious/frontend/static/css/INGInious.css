@@ -47,6 +47,7 @@ form#task label {
 /* Task alert message (feedbacks...) */
 #task_alert {
   position: relative;
+  color: #1a1a1a;
 }
 #task_alert #ssh_remote_info pre {
   -moz-user-select: all;
