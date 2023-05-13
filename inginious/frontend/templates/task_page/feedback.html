@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="he">
+    <head>
+
+        <!-- Basic Page Needs ––––––––––––––––––––––––––––––––––––––––––––––––––-->
+        <meta charset="utf-8">
+        <title>Scenario Feedback</title>
+        <meta name="description" content="scenario feedback">
+        <meta name="author" content="">
+
+        <!-- Mobile Specific Metas
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- FONT
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <link href="https://fonts.googleapis.com/css?family=Arimo" rel="stylesheet">
+        <!--<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">-->
+        <!--<link href="//fonts.googleapis.com/css?family=Alef|Open+Sans" rel="stylesheet">-->
+
+        <!-- CSS
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <!-- Loaded by Ingenious. Font Awesome https://www.w3schools.com/icons/fontawesome_icons_intro.asp -->
+        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+        <!--bootstrap is already loaded by Inginious remove after testing -->
+        <!--Loaded by Ingenious. if loaded twice, causes a bug in inginious <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+
+        <!--Loaded by Ingenious. <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
+        <!-- Right to lef -->
+        <!--Loaded by Ingenious. <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css">-->
+        <!--Loaded by Ingenious. <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" crossorigin="anonymous"></script>-->
+
+        <!-- Frontend templates js -->
+        <!--Loaded by Ingenious. <script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js" crossorigin="anonymous"></script>-->
+
+        <!-- task-feedback.css will be loaded by inginious -->
+    </head>
+    <body>
+
+        <!-- Primary Page Layout
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <table id="scenarios-table-task_id_to_replace" class="table table-condensed feedback-table">
+
+        </table>
+
+        <!--here will the modals be injected-->
+        <table id="modals-task_id_to_replace">
+
+        </table>
+
+        <!-- End Document
+
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+        <!--Template for a single scenario row -->
+        <script type="text/x-tmpl" id="tmpl-scenario-row">
+            <tr>
+                <td class="col-md-1 col-xs-1 {{%=o.color%}}">
+
+                    {{% if (!o.result.bool) {{ %}}
+                        <i class="fa fa-times-circle-o feedback-icon" aria-hidden="true"></i>
+                    {{% }} else {{ %}}
+                        <i class="fa fa-check-circle-o feedback-icon" aria-hidden="true"></i>
+                    {{% }} %}}
+                </td>
+
+                <td class="col-md-9 col-xs-9 black-text">
+                    <div class="col-md-1 col-xs-1 pull-right">
+                        #{{%=o.indexId%}}
+                    </div>
+                    <div class="col-md-10 col-xs-10 pull-right">
+                        <div class="row"> {{%=o.name%}} </div>
+                        <div class="row red-text">
+                            {{% if (o.feedback) {{ %}}
+                               {{%=o.feedback.text%}}
+                            {{% }} %}}
+                        </div>
+                    </div>
+
+                </td>
+                <td class="col-md-2 col-xs-2">
+                    <a href="#" class="feedback-link" data-toggle="modal" data-target="#myModal{{%=o.id%}}">פרטים נוספים</a>
+                </td>
+            </tr>
+
+
+        </script>
+        <!--End Template for a single scenario row -->
+
+        <!--Template for a single scenario hidden modal explanation -->
+        <script type="text/x-tmpl" id="tmpl-modal">
+            <div id="myModal{{%=o.id%}}" class="modal modal-wide fade feedback-modal" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header feedback-modal-header">
+                            <button type="button" class="close close-feedback-modal" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title feedback-modal-title">
+                                {{%=o.name%}}:
+                                <span class="{{%=o.color%}}-text">{{%=o.result.text%}}</span>
+                            </h4>
+                        </div>
+                        <div class="modal-body feedback-modal-body">
+                            <div class="row feedback-modal-failure-text">
+                                <b>
+                                {{% if (!o.result.bool) {{ %}}
+                                    {{%=o.feedback.text%}}
+                                {{% }} %}}
+                                </b>
+                            </div>
+
+                            <table class="table table-condensed feedback-modal-table">
+                                <tr class="row feedback-row feedback-modal-text-row">
+                                    <td class="col-md-1 col-xs-1 scenario-text">
+                                        <b>תרחיש:</b>
+                                    </td>
+                                    <td class="col-md-11 col-xs-11 feedback-description">
+                                       {{%=o.description%}}
+                                    </td>
+                                </tr>
+
+                                <tr class="row feedback-row">
+                                    <td id="empty-column" class="col-md-1 col-xs-1">
+
+                                    </td>
+                                    <td class="col-md-11 col-xs-11">
+                                        <div class="shell-wrap feedback-shell">
+                                            <p class="shell-top-bar">Command Line</p>
+                                            <ul class="shell-body">
+                                                <div id="commentable-container-{{%=o.id%}}" class="commentable-container">
+                                                    <div id="scenario_log-{{%=o.id%}}"></div>
+                                                </div>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </script>
+        <!-- End Template for a single scenario hidden modal explanation -->
+
+
+        <script>
+            // will be injected by run.py after run of scenarios
+            var feedbackData = {feedback_json}
+        </script>
+
+        <script>
+            var taskId = 'task_id_to_replace';
+            renderScenarioRows(feedbackData, taskId)
+        </script>
+
+    </body>
+    <script type="application/javascript">
+        // loading jquery twice creates a bug in inginious.
+        // https://github.com/UCL-INGI/INGInious/issues/243
+        // This code prevents it from happening
+        // right now, relaying on iniginious to load the jquery
+
+        $.each(feedbackData, function(id, data) {{
+            fillModalTerminalBoxes(data, id);
+        }});
+
+
+    </script>
+</html>

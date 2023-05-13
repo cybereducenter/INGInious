@@ -234,11 +234,19 @@ class WebAppSubmissionManager:
         """:return a list of available environments """
         return self._client.get_available_environments()
 
-    def get_submission(self, submissionid, user_check=True):
+    def get_submission(self, submissionid, user_check=True, course=None):        
         """ Get a submission from the database """
         sub = self._database.submissions.find_one({'_id': ObjectId(submissionid)})
-        if user_check and not self.user_is_submission_owner(sub):
-            return None
+        if user_check:
+            should_have_permission = False
+            if course:
+                username = self._user_manager.session_username()
+                is_staff = self._user_manager.has_staff_rights_on_course(course, username)
+                is_admin = self._user_manager.has_admin_rights_on_course(course, username)
+                should_have_permission = is_admin or is_staff
+
+            if not (self.user_is_submission_owner(sub) or should_have_permission):
+                return None
         return sub
 
     def add_job(self, task, inputdata, debug=False):
@@ -392,7 +400,16 @@ class WebAppSubmissionManager:
             submission["input"] = inp
             return submission
 
-    def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False,
+    # was created for manual plugin to form a view links for the instructor to view.
+    def get_input_extra_data(self, submission, task, course_id, task_id):
+        program_key = list(submission['input'].keys())[0]
+        submission['download_link'] = '/course/' + course_id + '/' + task_id + '?submissionid=' + str(submission['_id']) + '&questionid=' + program_key
+        # assuming 1 submission to 1 problem .could be wrong
+        submission['problem_type'] = task.get_problems()[0].get_type()
+
+        return submission
+    
+    def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False, inginious_page_object=None,
                                      translation=gettext.NullTranslations()):
         """
             Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
@@ -427,6 +444,11 @@ class WebAppSubmissionManager:
                             'crash', ParsableText(_("Feedback is badly formatted."),
                                                                     submission["response_type"],
                                                                     show_everything, translation).parse())
+        if 'grade' in submission:
+            # space is because frontend is attaching this to alert-'grade_css_class' so we need a separation.
+            if inginious_page_object:
+                submission['grade_css_class'] = ' ' + inginious_page_object.task_factory.get_relevant_color_class_for_grade(submission['grade'])
+
         return submission
 
     def is_running(self, submissionid, user_check=True):
@@ -500,10 +522,12 @@ class WebAppSubmissionManager:
                             "status": "$status",
                             "courseid": "$courseid",
                             "taskid": "$taskid",
-                            "submitted_on": "$submitted_on"
+                            "submitted_on": "$submitted_on",
+                            "grade": "$grade"
                         }},
                         }},
             {"$project": {
+                "grade": 1,
                 "submitted_on": 1,
                 "submissions": {
                     # This could be replaced by $filter if mongo v3.2 is set as dependency

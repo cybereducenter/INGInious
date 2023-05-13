@@ -1,0 +1,221 @@
+.feedback-table{
+    font-family: 'Arimo', sans-serif;
+    font-size: 16px;
+    background-color: white;
+    margin: 15px;
+    direction: rtl;
+    text-align: right;
+    table-layout: fixed;
+}
+
+.feedback-modal{
+    font-family: 'Arimo', sans-serif !important;
+    font-size: 16px;
+    direction: rtl;
+    text-align: center;
+
+}
+
+.feedback-table tbody tr td:first-child {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    word-break: break-all;
+}
+
+.feedback-link{
+    font-size: 14px;
+}
+
+.feedback-icon{
+    margin: auto 7.5px;
+    color: white;
+}
+
+.feedback-icon-python{
+    margin: auto -7.5px;
+}
+
+.terminal-feedback-icon{
+    margin: auto 7.5px;
+    color: #999999;
+}
+
+
+.feedback-modal-title{
+    font-size: 35px;
+    margin: 30px 50px 10px 50px;
+    font-family: 'Arimo', sans-serif !important;
+}
+
+.feedback-modal-failure-text{
+    color: #e7413b;
+    font-size: 18px;
+    margin-bottom: 24px;
+    margin-top: 6px;
+    text-align: right;
+    margin-right: 7px;
+}
+
+.feedback-modal-text-row{
+    font-size: 16px;
+}
+
+.red{
+    background-color: #e7413b;
+}
+.red-text{
+    color: #e7413b;
+}
+
+.green-text{
+    color: #43ac6a;
+}
+
+.black-text{
+    color: #1a1a1a;
+}
+
+.green{
+    background-color: #43ac6a;
+}
+
+.feedback-row{
+    min-height: 100px;
+}
+
+.modal.modal-wide .modal-dialog {
+    width: 850px;
+}
+
+.feedback-shell{
+    direction: ltr;
+    text-align: left;
+}
+
+.feedback-description{
+    text-align: right;
+}
+
+/* The main graybox that surrounds the feedback html */
+#task_alert b{
+    font-size: 18px;
+}
+
+.feedback-modal-table>tbody>tr>td {
+    border: none;
+}
+
+.feedback-modal-body{
+    margin: auto 35px;
+}
+
+.feedback-modal-header{
+    border-bottom: 1px solid black;
+}
+
+.close-feedback-modal {
+        padding-right: 15px !important;
+}
+
+.scenario-text{
+    font-weight: 900;
+}
+
+.feedback-table-python{
+    font-family: 'Arimo', sans-serif;
+    font-size: 16px;
+    background-color: white;
+    margin: 15px;
+    text-align: left;
+    table-layout: fixed;
+}
+
+.python-feedback-table-head th{
+    text-align: center;
+    background-color: #f2f2f2;
+}
+
+
+.python-feedback-p{
+    font-family: 'Arimo', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    direction: rtl;
+    color: #1a1a1a;
+    margin-right: 65px;
+    margin-bottom: 20px;
+}
+
+.python-feedback-table{
+    border: 1px solid #333333;
+    border-radius: 4px;
+}
+
+.python-feedback-table-head{
+    font-family: 'Arimo', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #1a1a1a;
+    text-align: center;
+    width: 305px;
+    border: 1px solid #ccc;
+}
+
+.python-feedback-table-td{
+    font-family: 'Arimo', sans-serif;
+    font-size: 12px;
+    color: #1a1a1a;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
+.python-feedback-table-icon{
+    font-size: 20px;
+    color: #FFFFFF;
+    margin-top: 8px;
+    margin-left: 11px;
+}
+
+.fix-feedback-column-green-red{
+    width: 40px;
+}
+
+
+.feedback-table-python tbody tr td{
+    padding-left: 20px;
+}
+
+.wrap-word {
+    overflow-wrap: break-word;
+}
+
+.td-print-result {
+    display: flex !important;
+    justify-content: space-evenly !important;
+    width: 100%;
+    margin: 0;
+    padding-right: 0px;
+    border: 0px;
+    background-color: #f2f2f2;
+}
+
+.icon-color-red {
+    color: red
+}
+
+.icon-color-green {
+    color: green
+}
+
+.no-margin {
+    margin: 0px;
+}
+
+.no-padding {
+   padding: 0px;
+}
+
+.print-head {
+    display: none;
+}
