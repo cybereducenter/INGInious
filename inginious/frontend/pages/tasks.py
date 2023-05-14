@@ -93,7 +93,7 @@ class BaseTaskPage(object):
         userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
-            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff, course=course)
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=True, course=course)
             if submission is None:
                 raise self.cp.app.notfound(message=_("Submission doesn't exist."))
             sinput = self.submission_manager.get_input_from_submission(submission, True)
@@ -137,7 +137,7 @@ class BaseTaskPage(object):
                     students = group["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
-            submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
+            submissions = self.submission_manager.get_user_submissions(task) 
             submissions = [self.submission_manager.get_feedback_from_submission(submission, inginious_page_object=self) for submission in submissions]
 
             user_info = self.user_manager.get_user_info(username)
@@ -332,7 +332,8 @@ class BaseTaskPage(object):
             'id': str(data["_id"]),
             'submitted_on': str(data['submitted_on']),
             'grade': str(data.get("grade", 0.0)),
-            'replace': replace and not reloading  # Replace the evaluated submission
+            'replace': replace and not reloading,  # Replace the evaluated submission
+            'grade_css_class': data.get('grade_css_class')
         }
 
         if "text" in data:
