@@ -9,82 +9,6 @@
 
 @import "common.less";
 
-.container-fluid
-{
-    max-width: 1200px;
-}
-
-.navbar-brand
-{
-    font-family: 'Yanone Kaffeesatz', sans-serif;
-    font-weight: 300;
-    font-size: 25px;
-
-    img
-    {
-        height: 45px;
-        margin-top: -12px;
-        vertical-align: top;
-        display: inline;
-    }
-}
-
-.navbar
-{
-    -webkit-backface-visibility: hidden;
-}
-
-#main_container
-{
-    #sidebar
-    {
-        height: 100%;
-
-        #sidebar_inner
-        {
-            position: relative;
-            overflow: hidden;
-        }
-
-        #sidebar_affix
-        {
-            @media screen and (max-width: 768px)
-            {
-                position: static !important;
-                margin-bottom: 60px;
-            }
-        }
-
-        .affix
-        {
-            top: 0;
-        }
-
-        .affix-bottom
-        {
-            position: relative;
-        }
-
-        .affix-top
-        {
-            position: relative;
-        }
-
-
-    }
-}
-
-.index-logo
-{
-    position: absolute;
-    right: 0;
-    img
-    {
-        width: 100%;
-        max-width: 300px;
-    }
-}
-
 /*Task debug modal*/
 #task_debug
 {
@@ -105,16 +29,10 @@
     }
 }
 
-.nav-tabs
-{
-    margin-bottom: 15px;
-}
-
 /* Studio files tab close button*/
 .nav-tabs > li.studio_file_editor_tab a .closetab
 {
-    // cursor: pointer;
-    color: #008cba;
+    cursor: pointer;
     border: none;
     background-color: transparent;
     margin: 0;
