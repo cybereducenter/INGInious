@@ -5,8 +5,15 @@
 {% block title %}{{_("Welcome")}}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-sm-4">
+<div class="row">
+    <div class="col-sm-5">
+        <p>
+            <h2>Hello! <small>Welcome on the Cyber Education Center Auto Feedback platform.</small></h2>
+            The platform allows to securely give feedback on a code made by students.
+        </p>
+        <p>Please log in to see the courses.</p>
+    </div>
+    <div class="col-sm-offset-2 col-sm-3 well">
         <div class="card card-body bg-light">
             {% if error is defined and error %}
             <div class="alert alert-danger" role="alert">

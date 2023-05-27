@@ -277,11 +277,11 @@ class SignInPage(INGIniousAuthPage):
 class LogOutPage(INGIniousAuthPage):
     def GET_AUTH(self, *args, **kwargs):
         self.user_manager.disconnect_user()
-        return redirect("/courselist")
+        return redirect("/index")
 
     def POST_AUTH(self, *args, **kwargs):
         self.user_manager.disconnect_user()
-        return redirect("/courselist")
+        return redirect("/index")
 
 
 class INGIniousStaticPage(INGIniousPage):

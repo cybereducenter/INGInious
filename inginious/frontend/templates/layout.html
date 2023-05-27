@@ -117,6 +117,9 @@
             <button class="col" onclick="$('body').toggleClass('sidebar-state-0'); $('body').toggleClass('sidebar-state-1');" id="inginious-sidebar-toggle" title="{{ _('Open menu') }}"><i class="fa fa-bars fa-fw"></i></button>
         </div>
         <div id="inginious-topbar" class="col flex-grow-1 flex-shrink-1">
+            <a id="cec-logo" class="col" href="{{ get_homepath() ~ '/index' if not is_lti() else '#' }}">
+                <div id="cec-logo-text"><img src="{{get_homepath(True)}}/static/images/header.png" alt="logo"/> Cyber Education Center Auto Feedback platform</div>
+            </a>
             {% if not is_lti() %}
                 {% block navbar %}{% endblock %}
             {% endif %}

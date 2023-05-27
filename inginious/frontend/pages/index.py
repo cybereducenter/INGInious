@@ -5,20 +5,16 @@
 
 """ Index page """
 from flask import redirect, url_for
-from inginious.frontend.pages.utils import INGIniousStaticPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-class IndexPage(INGIniousStaticPage):
+class IndexPage(INGIniousAuthPage):
     """ Index page """
 
-    def GET(self):  # pylint: disable=arguments-differ
-        """ Display main course list page """
-        if not self.app.welcome_page:
-            return redirect("/courselist")
-        return self.show_page(self.app.welcome_page)
+    def GET_AUTH(self):  # pylint: disable=arguments-differ
+        return redirect("/mycourses")
+        
 
-    def POST(self):  # pylint: disable=arguments-differ
-        """ Display main course list page """
-        if not self.app.welcome_page:
-            return redirect("/courselist")
-        return self.show_page(self.app.welcome_page)
+    def POST_AUTH(self):  # pylint: disable=arguments-differ
+        return redirect("/mycourses")
+        

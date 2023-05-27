@@ -1,0 +1,63 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+{% block title %}{{_("Welcome")}}{% endblock %}
+
+<div class="row">
+    <div class="col-sm-5">
+        <p>
+            <h2>Hello! <small>Welcome on the Cyber Education Center Auto Feedback platform.</small></h2>
+            The platform allows to securely give feedback on a code made by students.
+        </p>
+        <p>Please log in to see the courses.</p>
+    </div>
+    <div class="col-sm-offset-2 col-sm-5 well">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                Invalid login/password
+            </div>
+        
+        {% if auth_methods|length > 1 %}
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+                {% for authid, (name, _) in auth_methods.items() %}
+                    <li 
+                        $if authid == 0:
+                            class="active"
+                    ><a href="#login-$authid" role="tab" data-toggle="tab">$name</a></li>
+                {% endfor %}
+            </ul>
+        
+        <!-- Tab panes -->
+        <div class="tab-content">
+            {% for authid, (_, fields) in auth_methods.items() %}
+                <div class="tab-pane fade
+                    $if authid == 0:
+                        in active
+                    " id="login-$authid">
+                    <p>
+                        <form role="form" method="post">
+                            <input type="hidden" name="@authid" value="$authid"/>
+                            {% for name, data in fields["input"].items() %}
+                                {% if data["type"] == "password" %}
+                                    $ type="password"
+                                {% else %}
+                                    $ type="text"
+                                {% endif %}
+                                <div class="form-group">
+                                    <label>$data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
+                                </div>
+                            {% endfor %}
+
+                            {% if fields["info"] %}
+                                <div style="margin-bottom: 5px">$:fields["info"]</div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                        </form>
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
