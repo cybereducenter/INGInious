@@ -15,7 +15,7 @@ except ImportError:
 
 try:
     # __version__ = version(__name__)
-    __version__ = "0.8.7"
+    __version__ = "0.8.dev0"
 except PackageNotFoundError:
     __version__ = "0.7.dev0"
 
