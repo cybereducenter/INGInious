@@ -14,8 +14,7 @@ except ImportError:
     from importlib_metadata import version, PackageNotFoundError
 
 try:
-    # __version__ = version(__name__)
-    __version__ = "0.8.dev0"
+    __version__ = version(__name__)
 except PackageNotFoundError:
     __version__ = "0.7.dev0"
 
