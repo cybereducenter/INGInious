@@ -131,6 +131,8 @@
     /* margin: 15px; */
     text-align: left;
     /* table-layout: fixed; */
+    margin-bottom: 0;
+    padding: 0;
 }
 
 .python-feedback-table-head th{
