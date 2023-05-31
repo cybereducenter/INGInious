@@ -2,10 +2,10 @@
     font-family: 'Arimo', sans-serif;
     font-size: 16px;
     background-color: white;
-    margin: 15px;
+    /* margin: 15px; */
     direction: rtl;
     text-align: right;
-    table-layout: fixed;
+    /* table-layout: fixed; */
 }
 
 .feedback-modal{
@@ -126,9 +126,9 @@
     font-family: 'Arimo', sans-serif;
     font-size: 16px;
     background-color: white;
-    margin: 15px;
+    /* margin: 15px; */
     text-align: left;
-    table-layout: fixed;
+    /* table-layout: fixed; */
 }
 
 .python-feedback-table-head th{
