@@ -43,6 +43,12 @@ function init_task_page(evaluate)
         $(this).on('click', clickOnSubmission);
     });
 
+    $('.optional-upload-file-btn-js').change(uploadFile);
+    $('.btn-ignore-click').click(function(e){
+        e.preventDefault();
+        $(this).parent().find('.optional-upload-file-btn-js').click()
+    });
+
     // Allows to close cards
     $(document).on('click', '[data-dismiss="card"]', function(event) {event.target.closest('.card').remove()});
 }
@@ -241,7 +247,7 @@ function taskFormValid()
         }
     });
 
-    form.find('input[type="file"]').each(function()
+    form.find('input[type="file"]:not(.optional-upload-file-btn-js)').each(function()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
@@ -556,7 +562,12 @@ function displayTaskStudentAlertWithProblems(content, type)
     resetAlerts();
 
     var firstPos = -1;
-    var task_alert = $('#task_alert');
+
+    if (window.specificTaskId) {
+        var task_alert = window.specificTaskId
+    } else {
+        var task_alert = $('#task_alert');
+    }
 
     if("title" in content)
     {

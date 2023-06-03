@@ -223,3 +223,7 @@
 .print-head {
     display: none;
 }
+
+.gray{
+    background: #e6e6e6;
+}
