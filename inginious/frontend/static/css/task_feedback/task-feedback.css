@@ -227,3 +227,42 @@
 .gray{
     background: #e6e6e6;
 }
+
+.gray{
+    background: #e6e6e6;
+}
+.grade_0 {
+    background: #d9534f;
+}
+
+.grade_20 {
+    background: #dd5c58;
+}
+
+.grade_40 {
+    background: #e26562;
+}
+
+.grade_50 {
+    background: #ff9900;
+}
+
+.grade_60 {
+    background: #f0750f;
+}
+
+.grade_70 {
+    background: #f07500;
+}
+
+.grade_80 {
+    background: #5cb85c;
+}
+
+.grade_90 {
+    background: #387F2E;
+}
+
+.grade_100 {
+    background: #237f00;
+}
