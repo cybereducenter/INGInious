@@ -79,6 +79,14 @@ form#task label {
   width: 100%;
   height: 600px;
 }
+
+#task_alert .card-body {
+  padding-left: 15px;
+  padding-right: 35px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
 #task_alert .card-body p:last-child,
 .task_alert_problem .card-body p:last-child {
   margin-bottom: 0;
@@ -93,6 +101,9 @@ form#task label {
   padding: 0.5em 0.5em;
   font-size: 1.5em;
   font-weight: bold;
+}
+#task_alert .table td {
+  padding: 5px;
 }
 /* Submission history */
 #submissions_restrictsize {
