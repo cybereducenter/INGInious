@@ -628,10 +628,10 @@ function getAlertCode(title, content, type, dismissible, additionnal_content)
     //Style 1, when there is a title, display it
     if(title !== "") {
         a += '<div class="col">';
-        a += '<div class="card-header bg-' + type + ' text-white">';
+        a += '<div class="card-header bg-' + type + '">';
         if (dismissible)
             a += '<button type="button" class="close" data-dismiss="card" style="color: white;"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
-        a += title;
+        a += '<b>' + title + '</b>';
         a += '</div>';
         if (content !== "") {
             a += '<div class="card-body bg-' + type + '">';
