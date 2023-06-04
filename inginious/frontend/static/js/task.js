@@ -571,7 +571,7 @@ function displayTaskStudentAlertWithProblems(content, type)
 
     if("title" in content)
     {
-        task_alert.html(getAlertCode(content.title, content.text, type, true));
+        task_alert.html(getAlertCode(content.title, content.text, content.grade_css_class, true));
         firstPos = task_alert.offset().top;
     }
 
