@@ -213,14 +213,8 @@
             <ul id="submissions" class="list-group">
                 {% if submissions %}
                     {% for submission in submissions %}
-                        <li class="submission list-group-item list-group-item-action
-                            {% if submission['status'] == 'done' and submission['result'] == 'success' %}
-                                list-group-item-success
-                            {% elif submission['status'] == 'waiting' %}
-                                list-group-item-warning
-                            {% else %}
-                                list-group-item-danger
-                            {% endif %}"
+                        <li class="submission list-group-item list-group-item-action 
+                            {{ submission['grade_css_class'] }}
                             data-submission-id="{{ submission['_id'] }}">
 
                             <!-- Tags -->
