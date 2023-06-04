@@ -61,6 +61,11 @@ class SubmissionPage(INGIniousAdminPage):
             translation=self.app.l10n_manager.get_translation_obj()
         )
 
+        grade = 0 if not submission else submission.get('grade', 0)
+        color_css_class = self.task_factory.get_relevant_color_class_for_grade(grade)
+        if color_css_class:
+            submission["grade_css_class"] = color_css_class
+
         to_display = {
             problem.get_id(): {
                 "id": problem.get_id(),
