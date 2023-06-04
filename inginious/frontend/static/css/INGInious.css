@@ -113,6 +113,11 @@ form#task label {
 }
 .submission {
   cursor: pointer;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 15px;
+  padding-left: 15px;
+  color:#222222
 }
 /* Codemirror */
 .cm-s-default {
