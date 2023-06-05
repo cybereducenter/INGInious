@@ -152,7 +152,8 @@ body {
 #main-container {
   min-height: 100%;
   flex-grow: 100;
-  margin: 0;
+  margin-right: auto;
+  margin-left: auto;
   padding: 0;
 }
 #main-container > .col {
@@ -167,11 +168,6 @@ body {
 #main-container > .col > .table:first-child,
 #main-container > .col > #inginious-sidebar-content > .table:first-child {
   margin-left: 15px;
-}
-.container-fluid {
-  max-width: 1200px;
-  margin-right: auto;
-  margin-left: auto;
 }
 #inginious-top {
   padding: 0;
