@@ -168,6 +168,11 @@ body {
 #main-container > .col > #inginious-sidebar-content > .table:first-child {
   margin-left: 15px;
 }
+.container-fluid {
+  max-width: 1200px;
+  margin-right: auto;
+  margin-left: auto;
+}
 #inginious-top {
   padding: 0;
   margin: 0;
