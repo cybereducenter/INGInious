@@ -118,12 +118,6 @@
                 {% block navbar %}{% endblock %}
             {% endif %}
         </div>
-        <div id="inginious-sidebar-top" class="col">
-            <a id="inginious-logo" class="col" href="{{ get_homepath() ~ '/index' if not is_lti() else '#' }}">
-                <div id="inginious-logo-text"><img src="{{get_homepath(True)}}/static/images/header.png" alt="logo"/> INGInious</div>
-            </a>
-            <button class="col" onclick="$('body').toggleClass('sidebar-state-0'); $('body').toggleClass('sidebar-state-1');" id="inginious-sidebar-toggle" title="{{ _('Open menu') }}"><i class="fa fa-bars fa-fw"></i></button>
-        </div>
     </div>
 
     <div class="row" id="main-container">
