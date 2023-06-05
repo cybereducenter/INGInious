@@ -152,8 +152,7 @@ body {
 #main-container {
   min-height: 100%;
   flex-grow: 100;
-  margin-right: auto;
-  margin-left: auto;
+  margin: 0;
   padding: 0;
 }
 #main-container > .col {
