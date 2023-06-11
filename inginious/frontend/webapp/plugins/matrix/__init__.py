@@ -5,20 +5,18 @@
 
 """ Matrix plugin - show course overview of student grades """
 import logging
-import os
+import web
 from collections import OrderedDict
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
+from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
 from inginious.common.tasks_constants import TaskConstants
 from datetime import datetime
 import pymongo
 
-PATH_TO_PLUGIN = os.path.abspath(os.path.dirname(__file__))
-
 
 class MatrixPage(INGIniousAdminPage):
-    def GET_AUTH(self, *args, **kwargs):
+    def GET_AUTH(self, courseid):
         """ GET request """
-        course = self.get_course_and_check_rights('python', allow_all_staff=True)[0]
+        course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
         data_users = []
 
         """ Get all information about the users """
@@ -37,12 +35,9 @@ class MatrixPage(INGIniousAdminPage):
             data_user = self._calc_user_data(course, order_tasks, users[user])
             data_users.append(data_user)
 
-        return self.template_helper.render("admin.html", 
-                                           template_folder='frontend/plugins/matrix',
-                                           course=course, 
-                                           data_users=data_users, 
-                                           order_tasks=order_tasks, 
-                                           possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/matrix')\
+            .admin(course, data_users, order_tasks, TaskConstants.ORDERED_GRADE_COLORS_RANGE)
+
 
     def _get_ordered_task(self, course):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
@@ -83,7 +78,7 @@ class MatrixPage(INGIniousAdminPage):
         username = user_data['username']
         course_id = course.get_id()
         ordered_tasks_for_user = OrderedDict([(taskid.get_id(), {"taskid": taskid,
-                                                                 "name": taskid.get_name('en'),
+                                                                 "name": taskid.get_name(),
                                                                  "tried": 0,
                                                                  "status": TaskConstants.DEFAULT_STATUS,
                                                                  "grade": 0}) for taskid in order_tasks])
@@ -154,16 +149,13 @@ def add_admin_menu(course):
 
 def add_css_file():
     """ Add matrix css file to the admin page """
-    return "http://localhost"  + '/static/css/matrix.css'
+    return web.ctx.homepath + '/static/webapp/plugins/matrix/matrix.css'
 
 
 def init(plugin_manager, _, _2, _3):
     """ Init the matrix plugin """
-    logger = logging.getLogger("inginious.frontend.plugins.matrix")
-    logger.info("start init")
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
-    # plugin_manager.add_hook('main_menu', add_admin_menu)
+    plugin_manager.add_hook('course_admin_main_menu', add_admin_menu)
     plugin_manager.add_hook('css', add_css_file)
-    plugin_manager.add_page("/admin/python/matrix", MatrixPage.as_view('matrtix'))
-    logger.info("end   init")
+    plugin_manager.add_page("/admin/([^/]+)/matrix", MatrixPage)
 
