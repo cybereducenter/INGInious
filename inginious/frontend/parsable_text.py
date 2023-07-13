@@ -213,8 +213,8 @@ class _CustomHTMLWriter(html4css1.Writer, object):
                 self.body.append(self.starttag(node, 'div', CLASS='card mb-3 border-' + cls))
 
                 card_color = "bg-" + cls
-                if cls not in ['default', 'light', 'secondary']:
-                    card_color += ' text-white'
+                # if cls not in ['default', 'light', 'secondary']:
+                #     card_color += ' text-white'
 
                 self.body.append(self.starttag(node, 'div', CLASS='card-header ' + card_color))
                 self.body.append(self.encode(node['title']))

@@ -337,6 +337,27 @@ def make_csv(data):
     return response
 
 
+def calculate_time_passed_since(time_of_event):
+    '''
+    :param time_of_event: datetime
+    :return: time passed in string.
+    if more than 3 months, than X months ago
+    if more than a day, than X days ago
+    if more than an hour, than X hours ago
+    if less than an hour, than X minutes ago
+    '''
+    time_passed = datetime.now() - time_of_event
+    if time_passed.days > 90:
+        return str(int(time_passed.days / 30)) + ' months ago'
+    elif time_passed.days > 0:
+        return str(time_passed.days) + ' days ago'
+    else: # time_passed.days  == 0
+        if time_passed.seconds > 60 * 60:
+            return str(int(time_passed.seconds / 60 / 60)) + ' hours ago'
+        else:
+            return str(int(time_passed.seconds / 60)) + ' minutes ago'
+        
+        
 def get_menu(course, current, renderer, plugin_manager, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []

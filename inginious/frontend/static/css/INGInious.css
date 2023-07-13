@@ -93,6 +93,9 @@ form#task label {
   font-size: 1.5em;
   font-weight: bold;
 }
+#task_alert .table td {
+  padding: 5px;
+}
 /* Submission history */
 #submissions_restrictsize {
   overflow: auto;
@@ -410,7 +413,7 @@ body {
 .breadcrumb .breadcrumb-item a {
   color: white;
   padding-left: 1rem;
-  font-size: 1.5em;
+  font-size: 1.1em;
 }
 .breadcrumb .breadcrumb-item a:hover {
   text-decoration: none;
