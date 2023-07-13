@@ -104,6 +104,11 @@ form#task label {
 }
 .submission {
   cursor: pointer;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 15px;
+  padding-left: 15px;
+  color:#222222
 }
 /* Codemirror */
 .cm-s-default {
@@ -413,7 +418,7 @@ body {
 .breadcrumb .breadcrumb-item a {
   color: white;
   padding-left: 1rem;
-  font-size: 1.1em;
+  font-size: 1.5em;
 }
 .breadcrumb .breadcrumb-item a:hover {
   text-decoration: none;
@@ -494,4 +499,11 @@ ul.checked-list-box input[type="checkbox"] {
 .card-trunc {
   overflow: hidden;
   max-height: 200px;
+}
+#reset-get-back {
+  color: red;
+}
+
+.btn-ignore-click {
+  background-color: gainsboro;
 }

@@ -41,6 +41,7 @@ class TemplateHelper(object):
         self._layout_old = 'frontend/templates/layout_old'
         self._template_globals = {}
         self._ctx = {"javascript": {"footer": [], "header": []}, "css": []}
+        self._root_path = inginious.get_root_path()
 
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)

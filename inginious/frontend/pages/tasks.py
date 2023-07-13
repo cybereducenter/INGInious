@@ -13,6 +13,9 @@ import urllib.request
 import random
 import time
 import flask
+import traceback
+import codecs
+import locale
 
 from flask import redirect, Response
 from werkzeug.exceptions import NotFound, HTTPException
@@ -38,6 +41,8 @@ class BaseTaskPage(object):
         self.default_max_file_size = self.cp.default_max_file_size
         self.webterm_link = self.cp.webterm_link
         self.plugin_manager = self.cp.plugin_manager
+        self.task_factory = self.cp.task_factory
+        self.logger = self.cp.logger
 
     def preview_allowed(self, courseid, taskid):
         try:
@@ -88,7 +93,7 @@ class BaseTaskPage(object):
         userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
-            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff, course=course)
             if submission is None:
                 raise self.cp.app.notfound(message=_("Submission doesn't exist."))
             sinput = self.submission_manager.get_input_from_submission(submission, True)
@@ -133,6 +138,8 @@ class BaseTaskPage(object):
                 # we don't care for the other case, as the student won't be able to submit.
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
+            submissions = [self.submission_manager.get_feedback_from_submission(submission, inginious_page_object=self) for submission in submissions]
+
             user_info = self.user_manager.get_user_info(username)
 
             # Visible tags
@@ -161,14 +168,15 @@ class BaseTaskPage(object):
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
             return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
-        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
-        is_admin = self.user_manager.has_admin_rights_on_course(course, username)
-
         task = course.get_task(taskid)
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.render("task_unavailable.html")
 
         self.user_manager.user_saw_task(username, courseid, taskid)
+
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
+        is_admin = self.user_manager.has_admin_rights_on_course(course, username)
+        task_type = task._type
 
         userinput = flask.request.form
         if "@action" in userinput and userinput["@action"] == "submit":
@@ -213,6 +221,9 @@ class BaseTaskPage(object):
                     debug = "ssh"
                 del userinput['@debug-mode']
 
+            if len(task._problems) > 0 and task._problems[0].get_type() == 'code':
+                    userinput = self.add_feedback_html_to_user_input(userinput, taskid, task_type)
+
             # Start the submission
             try:
                 submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
@@ -228,13 +239,17 @@ class BaseTaskPage(object):
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
             result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
             if result is None:
+                self.logger.error('error in getting results for ' + repr(username) + ' submissionid ' +repr(userinput['submissionid']))
                 return Response(content_type='application/json', response=json.dumps({
                     'status': "error",  "title": _("Error"), "text": _("Internal error")
                 }))
             elif self.submission_manager.is_done(result, user_check=not is_staff):
+                self.logger.info('student got results ' + repr(username) + ' submissionid ' +repr(userinput['submissionid']))
                 result = self.submission_manager.get_input_from_submission(result)
-                result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
+                result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff, inginious_page_object=self)
 
+                # per ana's design, this alert box should always be gray no matter what the grade is.
+                result['grade_css_class'] = ' grade gray feedback-box'
                 # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
                     "courseid":task.get_course_id(),
@@ -253,6 +268,7 @@ class BaseTaskPage(object):
                     task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags()
                 ))
             else:
+                self.logger.info('student is waiting for results ' + repr(username) + ' submissionid ' +repr(userinput['submissionid']))
                 return Response(content_type='application/json', response=self.submission_to_json(
                     task, result, is_admin, False, tags=course.get_tags()
                 ))
@@ -260,7 +276,7 @@ class BaseTaskPage(object):
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             submission = self.submission_manager.get_input_from_submission(submission)
-            submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
+            submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff, inginious_page_object=self)
             if not submission:
                 raise NotFound(description=_("Submission doesn't exist."))
 
@@ -315,7 +331,8 @@ class BaseTaskPage(object):
             'id': str(data["_id"]),
             'submitted_on': str(data['submitted_on']),
             'grade': str(data.get("grade", 0.0)),
-            'replace': replace and not reloading  # Replace the evaluated submission
+            'replace': replace and not reloading,  # Replace the evaluated submission
+            'grade_css_class': data.get('grade_css_class')
         }
 
         if "text" in data:
@@ -327,7 +344,7 @@ class BaseTaskPage(object):
             tojson["debug"] = self._cut_long_chains(data)
 
         if tojson['status'] == 'waiting':
-            tojson["title"] = _("<b>Your submission has been sent...</b>")
+            tojson["title"] = _("Your submission has been sent...")
         elif tojson["result"] == "failed":
             tojson["title"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "success":
@@ -342,7 +359,8 @@ class BaseTaskPage(object):
             tojson["title"] = _("An internal error occurred. Please retry later. "
                                 "If the error persists, send an email to the course administrator.")
 
-        tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
+        tojson["title"] = "<b>" + tojson["title"] + "</b>"
+        # tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
         tojson["title"] = self.plugin_manager.call_hook_recursive("feedback_title", task=task, submission=data, title=tojson["title"])["title"]
         
         tojson["text"] = data.get("text", "")
@@ -369,7 +387,7 @@ class BaseTaskPage(object):
 
         return json.dumps(tojson, default=str)
 
-    def _cut_long_chains(self, data, limit=1000):
+    def _cut_long_chains(self, data, limit=200000):
         """ Cut all strings and byte chains in a dictionary
             if they exceed a limit in characters or bytes """
 
@@ -387,6 +405,40 @@ class BaseTaskPage(object):
             return new_data
         return data
 
+    def add_feedback_html_to_user_input(self, user_input, task_id, task_type):
+        try:
+
+            # couldn't open with  get_renderer, errors on js, tries to render the page and run the js
+            feedback_file_name = self.get_feedback_file_name(task_type)
+            file_path = self.template_helper._root_path + '/'+ self.template_helper._template_dir + '/task_page/' +feedback_file_name
+            with codecs.open(file_path,'r',encoding='utf8') as f:
+                feedback_html = f.read()
+            # todo, in order to support multiple scenario boxes in the same html page,
+            # it might be a good idea to render the html with the task id in it (05-06, for example)
+            # that way, the way the js will render in the appropriate modal
+            feedback_html_injected_with_id = feedback_html.replace('task_id_to_replace', task_id)
+            feedback_html_injected_with_id = '.. raw:: html' + '\n' + self.indent(feedback_html_injected_with_id, 4)
+            user_input['html_template'] = feedback_html_injected_with_id
+        except Exception as err:
+            prefered_encoding = locale.getpreferredencoding()
+            self.logger.error( ' ---- prefered_encoding ' + repr(prefered_encoding))
+            # text = 'error template_helper --- ' + repr(err)
+            # self.logger.error(text)
+            self.logger.error('traceback data is ' + traceback.format_exc())
+            user_input['html_template'] = ''
+
+        return user_input
+
+
+    def get_feedback_file_name(self, task_type):
+        if task_type == 'python-unit-test':
+            return 'feedback_python.html'
+
+        return 'feedback.html'
+    
+    def indent(self, text, amount, ch=' '):
+        padding = amount * ch
+        return ''.join(padding + line for line in text.splitlines(True))
 
 class TaskPageStaticDownload(INGIniousPage):
     """ Allow to download files stored in the task folder """

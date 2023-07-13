@@ -4,25 +4,24 @@
 //
 "use strict";
 
-function init_task_page(evaluate)
-{
+function init_task_page(evaluate) {
     evaluatedSubmission = evaluate;
 
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
-    task_form.on('submit', function() {
+    task_form.on('submit', function () {
         submitTask(false);
         return false;
     });
 
     //Init the button that start a remote ssh server for debugging
-    $('form#task #task-submit-debug').on('click', function() {
+    $('form#task #task-submit-debug').on('click', function () {
         submitTask(true);
     });
 
     //if INGInious tells us to wait for another submission
     //this takes precedence over the link in the URL, in order to be consistent.
-    if(task_form.attr("data-wait-submission")) {
+    if (task_form.attr("data-wait-submission")) {
         loadOldSubmissionInput(task_form.attr("data-wait-submission"), false);
         waitForSubmission(task_form.attr("data-wait-submission"));
     }
@@ -31,20 +30,26 @@ function init_task_page(evaluate)
         try {
             // the class URLSearchParams may not exist in older browsers...
             var loadFromURL = (new URLSearchParams(document.location.search.substring(1))).get("load");
-            if(loadFromURL !== null)
+            if (loadFromURL !== null)
                 loadOldSubmissionInput(loadFromURL, true);
         }
-        catch(error) {
-          console.error(error);
+        catch (error) {
+            console.error(error);
         }
     }
 
-    $('.submission').each(function() {
+    $('.submission').each(function () {
         $(this).on('click', clickOnSubmission);
     });
 
+    $('.optional-upload-file-btn-js').change(uploadFile);
+    $('.btn-ignore-click').click(function (e) {
+        e.preventDefault();
+        $(this).parent().find('.optional-upload-file-btn-js').click()
+    });
+
     // Allows to close cards
-    $(document).on('click', '[data-dismiss="card"]', function(event) {event.target.closest('.card').remove()});
+    $(document).on('click', '[data-dismiss="card"]', function (event) { event.target.closest('.card').remove() });
 }
 
 var evaluatedSubmission = 'best';
@@ -52,10 +57,8 @@ var evaluatedSubmission = 'best';
 var loadingSomething = false;
 
 //Blur task form
-function blurTaskForm()
-{
-    $.each(codeEditors, function(idx, editor)
-    {
+function blurTaskForm() {
+    $.each(codeEditors, function (idx, editor) {
         editor.setOption("readOnly", true);
     });
     var task_form = $('form#task');
@@ -64,10 +67,8 @@ function blurTaskForm()
     loadingSomething = true;
 }
 
-function unblurTaskForm()
-{
-    $.each(codeEditors, function(idx, editor)
-    {
+function unblurTaskForm() {
+    $.each(codeEditors, function (idx, editor) {
         editor.setOption("readOnly", false);
     });
     var task_form = $('form#task');
@@ -77,22 +78,19 @@ function unblurTaskForm()
 }
 
 //Reset all alerts
-function resetAlerts()
-{
+function resetAlerts() {
     $('#task_alert').html('');
     $('.task_alert_problem').html('');
 }
 
 //Increment tries count
-function incrementTries()
-{
+function incrementTries() {
     var ttries = $('#task_tries');
     ttries.text(parseInt(ttries.text()) + 1);
 }
 
 //Update task status
-function updateTaskStatus(newStatus, grade)
-{
+function updateTaskStatus(newStatus, grade) {
     var task_status = $('#task_status');
     var task_grade = $('#task_grade');
 
@@ -101,8 +99,7 @@ function updateTaskStatus(newStatus, grade)
 }
 
 //Creates a new submission (right column)
-function displayNewSubmission(id)
-{
+function displayNewSubmission(id) {
     var submissions = $('#submissions');
     submissions.find('.submission-empty').remove();
 
@@ -112,9 +109,9 @@ function displayNewSubmission(id)
     }).on('click', clickOnSubmission);
 
     jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
-    
+
     //If there exists tags, we add a badge with '0' in the new submission.
-    if($('span', $('#main_tag_group')).length > 0){
+    if ($('span', $('#main_tag_group')).length > 0) {
         submission_link.append('<span class="badge alert-info" id="tag_counter" >0</span>');
     }
 
@@ -128,8 +125,8 @@ function displayNewSubmission(id)
 function removeSubmission(id) {
     var item;
 
-    $('#submissions').find('.submission').each(function() {
-        if($(this).attr('data-submission-id').trim() == id)
+    $('#submissions').find('.submission').each(function () {
+        if ($(this).attr('data-submission-id').trim() == id)
             item = $(this)
     });
 
@@ -137,24 +134,21 @@ function removeSubmission(id) {
 }
 
 //Updates a loading submission
-function updateSubmission(id, result, grade, tags)
-{
+function updateSubmission(id, result, grade, tags) {
     grade = grade || "0.0";
 
     var nclass = "";
-    if(result == "success") nclass = "list-group-item-success";
-    else if(result == "save") nclass = "list-group-item-save";
+    if (result == "success") nclass = "list-group-item-success";
+    else if (result == "save") nclass = "list-group-item-save";
     else nclass = "list-group-item-danger";
-    $('#submissions').find('.submission').each(function()
-    {
-        if($(this).attr('data-submission-id').trim() == id)
-        {
+    $('#submissions').find('.submission').each(function () {
+        if ($(this).attr('data-submission-id').trim() == id) {
             $(this).removeClass('list-group-item-warning').addClass(nclass);
             var date = $(this).find("span[id='txt']");
             date.text(date.text() + " - " + grade + "%");
-            
+
             //update the badge
-            updateTagsToNewSubmission($(this), tags);  
+            updateTagsToNewSubmission($(this), tags);
         }
     });
 }
@@ -163,13 +157,13 @@ function updateSubmission(id, result, grade, tags)
 function displayEvaluatedSubmission(id, fade) {
     var item;
 
-    $('#submissions').find('.submission').each(function() {
-        if($(this).attr('data-submission-id').trim() == id)
+    $('#submissions').find('.submission').each(function () {
+        if ($(this).attr('data-submission-id').trim() == id)
             item = $(this)
     });
 
     // LTI does not support selecting a specific submission for evaluation
-    if($("#my_submission").length) {
+    if ($("#my_submission").length) {
         var text = item.find("span[id='txt']").html();
         var submission_link = jQuery('<a/>', {
             href: "#",
@@ -178,7 +172,7 @@ function displayEvaluatedSubmission(id, fade) {
             "data-submission-id": id
         }).on('click', clickOnSubmission);
 
-        jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
+        jQuery('<i/>', { class: "fa fa-chevron-right fa-fw" }).appendTo(submission_link).after("&nbsp;");
         submission_link.append(text);
 
         if (fade) {
@@ -196,17 +190,15 @@ function displayEvaluatedSubmission(id, fade) {
 }
 
 //Submission's click handler
-function clickOnSubmission()
-{
-    if(loadingSomething)
+function clickOnSubmission() {
+    if (loadingSomething)
         return;
     loadOldSubmissionInput($(this).attr('data-submission-id'), true);
     $('body').removeClass('sidebar-active');
 }
 
 //Get current datetime
-function getDateTime()
-{
+function getDateTime() {
     var MyDate = new Date();
 
     return ('0' + MyDate.getDate()).slice(-2) + '/'
@@ -218,36 +210,30 @@ function getDateTime()
 }
 
 //Verify the task form (files, ...)
-function taskFormValid()
-{
+function taskFormValid() {
     var answered_to_all = true;
     var errors = [];
     var form = $('#task');
 
-    form.find('textarea,input[type="text"]').each(function()
-    {
-        if($(this).attr('name') != undefined) //skip codemirror's internal textareas
+    form.find('textarea,input[type="text"]').each(function () {
+        if ($(this).attr('name') != undefined) //skip codemirror's internal textareas
         {
-            if($(this).val() == "" && $(this).attr('data-optional') != "True")
+            if ($(this).val() == "" && $(this).attr('data-optional') != "True")
                 answered_to_all = false;
         }
     });
 
-    form.find('input[type="checkbox"],input[type="radio"]').each(function()
-    {
-        if(form.find("input[name='"+ $(this).attr('name')+"']:checked").length == 0)
-        {
+    form.find('input[type="checkbox"],input[type="radio"]').each(function () {
+        if (form.find("input[name='" + $(this).attr('name') + "']:checked").length == 0) {
             answered_to_all = false;
         }
     });
 
-    form.find('input[type="file"]').each(function()
-    {
+    form.find('input[type="file"]:not(.optional-upload-file-btn-js)').each(function () {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
         //file input fields cannot be optional
-        if(filename == "")
-        {
+        if (filename == "") {
             answered_to_all = false;
             return;
         }
@@ -255,35 +241,33 @@ function taskFormValid()
         //verify ext
         var allowed_extensions = $.parseJSON($(this).attr('data-allowed-exts'));
         var has_one = false;
-        $.each(allowed_extensions, function(idx, ext){
+        $.each(allowed_extensions, function (idx, ext) {
             has_one = has_one || (filename.lastIndexOf(ext) === filename.length - ext.length) > 0;
         });
-        if(!has_one)
+        if (!has_one)
             errors.push($("#invalidext").text().replace("{}", filename));
 
         //try to get the size of the file
         var size = -1;
-        try { size = $(this)[0].files[0].size; } catch (e) {} //modern browsers
-        if(size == -1) try { size = $(this)[0].files[0].fileSize; } catch(e) { } //old versions of Firefox
+        try { size = $(this)[0].files[0].size; } catch (e) { } //modern browsers
+        if (size == -1) try { size = $(this)[0].files[0].fileSize; } catch (e) { } //old versions of Firefox
 
         //Verify the maximum size
         var max_size = parseInt($(this).attr('data-max-size'));
-        if(size != -1 && size > max_size)
+        if (size != -1 && size > max_size)
             errors.push($("#filetooheavy").text().replace("{}", filename));
     });
 
-    if(!answered_to_all)
-    {
+    if (!answered_to_all) {
         errors.push($("#answerall").text());
     }
 
-    if(errors.length != 0)
-    {
+    if (errors.length != 0) {
         var task_alert = $('#task_alert');
         var content = $('<div></div>');
         var first = true;
-        $.each(errors, function(idx, elem){
-            if(!first)
+        $.each(errors, function (idx, elem) {
+            if (!first)
                 content.append($('<br>'));
             first = false;
             content.append($('<span></span>').text(elem));
@@ -294,19 +278,17 @@ function taskFormValid()
         }, 200);
         return false;
     }
-    else
-    {
+    else {
         return true;
     }
 }
 
 //Submits a task
-function submitTask(with_ssh)
-{
-    if(loadingSomething)
+function submitTask(with_ssh) {
+    if (loadingSomething)
         return;
 
-    if(!taskFormValid())
+    if (!taskFormValid())
         return;
 
     $('#task-debug-mode').val(with_ssh ? "ssh" : "");
@@ -315,34 +297,30 @@ function submitTask(with_ssh)
     $('form#task').ajaxSubmit(
         {
             dataType: 'json',
-            success:  function(data)
-                      {
-                          if("status" in data && data["status"] == "ok" && "submissionid" in data)
-                          {
-                              displayTaskLoadingAlert(data, data["submissionid"]);
-                              incrementTries();
-                              displayNewSubmission(data['submissionid']);
-                              waitForSubmission(data['submissionid']);
-                          }
-                          else if("status" in data && data['status'] == "error" && "text" in data)
-                          {
-                              displayTaskStudentAlertWithProblems(data, "danger", false);
-                              updateTaskStatus(data["text"], 0);
-                              unblurTaskForm();
-                          }
+            success: function (data) {
+                if ("status" in data && data["status"] == "ok" && "submissionid" in data) {
+                    displayTaskLoadingAlert(data, data["submissionid"]);
+                    incrementTries();
+                    displayNewSubmission(data['submissionid']);
+                    waitForSubmission(data['submissionid']);
+                }
+                else if ("status" in data && data['status'] == "error" && "text" in data) {
+                    displayTaskStudentAlertWithProblems(data, "danger", false);
+                    updateTaskStatus(data["text"], 0);
+                    unblurTaskForm();
+                }
 
-                          if("remove" in data) {
-                              data["remove"].forEach(function(element, index, array) {
-                                 removeSubmission(element);
-                              });
-                          }
-                      },
-            error:    function()
-                      {
-                          displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
-                          updateTaskStatus($("#internalerror").text(), 0);
-                          unblurTaskForm();
-                      }
+                if ("remove" in data) {
+                    data["remove"].forEach(function (element, index, array) {
+                        removeSubmission(element);
+                    });
+                }
+            },
+            error: function () {
+                displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
+                updateTaskStatus($("#internalerror").text(), 0);
+                unblurTaskForm();
+            }
         });
 
     blurTaskForm();
@@ -355,60 +333,54 @@ function submitTask(with_ssh)
 }
 
 //Wait for a job to end
-function waitForSubmission(submissionid)
-{
-    setTimeout(function()
-    {
+function waitForSubmission(submissionid) {
+    setTimeout(function () {
         var url = $('form#task').attr("action");
-        jQuery.post(url, {"@action": "check", "submissionid": submissionid}, null, "json")
-            .done(function(data)
-            {
-                if("status" in data && data['status'] === "waiting")
-                {
+        jQuery.post(url, { "@action": "check", "submissionid": submissionid }, null, "json")
+            .done(function (data) {
+                if ("status" in data && data['status'] === "waiting") {
                     waitForSubmission(submissionid);
-                    if("ssh_host" in data && "ssh_port" in data && "ssh_user" in data && "ssh_password" in data)
+                    if ("ssh_host" in data && "ssh_port" in data && "ssh_user" in data && "ssh_password" in data)
                         displayRemoteDebug(submissionid, data);
                     else
                         displayTaskLoadingAlert(data, submissionid);
 
                 }
-                else if("status" in data && "result" in data && "grade" in data)
-                {
+                else if ("status" in data && "result" in data && "grade" in data) {
                     updateMainTags(data);
-                    if("debug" in data)
+                    if ("debug" in data)
                         displayDebugInfo(data["debug"]);
 
-                    if(data['result'] == "failed")
+                    if (data['result'] == "failed")
                         displayTaskStudentAlertWithProblems(data, "danger", false);
-                    else if(data['result'] == "success")
+                    else if (data['result'] == "success")
                         displayTaskStudentAlertWithProblems(data, "success", false);
-                    else if(data['result'] == "timeout")
+                    else if (data['result'] == "timeout")
                         displayTaskStudentAlertWithProblems(data, "warning", false);
-                    else if(data['result'] == "overflow")
+                    else if (data['result'] == "overflow")
                         displayTaskStudentAlertWithProblems(data, "warning", false);
-                    else if(data['result'] == "killed")
+                    else if (data['result'] == "killed")
                         displayTaskStudentAlertWithProblems(data, "warning", false);
                     else // == "error"
                         displayTaskStudentAlertWithProblems(data, "danger", false);
 
-                    if("tests" in data){
+                    if ("tests" in data) {
                         updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
-                    }else{
+                    } else {
                         updateSubmission(submissionid, data['result'], data["grade"], []);
                     }
                     unblurTaskForm();
 
-                    if("replace" in data && data["replace"] && $('#my_submission').length) {
+                    if ("replace" in data && data["replace"] && $('#my_submission').length) {
                         displayEvaluatedSubmission(submissionid, true);
-                    } else if($('#my_submission').length) {
+                    } else if ($('#my_submission').length) {
                         displayEvaluatedSubmission($('#my_submission').attr('data-submission-id'), false);
                     }
 
-                    if("feedback_script" in data)
+                    if ("feedback_script" in data)
                         eval(data["feedback_script"]);
                 }
-                else
-                {
+                else {
                     displayTaskStudentAlertWithProblems(data, "danger", false);
                     updateSubmission(submissionid, "error", "0.0", []);
                     updateTaskStatus("Failed", 0);
@@ -416,8 +388,7 @@ function waitForSubmission(submissionid)
                 }
 
             })
-            .fail(function()
-            {
+            .fail(function () {
                 displayTaskStudentAlertWithProblems(data, "danger", false);
                 updateSubmission(submissionid, "error", "0.0", []);
                 updateTaskStatus("Failed", 0);
@@ -427,39 +398,33 @@ function waitForSubmission(submissionid)
 }
 
 //Kill a running submission
-function killSubmission(submissionid)
-{
+function killSubmission(submissionid) {
     $('.kill-submission-btn').attr('disabled', 'disabled');
     var url = $('form#task').attr("action");
-    jQuery.post(url, {"@action": "kill", "submissionid": submissionid}, null, "json").done(function()
-    {
+    jQuery.post(url, { "@action": "kill", "submissionid": submissionid }, null, "json").done(function () {
         $('.kill-submission-btn').removeAttr('disabled');
-    }).fail(function()
-    {
+    }).fail(function () {
         $('.kill-submission-btn').removeAttr('disabled');
     });
 }
 
 //Displays debug info
-function displayDebugInfo(info)
-{
+function displayDebugInfo(info) {
     displayDebugInfoRecur(info, $('#task_debug'));
 }
-function displayDebugInfoRecur(info, box)
-{
+function displayDebugInfoRecur(info, box) {
     var data = $(document.createElement('dl'));
     data.text(" ");
     box.html(data);
 
-    jQuery.each(info, function(index, elem)
-    {
+    jQuery.each(info, function (index, elem) {
         var namebox = $(document.createElement('dt'));
         var content = $(document.createElement('dd'));
         data.append(namebox);
         data.append(content);
 
         namebox.text(index);
-        if(jQuery.isPlainObject(elem))
+        if (jQuery.isPlainObject(elem))
             displayDebugInfoRecur(elem, content);
         else
             content.text(elem);
@@ -467,43 +432,39 @@ function displayDebugInfoRecur(info, box)
 }
 
 //Get the code for a "loading" alert, with a button to kill the current submission
-function getLoadingAlertCode(title, content, submissionid)
-{
+function getLoadingAlertCode(title, content, submissionid) {
     var kill_button = undefined;
-    if(submissionid != null)
-        kill_button =   "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
-                            "<i class='fa fa-close'></i>"+
-                        "</button>";
+    if (submissionid != null)
+        kill_button = "<button type='button' onclick='killSubmission(\"" + submissionid + "\")' class='btn btn-danger kill-submission-btn btn-small'>" +
+            "<i class='fa fa-close'></i>" +
+            "</button>";
     return getAlertCode(title, content, "info", false, kill_button);
 }
 
 //Displays a loading alert in task form
-function displayTaskLoadingAlert(submission_wait_data, submissionid)
-{
+function displayTaskLoadingAlert(submission_wait_data, submissionid) {
     var task_alert = $('#task_alert');
     var title = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
     var content = "";
-    if(submission_wait_data != null)
+    if (submission_wait_data != null)
         content += submission_wait_data["text"];
     task_alert.html(getLoadingAlertCode(title, content, submissionid));
 }
 
 //Display informations for remote debugging
-function displayRemoteDebug(submissionid, submission_wait_data)
-{
+function displayRemoteDebug(submissionid, submission_wait_data) {
     var ssh_host = submission_wait_data["ssh_host"];
     var ssh_port = submission_wait_data["ssh_port"];
     var ssh_user = submission_wait_data["ssh_user"];
     var ssh_password = submission_wait_data["ssh_password"];
 
-    var pre_content = "ssh " + ssh_user + "@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password";
+    var pre_content = "ssh " + ssh_user + "@" + ssh_host + " -p " + ssh_port + " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password";
     var task_alert = $('#task_alert');
     var title = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
     var content = submission_wait_data["text"];
 
     //If not already set
-    if($('pre#commandssh', task_alert).text() !== pre_content)
-    {
+    if ($('pre#commandssh', task_alert).text() !== pre_content) {
         var remote_info = $("#ssh_template").clone();
 
         $('#commandssh', remote_info).text(pre_content);
@@ -511,26 +472,24 @@ function displayRemoteDebug(submissionid, submission_wait_data)
         // Generate iframe
         var webtermdiv = $("#webterm", remote_info);
         var webterm_link = $('#webterm_link', remote_info).val();
-        if(webterm_link !== undefined)
-        {
+        if (webterm_link !== undefined) {
             var full_link = webterm_link + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
             $('<iframe>', {
-                src:         full_link,
-                id:          'iframessh',
+                src: full_link,
+                id: 'iframessh',
                 frameborder: 0,
-                scrolling:   'no'
+                scrolling: 'no'
             }).appendTo(webtermdiv);
         }
 
-        task_alert.html(getLoadingAlertCode(title, "<div id='ssh_remote_info'>"+remote_info.html()+"</div>", submissionid));
+        task_alert.html(getLoadingAlertCode(title, "<div id='ssh_remote_info'>" + remote_info.html() + "</div>", submissionid));
         $("#ssh_remote_info code", task_alert).text(ssh_password);
         $("#ssh_remote_info", task_alert).show();
     }
 }
 
 //Displays a loading input alert in task form
-function displayTaskInputLoadingAlert()
-{
+function displayTaskInputLoadingAlert() {
     var task_alert = $('#task_alert');
     task_alert.html(getAlertCode("<i class=\"fa fa-spinner fa-pulse fa-fw\" aria-hidden=\"true\"></i>", "", "info", false));
     $('html, body').animate(
@@ -540,8 +499,7 @@ function displayTaskInputLoadingAlert()
 }
 
 //Displays a loading input alert in task form
-function displayTaskInputErrorAlert()
-{
+function displayTaskInputErrorAlert() {
     var task_alert = $('#task_alert');
     task_alert.html(getAlertCode("<b>" + $("#internalerror").text() + "</b>", "", "danger", false));
     $('html, body').animate(
@@ -551,41 +509,44 @@ function displayTaskInputErrorAlert()
 }
 
 //Displays a student error alert in task form
-function displayTaskStudentAlertWithProblems(content, type)
-{
+function displayTaskStudentAlertWithProblems(content, type) {
     resetAlerts();
 
     var firstPos = -1;
     var task_alert = $('#task_alert');
 
-    if("title" in content)
-    {
-        task_alert.html(getAlertCode(content.title, content.text, type, true));
+    if (window.specificTaskId) {
+        var task_alert = window.specificTaskId
+    } else {
+        var task_alert = $('#task_alert');
+    }
+
+    if ("title" in content) {
+        task_alert.html(getAlertCode(content.title, content.text, content.grade_css_class, true));
         firstPos = task_alert.offset().top;
     }
 
-    if("problems" in content)
-    {
-        for(var problemid in problems_types) {
-            if(problemid in content.problems)
+    if ("problems" in content) {
+        for (var problemid in problems_types) {
+            if (problemid in content.problems)
                 window["load_feedback_" + problems_types[problemid]](problemid, content["problems"][problemid]);
         }
     }
 
     $('html, body').animate(
-    {
-        scrollTop: firstPos - 100
-    }, 200);
+        {
+            scrollTop: firstPos - 100
+        }, 200);
 
     colorizeStaticCode();
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
 function load_feedback_code(key, content) {
     var alert_type = "danger";
-    if(content[0] === "timeout" || content[0] === "overflow")
+    if (content[0] === "timeout" || content[0] === "overflow")
         alert_type = "warning";
-    if(content[0] === "success")
+    if (content[0] === "success")
         alert_type = "success";
     $("#task_alert_" + key).html(getAlertCode("", content[1], alert_type, true));
 }
@@ -609,21 +570,20 @@ function load_feedback_multiple_choice(key, content) {
 //Create an alert
 //type is either alert, info, danger, warning
 //dismissible is a boolean
-function getAlertCode(title, content, type, dismissible, additionnal_content)
-{
+function getAlertCode(title, content, type, dismissible, additionnal_content) {
     var a = '<div class="card border-' + type + ' mb-3" role="card">';
     a += '<div class="row no-gutters">';
 
     //Style 1, when there is a title, display it
-    if(title !== "") {
+    if (title !== "") {
         a += '<div class="col">';
-        a += '<div class="card-header bg-' + type + ' text-white">';
+        a += '<div class="card-header bg-' + type + '">';
         if (dismissible)
-            a += '<button type="button" class="close" data-dismiss="card" style="color: white;"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+            a += '<button type="button" class="close" data-dismiss="card"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
         a += title;
         a += '</div>';
         if (content !== "") {
-            a += '<div class="card-body">';
+            a += '<div class="card-body bg-' + type + '">';
             a += content;
             a += '</div>';
         }
@@ -631,11 +591,11 @@ function getAlertCode(title, content, type, dismissible, additionnal_content)
     }
     else {
         //left part
-        a += '<div class="col-auto bg-' + type + ' text-white card-left-icon">';
-        if(type === "danger") {
+        a += '<div class="col-auto bg-' + type + ' card-left-icon">';
+        if (type === "danger") {
             a += '&times;';
         }
-        else if(type === "success") {
+        else if (type === "success") {
             a += '&#x2713;';
         }
         else {
@@ -653,7 +613,7 @@ function getAlertCode(title, content, type, dismissible, additionnal_content)
         a += '</div>';
     }
 
-    if(additionnal_content !== undefined) {
+    if (additionnal_content !== undefined) {
         a += '<div class="col-auto">';
         a += additionnal_content;
         a += '</div>';
@@ -665,9 +625,8 @@ function getAlertCode(title, content, type, dismissible, additionnal_content)
 }
 
 //Load an old submission input
-function loadOldSubmissionInput(id, with_feedback)
-{
-    if(loadingSomething)
+function loadOldSubmissionInput(id, with_feedback) {
+    if (loadingSomething)
         return;
 
     blurTaskForm();
@@ -675,95 +634,85 @@ function loadOldSubmissionInput(id, with_feedback)
     displayTaskInputLoadingAlert();
 
     var url = $('form#task').attr("action");
-    jQuery.post(url, {"@action": "load_submission_input", "submissionid": id}, null, "json")
-        .done(function(data)
-        {
-            if("status" in data && data['status'] == "ok" && "input" in data)
-            {
+    jQuery.post(url, { "@action": "load_submission_input", "submissionid": id }, null, "json")
+        .done(function (data) {
+            if ("status" in data && data['status'] == "ok" && "input" in data) {
                 updateMainTags(data);
                 unblurTaskForm();
                 load_input(id, data['input']);
-                if(with_feedback) // load feedback in second place as it may affect the input
+                if (with_feedback) // load feedback in second place as it may affect the input
                     loadOldFeedback(data);
             }
-            else
-            {
+            else {
                 displayTaskInputErrorAlert();
                 unblurTaskForm();
             }
-        }).fail(function()
-        {
+        }).fail(function () {
             displayTaskInputErrorAlert();
             unblurTaskForm();
         });
 }
 
 //Load feedback from an old submission
-function loadOldFeedback(data)
-{
-    if("status" in data && "result" in data)
-    {
-        if("debug" in data)
+function loadOldFeedback(data) {
+    if ("status" in data && "result" in data) {
+        if ("debug" in data)
             displayDebugInfo(data["debug"]);
 
-        if(data['result'] == "failed")
+        if (data['result'] == "failed")
             displayTaskStudentAlertWithProblems(data, "danger", false);
-        else if(data['result'] == "success")
+        else if (data['result'] == "success")
             displayTaskStudentAlertWithProblems(data, "success", false);
-        else if(data['result'] == "timeout")
+        else if (data['result'] == "timeout")
             displayTaskStudentAlertWithProblems(data, "warning", false);
-        else if(data['result'] == "overflow")
+        else if (data['result'] == "overflow")
             displayTaskStudentAlertWithProblems(data, "warning", false);
-        else if(data['result'] == "killed")
+        else if (data['result'] == "killed")
             displayTaskStudentAlertWithProblems(data, "warning", false);
         else // == "error"
             displayTaskStudentAlertWithProblems(data, "danger", false);
     }
     else
         displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
-    if("feedback_script" in data)
+    if ("feedback_script" in data)
         eval(data["feedback_script"]);
 }
 
 //Load data from input into the form inputs
-function load_input(submissionid, input)
-{
-    for(var key in problems_types) {
+function load_input(submissionid, input) {
+    for (var key in problems_types) {
         window["load_input_" + problems_types[key]](submissionid, key, input);
     }
 }
 
-function load_input_code(submissionid, key, input)
-{
-    if(key in codeEditors) {
-        if(key in input)
+function load_input_code(submissionid, key, input) {
+    if (key in codeEditors) {
+        if (key in input)
             codeEditors[key].setValue(input[key], -1);
         else
             codeEditors[key].setValue("", -1);
     }
     else {
         var field = $("input[name='" + key + "']");
-        if(key in input)
+        if (key in input)
             $(field).val(input[key]);
         else
             $(field).val("");
     }
 }
 
-function load_input_code_single_line(submissionid, key, input)
-{
+function load_input_code_single_line(submissionid, key, input) {
     load_input_code(submissionid, key, input);
 }
 
-function load_input_file(submissionid, key, input)
-{
-    if(key in input) {
+function load_input_file(submissionid, key, input) {
+    if (key in input) {
         var allowed_exts = $("input[name='" + key + "']").data("allowed-exts");
         var url = $('form#task').attr("action") + "?submissionid=" + submissionid + "&questionid=" + key;
         var input_file = $('#download-input-file-' + key);
-        input_file.attr('href', url );
+        input_file.attr('href', url);
         input_file.css('display', 'block');
-        if(allowed_exts.indexOf(".pdf") >= 0) {
+        if (allowed_exts.indexOf(".pdf") >= 0) {
             var input_file_pdf = $('#download-input-file-pdf-' + key);
             input_file_pdf.attr('data', url);
             input_file_pdf.find("embed").attr("src", url);
@@ -772,16 +721,14 @@ function load_input_file(submissionid, key, input)
     }
 }
 
-function load_input_multiple_choice(submissionid, key, input)
-{
+function load_input_multiple_choice(submissionid, key, input) {
     var field = $(".problem input[name='" + key + "']");
-    if(key in input)
-    {
-        if($(field).attr('type') == "checkbox" && jQuery.isArray(input[key])) {
+    if (key in input) {
+        if ($(field).attr('type') == "checkbox" && jQuery.isArray(input[key])) {
             $(field).each(function () {
                 $(this).prop('checked', input[key].indexOf($(this).val()) > -1);
             });
-        } else if($(field).attr('type') == "radio") {
+        } else if ($(field).attr('type') == "radio") {
             $(field).each(function () {
                 $(this).prop('checked', input[key] == $(this).val());
             });
@@ -794,15 +741,14 @@ function load_input_multiple_choice(submissionid, key, input)
 
 function load_input_match(submissionid, key, input) {
     var field = $(".problem input[name='" + key + "']");
-    if(key in input)
+    if (key in input)
         $(field).prop('value', input[key]);
     else
         $(field).prop('value', "");
 }
 
 // Share eval submission result on social networks
-function share_submission(method_id)
-{
+function share_submission(method_id) {
     var submissionid = $('#my_submission').attr('data-submission-id');
     window.location.replace("/auth/share/" + method_id + "?submissionid=" + submissionid)
 
@@ -815,40 +761,40 @@ function share_submission(method_id)
  * Tags equals to false are red
  * Missing tags are blue
  */
-function updateMainTags(data){
+function updateMainTags(data) {
 
     //Reset all tags to info style (blue) to avoid no-updated colors
-    $('span', $('#main_tag_group')).each(function() {
+    $('span', $('#main_tag_group')).each(function () {
         //If this is a alert-danger class, this is an misconception
-        if($(this).attr('class') == "badge alert-danger"){
+        if ($(this).attr('class') == "badge alert-danger") {
             $(this).hide();
-        }else if($(this).attr('class') == "badge alert-default"){
+        } else if ($(this).attr('class') == "badge alert-default") {
             //Remove auto tags
             $(this).remove();
-        }else{
+        } else {
             $(this).attr('class', 'badge alert-info');
         }
     });
-        
-    if("tests" in data){
-        for (var tag in data["tests"]){
+
+    if ("tests" in data) {
+        for (var tag in data["tests"]) {
             //Get and update the color of HTML nodes that represent tags
             var elem = $('#'.concat(tag.replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
-            if(data["tests"][tag]){
+            if (data["tests"][tag]) {
                 //If this is a alert-danger class, this is an misconception
-                if(elem.attr('class') == "badge alert-danger"){
+                if (elem.attr('class') == "badge alert-danger") {
                     elem.show();
-                }else{
+                } else {
                     elem.attr('class', 'badge alert-success')
                 }
             }
-            if(tag.startsWith("*auto-tag-")){
+            if (tag.startsWith("*auto-tag-")) {
                 var max_length = 28;
-                if(data["tests"][tag].length > max_length){
-                    $('#main_tag_group').append('<span class="badge alert-default" data-toggle="tooltip" data-placement="top" data-original-title="'+data["tests"][tag]+'">'+data["tests"][tag].substring(0, max_length)+'…</span>');
+                if (data["tests"][tag].length > max_length) {
+                    $('#main_tag_group').append('<span class="badge alert-default" data-toggle="tooltip" data-placement="top" data-original-title="' + data["tests"][tag] + '">' + data["tests"][tag].substring(0, max_length) + '…</span>');
                 }
-                else{
-                    $('#main_tag_group').append('<span class="badge alert-default">'+data["tests"][tag]+'</span>');
+                else {
+                    $('#main_tag_group').append('<span class="badge alert-default">' + data["tests"][tag] + '</span>');
                 }
             }
         }
@@ -859,20 +805,20 @@ function updateMainTags(data){
  * Update color of tags presents in 'elem' node. 
  * 'data' is a dictionnary that should contains tag values in data["tests"][tag] = True/False
  */
-function updateTagsToNewSubmission(elem, data){
+function updateTagsToNewSubmission(elem, data) {
 
     var n_ok = 0;   // number of tag equals true
     var tags_ok = [];
     var n_tot = 0;  // total number of tags
     var badge = elem.find('span[id="tag_counter"]');
-    
+
     //Get all tags listed in main tag section
-    $('span', $('#main_tag_group')).each(function() {
+    $('span', $('#main_tag_group')).each(function () {
         var id = $(this).attr("id");
         var color = $(this).attr("class");
         //Only consider normal tag (we do not consider misconception
-        if(color != "badge alert-danger"){
-            if(id in data && data[id]){
+        if (color != "badge alert-danger") {
+            if (id in data && data[id]) {
                 n_ok++;
                 tags_ok.push($(this).text());
             }
@@ -880,9 +826,9 @@ function updateTagsToNewSubmission(elem, data){
         }
     });
     badge.text(n_ok);
-    if(n_tot == n_ok){
+    if (n_tot == n_ok) {
         badge.attr("class", "badge alert-success");
-    }else if(n_ok > 0){
+    } else if (n_ok > 0) {
         badge.attr("data-toggle", "tooltip");
         badge.attr("data-placement", "left");
         badge.attr('data-original-title', tags_ok.join(", "));
@@ -893,10 +839,10 @@ function updateTagsToNewSubmission(elem, data){
  * Loads the submission form from the local storage
  * and calls the load input functions for each subproblem type
  */
-function load_from_storage(courseid,taskid){
-    if (typeof(Storage) !== "undefined") {
-        var indict = JSON.parse(localStorage[courseid+"/"+taskid]);
-        for(var problemid in problems_types) {
+function load_from_storage(courseid, taskid) {
+    if (typeof (Storage) !== "undefined") {
+        var indict = JSON.parse(localStorage[courseid + "/" + taskid]);
+        for (var problemid in problems_types) {
             // Submissionid is only used for files that can't be stored here
             // It is set to null here.
             window["load_input_" + problems_types[problemid]](null, problemid, indict);
@@ -910,18 +856,33 @@ function load_from_storage(courseid,taskid){
  * Saves a serialized version of the form which is typically
  * how the submission input is stored and passed to the load input function.
  */
-function save_to_storage(courseid,taskid){
-    if (typeof(Storage) !== "undefined") {
-        var data = $('form').serializeArray().reduce(function(obj, item) {
-            if(item.name in obj)
+function save_to_storage(courseid, taskid) {
+    if (typeof (Storage) !== "undefined") {
+        var data = $('form').serializeArray().reduce(function (obj, item) {
+            if (item.name in obj)
                 // Should be in an array case
                 obj[item.name].push(item.value);
             else
                 obj[item.name] = Boolean(is_input_list[item.name]) ? [item.value] : item.value;
             return obj;
         }, {});
-        localStorage.setItem(courseid+"/"+taskid, JSON.stringify(data));
+        localStorage.setItem(courseid + "/" + taskid, JSON.stringify(data));
     } else {
         alert("Your browser doesn't support web storage");
     }
+}
+
+function uploadFile(e) {
+    var myFile = e.target.files[0];
+    var reader = new FileReader();
+    var problemIndex = $(this).attr('data-index');
+    var fileDisplayArea = codeEditors[problemIndex];
+    reader.onload = function (e) {
+        var output = e.target.result;
+        fileDisplayArea.getDoc().setValue(output)
+
+    };
+    reader.readAsText(myFile);
+    // clear all uploaded files . todo, could be a race condition. check
+    $(this).val('');
 }

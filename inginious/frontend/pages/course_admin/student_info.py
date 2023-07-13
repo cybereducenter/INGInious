@@ -52,6 +52,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
                     result[taskdata["taskid"]]["status"] = "failed"
                 result[taskdata["taskid"]]["grade"] = taskdata["grade"]
                 result[taskdata["taskid"]]["submissionid"] = str(taskdata["submissionid"])
+                result[taskdata["taskid"]]['grade_css_class'] = ' ' + self.task_factory.get_relevant_color_class_for_grade(taskdata["grade"])
 
         for taskid in user_task_list:
             result[taskid]["visible"] = True
