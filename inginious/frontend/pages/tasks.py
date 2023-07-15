@@ -387,22 +387,30 @@ class BaseTaskPage(object):
 
         return json.dumps(tojson, default=str)
 
-    def _cut_long_chains(self, data, limit=200000):
+    def _cut_long_chains(self, data, limit=1000):
         """ Cut all strings and byte chains in a dictionary
             if they exceed a limit in characters or bytes """
-
+        
         if isinstance(data, dict):
             new_data = {}
             for key, value in data.items():
-                if isinstance(value, bytes) and len(value) > limit:
-                    new_data[key] = value[:limit] + _(" <truncated>").encode("utf-8")
+                # do not truncate important debug data, and move it to the top
+                if key in ['stdout', 'stderr']: 
+                    new_data['_' + key] = value
+                elif isinstance(value, bytes) and len(value) > limit:
+                    new_data[key] = value[:limit] + _("\n<truncated>").encode("utf-8")
                 elif isinstance(value, str) and len(value) > limit:
-                    new_data[key] = value[:limit] + _(" <truncated>")
+                    new_data[key] = value[:limit] + _("\n<truncated>")
                 elif isinstance(value, dict):
                     new_data[key] = self._cut_long_chains(value)
                 else:
                     new_data[key] = value
-            return new_data
+            
+            # sort debug information for better readability
+            sorted_keys = list(new_data.keys())
+            sorted_keys.sort()
+            sorted_new_data = {i: new_data[i] for i in sorted_keys}
+            return sorted_new_data
         return data
 
     def add_feedback_html_to_user_input(self, user_input, task_id, task_type):
