@@ -139,7 +139,7 @@ class DockerAgent(Agent):
             available_bare_container_images = [image for envtype_containers in self._containers.values() for image in
                                                envtype_containers.values()]
             if len(available_bare_container_images) != 0:
-                self._address_host = await self._docker.get_host_ip(available_bare_container_images[0]["id"])
+                self._address_host = await self._docker.get_host_ip()
             else:
                 self._logger.error("Cannot find the external IP without at least an installed container.")
 
