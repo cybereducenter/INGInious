@@ -58,10 +58,9 @@ if not configfile:
 
 # Load configuration and application (!!! For mod_wsgi, application identifier must be present)
 config = load_json_or_yaml(configfile)
+init_logging(config.get('log_directory', 'var/www/inginious/log'), config.get('log_level', 'INFO'))
 application, close_app_func = inginious.frontend.app.get_app(config)
 
-# Init logging
-init_logging(config.get('log_directory', 'var/www/inginious/log'), config.get('log_level', 'INFO'))
 logging.getLogger("inginious.webapp").info("http://%s:%d/" % (host, int(port)))
 
 if 'SERVER_SOFTWARE' in os.environ:  # cgi

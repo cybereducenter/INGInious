@@ -206,8 +206,7 @@ class Client(BetterParanoidPirateClient):
 
     async def _handle_update_environments(self, message: BackendUpdateEnvironments):
         self._available_environments = message.available_environments
-        self._logger.info("Updated environments")
-        self._logger.debug("Environments: %s", str(self._available_environments))
+        self._logger.info("Updated environments = %s", str(self._available_environments))
 
     async def _handle_job_started(self, message: BackendJobStarted, **kwargs):  # pylint: disable=unused-argument
         self._logger.debug("Job %s started", message.job_id)
