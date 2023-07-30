@@ -42,7 +42,7 @@ class MatrixPage(INGIniousAdminPage):
             first_id = 0
 
         return self.template_helper.render("admin.html", 
-                                           template_folder='frontend/plugins/matrix_v2',
+                                           template_folder='frontend/plugins/matrix',
                                            course=course, 
                                            data_users=data_users, 
                                            order_tasks=order_tasks, 
@@ -161,15 +161,15 @@ class MatrixPage(INGIniousAdminPage):
 
 def add_admin_menu(course):
     """ Add matrix setting to the admin panel """
-    return ('matrix_v2', '<i class="fa fa-graduation-cap fa-fw"></i>&nbsp; Matrix V2')
+    return ('matrix', '<i class="fa fa-graduation-cap fa-fw"></i>&nbsp; Matrix')
 
 
 def add_course_menu(course, template_helper):
     """ Add matrix setting to the course panel """
     html = f'''
         <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{flask.request.url_root}/admin/{course.get_id()}/matrix_v2">
-            <i class="fa fa-graduation-cap fa-fw"></i>&nbsp; Matrix V2
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{flask.request.url_root}/admin/{course.get_id()}/matrix">
+            <i class="fa fa-graduation-cap fa-fw"></i>&nbsp; Matrix
             </a>
         </div>
     '''
@@ -177,12 +177,12 @@ def add_course_menu(course, template_helper):
 
 def add_css_file():
     """ Add matrix css file to the admin page """
-    return ('/static/plugins/matrix_v2/matrix_v2.css') ### TODO - change ###
+    return ('/static/plugins/matrix/matrix.css') ### TODO - change ###
 
 
 def add_js_file():
     """ Add matrix js file to the admin page """
-    return '/static/plugins/matrix_v2/matrix_v2.js'
+    return '/static/plugins/matrix/matrix.js'
 
 def add_qTip_css_file():
     """ Add matrix css file to the admin page """
@@ -193,11 +193,11 @@ def add_qTip_js_file():
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.js'
 
 def init(plugin_manager, _, _2, _3):
-    """ Init the matrix v2 plugin """
+    """ Init the matrix plugin """
     plugin_manager.add_hook('course_menu', add_course_menu)
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
     plugin_manager.add_hook('css', add_css_file)
     plugin_manager.add_hook('css', add_qTip_css_file)
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qTip_js_file)
-    plugin_manager.add_page("/admin/<courseid>/matrix_v2", MatrixPage.as_view('matrtix_v2'))
+    plugin_manager.add_page("/admin/<courseid>/matrix", MatrixPage.as_view('matrtix'))

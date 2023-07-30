@@ -6,7 +6,7 @@
 {% block title %} {{course.get_name(user_manager.session_language())}} - Matrix {% endblock %}
 
 {% block column %}
-{{ template_helper.call('course_admin_menu',course=course,current='matrix_v2') | safe }}
+{{ template_helper.call('course_admin_menu',course=course,current='matrix') | safe }}
 {% endblock %}
 
 {% block navbar %}
