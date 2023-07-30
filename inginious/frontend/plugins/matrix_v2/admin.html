@@ -50,23 +50,21 @@
             <tr>
                 <th id="students-cell" class="headcol header-cell">Students</th>
                 {% for x in order_tasks %}
-                    {% if x.get_deadline() == "It's too late" %}
-                        {% if x.get_id() == first_id %}
-                            <th class="grades-header-passed first-passed">
-                        {% else %}
-                            <th class="grades-header-passed">
-                        {% endif %}
+                {% if x.get_deadline() == "It's too late" %}
+                {% if x.get_id() == first_id %}
+                <th class="grades-header-passed first-passed">
                     {% else %}
-                        <th class="grades-header">
-                        <a href="/course/{{ course.get_id()}}/{{ x.get_id() }}"> {{ x.get_id() }}
-                        </a><br/>       
+                <th class="grades-header-passed">
                     {% endif %}
-                
+                    {% else %}
+                <th class="grades-header">
+                    <a href="/course/{{ course.get_id()}}/{{ x.get_id() }}"> {{ x.get_id() }}
+                    </a><br />
+                    {% endif %}
+
                     <div class="btn-group" role="group">
                         <a href="/admin/{{ course.get_id() }}/edit/task/{{ x.get_id() }}" class="btn btn-default btn-xs"
-                           title data-toggle="tooltip"
-                           data-placement="bottom"
-                           data-original-title="Edit task">
+                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
                             <i class="fa fa-edit"></i>
                         </a>
                     </div>
@@ -90,30 +88,31 @@
                 </th>
 
                 {% for task in user['tasks'] %}
-                    {% set specific_task = user['tasks'][task] %}
-                    {% if specific_task['taskid'].get_id() == first_id %}
-                        <td class="grades-column $user['tasks'][task]['status'] first-passed">
+                {% set specific_task = user['tasks'][task] %}
+                {% if specific_task['taskid'].get_id() == first_id %}
+                <td class="grades-column $user['tasks'][task]['status'] first-passed">
                     {% else %}
-                        <td class="grades-column {{user['tasks'][task]['status']}}">
-                        {% if 'grade' in specific_task['status'] %}
-                            {% if specific_task['submissionid'] == 'None' %}
-                                {{ specific_task['grade']|int }}
-                            {% else %}
-                                <div class="graded">
-                                    <a target="_blank" href="{{ specific_task['submission_data']['url'] }}">
-                                    <span class="graded_icon" id="{{ user['tasks'][task]['submission_data'] }}">
-                                        <i class="fa fa-rss fa-rotate-180"></i>
-                                    </span>
-                                        <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
-                                            <b>Last submission:</b> {{ user['tasks'][task]['submission_data']['time_passed'] }} <br><br>Click for submission history</b></p>
-                                    </div>
-                                    </a>
-                                    <a href="/submission/{{ specific_task['submissionid'] }}">{{ specific_task['grade']|int }}</a>
-                                </div>
-                                </td>
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
+                <td class="grades-column {{user['tasks'][task]['status']}}">
+                    {% if 'grade' in specific_task['status'] %}
+                    {% if specific_task['submissionid'] == 'None' %}
+                    {{ specific_task['grade']|int }}
+                    {% else %}
+                    <div class="graded">
+                        <a target="_blank" href="{{ specific_task['submission_data']['url'] }}">
+                            <span class="graded_icon" id="{{ user['tasks'][task]['submission_data'] }}">
+                                <i class="fa fa-rss fa-rotate-180"></i>
+                            </span>
+                            <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
+                                <b>Last submission:</b> {{ user['tasks'][task]['submission_data']['time_passed'] }}
+                                <br><br>Click for submission history</b></p>
+                            </div>
+                        </a>
+                        <a href="/submission/{{ specific_task['submissionid'] }}">{{ specific_task['grade']|int }}</a>
+                    </div>
+                </td>
+                {% endif %}
+                {% endif %}
+                {% endif %}
                 {% endfor %}
             </tr>
             {% endfor %}
@@ -125,10 +124,10 @@
         </tbody>
     </table>
 </div>
-{% endblock %}
 
 <script>
 
     MatrixPlugin.onHover("{{ data_users }}");
 
 </script>
+{% endblock %}
