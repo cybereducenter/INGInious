@@ -29,6 +29,7 @@ class MatrixPage(INGIniousAdminPage):
                                      "realname": user[1][0] if user[1] is not None else None}) for user in users])
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
+        self._get_ordered_task_raz(course)
         order_tasks, first_id = self._get_ordered_task(course)
 
         """ Get all user tasks """
@@ -47,8 +48,43 @@ class MatrixPage(INGIniousAdminPage):
                                            data_users=data_users, 
                                            order_tasks=order_tasks, 
                                            possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
-                                           first_id=first_id)
+                                           first_id=first_id,
+                                           now=datetime.now())
 
+    def _get_ordered_task_raz(self, course):
+        now = datetime.now().date()
+        tasks = course.get_tasks()        
+        
+        # calc next deadline
+        next_deadline_first_ix = 0
+        next_deadline_last_ix = len(tasks)
+        for i, task in enumerate(tasks):
+            end_date = tasks[task].get_accessible_time().get_end_date().date()
+            if  now <= end_date < datetime.max.date():
+                next_deadline_first_ix = i
+                break
+        for i, task in enumerate(tasks):
+            end_date = tasks[task].get_accessible_time().get_end_date().date()
+            if  now <= end_date < datetime.max.date():
+                next_deadline_last_ix = i
+
+        ordered_task = []
+        for i, task in enumerate(tasks):
+            if i in range(next_deadline_first_ix, next_deadline_last_ix + 1):
+                ordered_task.append(tasks[task])
+        for i, task in enumerate(tasks):
+            if i in range(next_deadline_last_ix + 1, len(tasks)):
+                ordered_task.append(tasks[task])
+        for i, task in enumerate(tasks):
+            if i in range(next_deadline_first_ix):
+                ordered_task.append(tasks[task])
+
+        self.logger.info(f'first_ix = {next_deadline_first_ix}, last_ix = {next_deadline_last_ix}')
+        for i, task in enumerate(ordered_task):
+            end_date = task.get_accessible_time().get_end_date().date()
+            self.logger.info(f'{i:2} - {end_date} - {task.get_id()}')
+        return 
+        
     def _get_ordered_task(self, course):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         tasks = course.get_tasks()
@@ -80,8 +116,14 @@ class MatrixPage(INGIniousAdminPage):
                     """ Future tasks that will not show in tasks """
                     future_tasks.append(tasks[task])
 
-        order_tasks = past_future_tasks + always_tasks + past_tasks + never_tasks
+        tasks_with_future_deadline = past_future_tasks + future_tasks
 
+        """ Sort By Deadline """
+        tasks_with_future_deadline = sorted(tasks_with_future_deadline, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+        past_tasks = sorted(past_tasks, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+
+        order_tasks = tasks_with_future_deadline + always_tasks + past_tasks + never_tasks
+        
         if past_tasks:
             return order_tasks, past_tasks[0]
         elif never_tasks:

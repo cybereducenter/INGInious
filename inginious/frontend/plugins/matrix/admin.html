@@ -1,9 +1,7 @@
-{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
-{# more information about the licensing of this file. #}
-
 {% extends "layout.html" %}
 
-{% block title %} {{course.get_name(user_manager.session_language())}} - Matrix {% endblock %}
+{% block title %} {{course.get_name(user_manager.session_language())}} - Matrix
+{% endblock %}
 
 {% block column %}
 {{ template_helper.call('course_admin_menu',course=course,current='matrix') | safe }}
@@ -41,8 +39,10 @@
             <div class="color-box notattempted"></div>
         </div>
 
+
     </div>
 </div>
+
 
 <div class="grades-table">
     <table class="table matrix-table">
@@ -50,24 +50,30 @@
             <tr>
                 <th id="students-cell" class="headcol header-cell">Students</th>
                 {% for x in order_tasks %}
-                {% if x.get_deadline() == "It's too late" %}
-                {% if x.get_id() == first_id %}
-                <th class="grades-header-passed first-passed">
+                {% if x.get_deadline() == "It's too late" or x.get_accessible_time().get_end_date() < now %} 
+                    {% if x.get_id() == first_id %} 
+                    <th class="grades-header-passed first-passed">
                     {% else %}
-                <th class="grades-header-passed">
+                    <th class="grades-header-passed">
                     {% endif %}
+                {% else %}
+                    {% if x.get_accessible_time().get_start_date() > now %}
+                    <th class="grades-header future">
+                    <i class="fa fa-clock-o"></i>
                     {% else %}
-                <th class="grades-header">
-                    <a href="/course/{{ course.get_id()}}/{{ x.get_id() }}"> {{ x.get_id() }}
-                    </a><br />
+                    <th class="grades-header">
                     {% endif %}
+                {% endif %}
+                        <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
+                            {{ x.get_id() }}
+                        </a><br />
 
-                    <div class="btn-group" role="group">
-                        <a href="/admin/{{ course.get_id() }}/edit/task/{{ x.get_id() }}" class="btn btn-default btn-xs"
-                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                    </div>
+                        <div class="btn-group" role="group">
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
+                                title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </div>                
                 </th>
                 {% endfor %}
             </tr>
@@ -89,10 +95,11 @@
 
                 {% for task in user['tasks'] %}
                 {% set specific_task = user['tasks'][task] %}
-                {% if specific_task['taskid'].get_id() == first_id %}
-                <td class="grades-column $user['tasks'][task]['status'] first-passed">
+                {% if (specific_task['taskid'].get_id() == first_id) %}
+                <td class="grades-column {{user['tasks'][task]['status']}} first-passed">
                     {% else %}
                 <td class="grades-column {{user['tasks'][task]['status']}}">
+                {% endif %}
                     {% if 'grade' in specific_task['status'] %}
                     {% if specific_task['submissionid'] == 'None' %}
                     {{ specific_task['grade']|int }}
@@ -103,19 +110,21 @@
                                 <i class="fa fa-rss fa-rotate-180"></i>
                             </span>
                             <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
-                                <b>Last submission:</b> {{ user['tasks'][task]['submission_data']['time_passed'] }}
-                                <br><br>Click for submission history</b></p>
+                                <b>Last submission:</b> {{user['tasks'][task]['submission_data']['time_passed']}}
+                                <br><br>Click for
+                                submission history</b></p>
                             </div>
                         </a>
                         <a href="/submission/{{ specific_task['submissionid'] }}">{{ specific_task['grade']|int }}</a>
                     </div>
                 </td>
-                {% endif %}
+                
                 {% endif %}
                 {% endif %}
                 {% endfor %}
             </tr>
             {% endfor %}
+
             {% else %}
             <tr>
                 <td>No students</td>
@@ -127,7 +136,7 @@
 
 <script>
 
-    MatrixPlugin.onHover("{{ data_users }}");
+    MatrixPlugin.onHover("{{data_users}}");
 
 </script>
 {% endblock %}

@@ -76,9 +76,10 @@
     text-align: center;
     color: black;
     text-decoration: underline;
-    display:inline-block;
+    display: inline-block;
     padding-top: 4px;
 }
+
 
 td.grade {
     text-align: center;
@@ -98,12 +99,14 @@ td.grade {
 table {
     table-layout: fixed;
 }
+
 .grades-header,
 .grades-column {
     width: 50px;
     height: 40px;
     text-align: center;
     position: relative;
+    background-clip: padding-box;
     /* padding: 17px !important; */
 }
 
@@ -121,7 +124,19 @@ table {
     border-left: 3px solid black !important;
 }
 
-
+/*.grades-column:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+	width: 0;
+	height: 0;
+    display: block;
+	border-left: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	border-top: 15px solid #4d4d4d;
+}
+*/
 .headcol {
     position: absolute;
     width: 5em;
@@ -165,20 +180,24 @@ table {
     color: #4d4d4d;
 }
 
-.tooltiptext{
+.tooltiptext {
     display: none;
 }
 
-.future{
+.future {
     color: black;
 }
-    
-td.grade a{
+
+td.grade a {
     text-align: center;
     color: black;
     text-decoration: underline;
 }
-    
-td.grade{
+
+td.grade {
     text-align: center;
+}
+
+th a {
+    overflow-wrap: break-word;
 }
