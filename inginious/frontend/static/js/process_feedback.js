@@ -93,6 +93,75 @@ function generateSentSignature(data){
     return methodName + '(' +  String(argumentsSent) + ')';
 }
 
+function renderGitlabRows(feedbackData, taskId) {
+    var scenario_row,
+        modal, checkPrint;
+    console.log('here is feedbackData from GitlabRows ');
+    console.log(feedbackData);
+
+
+    $.each(feedbackData, function (id, data) {
+        {
+            console.log('here is feedbackData. data is -- ');
+            data.id = id;
+            data.indexId = parseInt(id) + 1;
+            data.noValue = 'אין ערך החזרה'
+            if (isSuccess(data)) {
+                {
+                    data.color = 'green';
+                    data.colorIconExpected = 'icon-color-green';
+                    data.colorIconPrint = 'icon-color-green'
+                }
+            } else {
+                {
+                    data.color = 'red';
+                    data.colorIconExpected = 'icon-color-red'
+                }
+                if (feedbackData[id]['feedback']['text'] == 'PrintOutException') {
+                    data.colorIconPrint = 'icon-color-red';
+                    if (feedbackData[id]['returned_value'] == feedbackData[id]['expected']) {
+                        data.colorIconExpected = 'icon-color-green'
+                    }
+                }
+            }
+
+
+
+            if (feedbackData[id]['test']) {
+                checkPrint = feedbackData[id]['test'][0]['expected_stdout']
+            } else {
+                checkPrint = false
+            }
+
+
+            //add the hidden modal
+            // modal = $(tmpl('tmpl-modal', data));
+            // $('#modals-' + taskId).append(modal);
+
+            // in python's case, this data wil be presented in the feedback table like so
+            // my_function(1,"foo", "bar")
+
+            data.sentToFunction = generateSentSignature(data);
+            // add row to scenario table
+            if (checkPrint) {
+                data.expectedPrint = checkPrint
+                scenario_row = $(tmpl('tmpl-scenario-row-print-out', data));
+                $('.print-head').show()
+            } else {
+                scenario_row = $(tmpl('tmpl-scenario-row', data));
+                $('.print-head').hide()
+            }
+            $('#scenarios-table-' + taskId).append(scenario_row);
+
+        }
+    });
+
+    // relevant to python's feedback only, will do nothing in other courses
+    if (feedbackData[0] && feedbackData[0].method_signature) {
+        $('#scenarios-table-' + taskId + ' #method-signature').html(feedbackData[0].method_signature)
+    }
+}
+
 function renderScenarioRows(feedbackData, taskId) {
     var scenario_row,
         modal, checkPrint;
