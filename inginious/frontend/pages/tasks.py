@@ -441,6 +441,8 @@ class BaseTaskPage(object):
     def get_feedback_file_name(self, task_type):
         if task_type == 'python-unit-test':
             return 'feedback_python.html'
+        if task_type == 'cpp-test':
+            return 'feedback_cpp.html'
 
         return 'feedback.html'
     
