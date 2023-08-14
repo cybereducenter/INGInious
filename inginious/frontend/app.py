@@ -10,6 +10,7 @@ import sys
 import flask
 import pymongo
 import oauthlib
+import platform
 
 from gridfs import GridFS
 from binascii import hexlify
