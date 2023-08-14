@@ -190,7 +190,7 @@ def get_app(config):
         except:
             os_version = platform.system()
             
-        template_helper.add_to_template_globals("pkg_version", f'{__version__} on{}')
+        template_helper.add_to_template_globals("pkg_version", f'{__version__} on {os_version}')
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
