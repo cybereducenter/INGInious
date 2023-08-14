@@ -10,7 +10,6 @@ import sys
 import flask
 import pymongo
 import oauthlib
-import platform
 
 from gridfs import GridFS
 from binascii import hexlify
@@ -184,9 +183,9 @@ def get_app(config):
     builtins.__dict__['_'] = l10n_manager.gettext
 
     try:
-        os_version = platform.freedesktop_os_release()['PRETTY_NAME']
+        os_version = os.system(r'cat /etc/os-release | grep PRETTY | cut -d= -f2')
     except:
-        os_version = platform.system()
+        os_version = "other OS"
     
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
