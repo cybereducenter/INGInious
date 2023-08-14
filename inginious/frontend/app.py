@@ -184,7 +184,7 @@ def get_app(config):
     builtins.__dict__['_'] = l10n_manager.gettext
 
     try:
-        os_version = subprocess.run(['cat', r'/etc/os-release'], capture_output=True)
+        os_version = subprocess.run(['cat', r'/etc/os-release'], capture_output=True).stdout.decode('utf-8')
         os_version = os_version.split('PRETTY_NAME=')[1]
         os_version = os_version.split('\n')[0]
     except:
