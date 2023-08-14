@@ -193,7 +193,8 @@ def get_app(config):
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", get_homepath)        
-        template_helper.add_to_template_globals("pkg_version", f'{__version__} on {os_version}')
+        template_helper.add_to_template_globals("os_version", os_version)
+        template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
@@ -255,7 +256,8 @@ def get_app(config):
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
-    template_helper.add_to_template_globals("pkg_version", f'{__version__} on {os_version}')
+    template_helper.add_to_template_globals("os_version", os_version)
+    template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
     template_helper.add_to_template_globals("user_manager", user_manager)
