@@ -185,7 +185,12 @@ def get_app(config):
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", get_homepath)
-        template_helper.add_to_template_globals("pkg_version", __version__)
+        try:
+            os_version = platform.freedesktop_os_release()['PRETTY_NAME']
+        except:
+            os_version = platform.system()
+            
+        template_helper.add_to_template_globals("pkg_version", f'{__version__} on{}')
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
