@@ -183,7 +183,7 @@ def get_app(config):
     builtins.__dict__['_'] = l10n_manager.gettext
 
     try:
-        os_version = subprocess.run(['cat', r'/etc/os-release | grep PRETTY | cut -d= -f2'], capture_output=True))
+        os_version = subprocess.run(['cat', r'/etc/os-release | grep PRETTY | cut -d= -f2'], capture_output=True)
     except:
         os_version = "other OS"
     
