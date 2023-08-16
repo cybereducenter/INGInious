@@ -6,7 +6,6 @@ import os
 import zipfile
 
 import flask
-import gnupg
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -26,7 +25,16 @@ logger = logging.getLogger('inginious.webapp.plugin.gilabsubmission')
 class GitlabSubmissionPage(INGIniousPage):
 
     def __init__(self):
-        self.gpg = gnupg.GPG(gnupghome=os.environ.get('GPG_HOME_DIR', '/Users/dorinb/.gnupg'))
+        self.gitlab_problem = os.environ.get('GITLAB_PROBLEM', 'program')
+        self.public_key = os.environ.get('PUBLIC_KEY', """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1YX92NdNefTiurunFjSZ
+RyCpD8KQYxlAHIRg1bCqM17ygixFX1Lww6kyaA1vmONosdvpHrknoqBzljR/bLuz
+ooYdXGZf4JNINZfKQ4MHjGZUlCNZWjfTUOKGL4r4KkvZIj7fhnt9XUz00daqzc+X
+pCp1WmZVf9Ss0aikgP9PBolTggXY2KVUwfqWxyv3ByDYj6lXWMyzHkyfoVbJwu92
+JuCTEBoANiH+a8IXVqf836MzJ5kxT1Zy7upniFp8e8j2aN864mF2kYmvPc86JPkr
+usgCgDsBmtTGxiWawTQHIor08vWzB2d/7XMdKLpMKJq1IUBv902MSVR5YPnB0Zug
+rQIDAQAB
+-----END PUBLIC KEY-----""").encode()
 
     def POST(self):
         """ POST request """
@@ -44,7 +52,7 @@ class GitlabSubmissionPage(INGIniousPage):
         """
         request_zip = get_request_zip()
         try:
-            verify_zip_sign(request_zip.filename)
+            self.verify_zip_sign(request_zip.filename)
             runner_summary = get_runner_summary_data(request_zip)
 
             task_info = runner_summary['pipeline_info'][0]
@@ -69,7 +77,7 @@ class GitlabSubmissionPage(INGIniousPage):
             user_input = {'@action': 'submit'}
             for problem in task.get_problems():
                 pid = problem.get_id()
-                if pid == os.environ.get('GILTAB_PROBLEM', 'program'):
+                if pid == self.gitlab_problem:
                     user_input[pid] = request_zip
 
             user_input = task.adapt_input_for_backend(user_input)
@@ -108,6 +116,41 @@ class GitlabSubmissionPage(INGIniousPage):
         user = self.user_manager._database.users.find_one({"email": email})
         return user["username"] if user else None
 
+    def verify_zip_sign(self, zip_file_org):
+        public_key = serialization.load_pem_public_key(self.public_key)
+
+        # Read the signature from the ZIP comment
+        with zipfile.ZipFile(zip_file_org, 'r') as zip_file:
+            signature_base64 = zip_file.comment.decode('utf-8')
+
+        # Open the ZIP file and reset the comment
+        with zipfile.ZipFile(zip_file_org, 'a') as zip_file:
+            zip_file.comment = ''.encode('utf-8')
+
+        # Decode the Base64 signature
+        signature = base64.b64decode(signature_base64)
+
+        # Calculate the hash of the ZIP content, excluding the comment
+        with open(zip_file_org, 'rb') as zip_file:
+            hash_value = hashlib.sha256(zip_file.read()).digest()
+
+        # Open the ZIP file and add the signature to the comment
+        with zipfile.ZipFile(zip_file_org, 'a') as zip_file:
+            zip_file.comment = signature_base64.encode('utf-8')
+
+        # Verify the signature using the public key
+        try:
+            public_key.verify(
+                signature,
+                hash_value,
+                padding.PKCS1v15(),
+                hashes.SHA256()
+            )
+            logger.debug("Signature is valid. The ZIP file is authentic.")
+        except InvalidSignature:
+            logger.error("Invalid signature. The ZIP file may have been tampered with.")
+            raise APIInvalidArguments()
+
 
 def extract_zip_files(zip_file):
     file_like_object = zip_file.stream._file
@@ -122,43 +165,6 @@ def get_runner_summary_data(file):
     return json.loads(summary_content_str)
 
 
-def verify_zip_sign(zip_file_org):
-    with open('utils/crypto/public.key', 'rb') as key_file:
-        public_key = serialization.load_pem_public_key(key_file.read())
-
-    # Read the signature from the ZIP comment
-    with zipfile.ZipFile(zip_file_org, 'r') as zip_file:
-        signature_base64 = zip_file.comment.decode('utf-8')
-
-    # Open the ZIP file and reset the comment
-    with zipfile.ZipFile(zip_file_org, 'a') as zip_file:
-        zip_file.comment = ''.encode('utf-8')
-
-    # Decode the Base64 signature
-    signature = base64.b64decode(signature_base64)
-
-    # Calculate the hash of the ZIP content, excluding the comment
-    with open(zip_file_org, 'rb') as zip_file:
-        hash_value = hashlib.sha256(zip_file.read()).digest()
-
-    # Open the ZIP file and add the signature to the comment
-    with zipfile.ZipFile(zip_file_org, 'a') as zip_file:
-        zip_file.comment = signature_base64.encode('utf-8')
-
-    # Verify the signature using the public key
-    try:
-        public_key.verify(
-            signature,
-            hash_value,
-            padding.PKCS1v15(),
-            hashes.SHA256()
-        )
-        logger.debug("Signature is valid. The ZIP file is authentic.")
-    except InvalidSignature:
-        logger.error("Invalid signature. The ZIP file may have been tampered with.")
-        raise APIInvalidArguments()
-
-
 def get_request_zip():
     request_zip = list(flask.request.files.values())[0]
     filename = secure_filename(request_zip.filename)
@@ -168,4 +174,4 @@ def get_request_zip():
 
 
 def init(plugin_manager, _, _2, _3):
-    plugin_manager.add_page("/gitlabsubmission", GitlabSubmissionPage.as_view('gitlabsubmission'))
+    plugin_manager.add_page("/gitlab/submission", GitlabSubmissionPage.as_view('gitlabsubmission'))
