@@ -48,7 +48,7 @@ class GitlabSubmissionPage(INGIniousPage):
             runner_summary = get_runner_summary_data(request_zip)
 
             task_info = runner_summary['pipeline_info'][0]
-            course_id, task_id = runner_summary['course_id'], task_info['exercise']
+            course_id, task_id = runner_summary['courseid'], task_info['taskid']
 
             try:
                 course = self.course_factory.get_course(course_id)
