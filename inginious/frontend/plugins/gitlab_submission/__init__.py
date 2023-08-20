@@ -26,8 +26,16 @@ logger = logging.getLogger('inginious.webapp.plugin.gilabsubmission')
 class GitlabSubmissionPage(INGIniousPage):
 
     def __init__(self):
-        self.gitlab_problem = os.environ.get('GITLAB_PROBLEM', 'program')
-        self.public_key = os.environ.get('PUBLIC_KEY', '').encode()
+        self.gitlab_problem = os.environ.get('GITLAB_PROBLEM', 'gitlab')
+        self.public_key = os.environ.get('PUBLIC_KEY', """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1YX92NdNefTiurunFjSZ
+RyCpD8KQYxlAHIRg1bCqM17ygixFX1Lww6kyaA1vmONosdvpHrknoqBzljR/bLuz
+ooYdXGZf4JNINZfKQ4MHjGZUlCNZWjfTUOKGL4r4KkvZIj7fhnt9XUz00daqzc+X
+pCp1WmZVf9Ss0aikgP9PBolTggXY2KVUwfqWxyv3ByDYj6lXWMyzHkyfoVbJwu92
+JuCTEBoANiH+a8IXVqf836MzJ5kxT1Zy7upniFp8e8j2aN864mF2kYmvPc86JPkr
+usgCgDsBmtTGxiWawTQHIor08vWzB2d/7XMdKLpMKJq1IUBv902MSVR5YPnB0Zug
+rQIDAQAB
+-----END PUBLIC KEY-----""").encode()
 
     def POST(self):
         """ POST request """
