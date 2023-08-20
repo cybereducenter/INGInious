@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import base64
 import hashlib
 import json
@@ -165,6 +163,7 @@ def get_request_zip():
     request_zip = list(flask.request.files.values())[0]
     filename = secure_filename(request_zip.filename)
     zip_path = os.path.join(os.getcwd(), filename)
+    logger.info(f'save file in {zip_path}')
     request_zip.save(zip_path)
     return request_zip
 
