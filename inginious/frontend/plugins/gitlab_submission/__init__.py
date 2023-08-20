@@ -55,7 +55,7 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
-        # request_zip = get_request_zip()
+        request_zip = get_request_zip()
         # shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
         try:
             # self.verify_zip_sign(SOURCE_ZIP_FILE)
@@ -118,8 +118,7 @@ rQIDAQAB
                 raise APIError(500, str(ex))
         finally:
             # os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            # os.remove(SOURCE_ZIP_FILE)
-            pass
+            os.remove(SOURCE_ZIP_FILE)
 
     def get_username(self, email):
         """
