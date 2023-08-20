@@ -117,8 +117,8 @@ rQIDAQAB
             except Exception as ex:
                 raise APIError(500, str(ex))
         finally:
-            # os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            os.remove(SOURCE_ZIP_FILE)
+            os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
+            # os.remove(SOURCE_ZIP_FILE)
 
     def get_username(self, email):
         """
