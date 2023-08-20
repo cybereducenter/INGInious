@@ -81,7 +81,7 @@ rQIDAQAB
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if pid == self.gitlab_problem:
-                    user_input[pid] = request_zip
+                    user_input[pid] = list(flask.request.files.values())[0]
 
             user_input = task.adapt_input_for_backend(user_input)
 
