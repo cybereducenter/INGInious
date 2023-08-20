@@ -55,12 +55,12 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
-        request_zip = get_request_zip()
-        shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
+        # request_zip = get_request_zip()
+        # shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
         try:
-            self.verify_zip_sign(SOURCE_ZIP_FILE)
-            with zipfile.ZipFile(SOURCE_ZIP_FILE) as source_file:
-                runner_summary = get_runner_summary_data(source_file)
+            # self.verify_zip_sign(SOURCE_ZIP_FILE)
+            # with zipfile.ZipFile(SOURCE_ZIP_FILE) as source_file:
+            #     runner_summary = get_runner_summary_data(source_file)
 
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
@@ -114,8 +114,9 @@ rQIDAQAB
             except Exception as ex:
                 raise APIError(500, str(ex))
         finally:
-            os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            os.remove(SOURCE_ZIP_FILE)
+            # os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
+            # os.remove(SOURCE_ZIP_FILE)
+            pass
 
     def get_username(self, email):
         """
