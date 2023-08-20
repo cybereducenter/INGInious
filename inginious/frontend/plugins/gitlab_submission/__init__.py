@@ -97,6 +97,7 @@ rQIDAQAB
 
             # Get debug info if the current user is an admin
             debug = self.user_manager.has_admin_rights_on_course(course, username)
+            logger.debug(f'has_admin_rights_on_course: {debug}')
 
             real_name = self.user_manager.get_user_realname(username)
             language = self.user_manager.session_language()
