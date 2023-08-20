@@ -54,7 +54,7 @@ class GitlabSubmissionPage(INGIniousPage):
             try:
                 course = self.course_factory.get_course(course_id)
             except Exception:
-                raise APIInvalidArguments("Course not found")
+                raise APINotFound("Course not found")
 
             email = runner_summary['email']
             username = self.get_username(email)
@@ -65,7 +65,7 @@ class GitlabSubmissionPage(INGIniousPage):
             try:
                 task = course.get_task(task_id)
             except Exception:
-                raise APINotFound("Task not found")
+                raise APIInvalidArguments("Task not found")
 
             user_input = {'@action': 'submit'}
             for problem in task.get_problems():
