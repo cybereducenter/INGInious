@@ -56,7 +56,7 @@ rQIDAQAB
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
         request_zip = get_request_zip()
-        # shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
+        shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
         try:
             # self.verify_zip_sign(SOURCE_ZIP_FILE)
             # with zipfile.ZipFile(SOURCE_ZIP_FILE) as source_file:
@@ -88,7 +88,7 @@ rQIDAQAB
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if pid == self.gitlab_problem:
-                    user_input[pid] = list(flask.request.files.values())[0]
+                    user_input[pid] = request_zip
 
             user_input = task.adapt_input_for_backend(user_input)
 
@@ -118,7 +118,7 @@ rQIDAQAB
                 raise APIError(500, str(ex))
         finally:
             os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            # os.remove(SOURCE_ZIP_FILE)
+            os.remove(SOURCE_ZIP_FILE)
 
     def get_username(self, email):
         """
