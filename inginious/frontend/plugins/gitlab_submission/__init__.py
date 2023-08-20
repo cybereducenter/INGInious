@@ -167,7 +167,8 @@ def extract_zip_files(zip_file):
 def get_runner_summary_data(file):
     zipfile_ob = extract_zip_files(file)
     file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
-    summary_content_str = zipfile_ob.open(file_name).read()
+    with zipfile_ob.open(file_name) as data_read:
+        summary_content_str = data_read.read()
     return json.loads(summary_content_str)
 
 
