@@ -62,15 +62,18 @@ rQIDAQAB
             # with zipfile.ZipFile(SOURCE_ZIP_FILE) as source_file:
             #     runner_summary = get_runner_summary_data(source_file)
 
-            task_info = runner_summary['pipeline_info'][0]
-            course_id, task_id = runner_summary['courseid'], task_info['taskid']
+            # task_info = runner_summary['pipeline_info'][0]
+            # course_id, task_id = runner_summary['courseid'], task_info['taskid']
+            course_id, task_id = 'cpp-course', '04-01'
+            # course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
                 course = self.course_factory.get_course(course_id)
             except Exception:
                 raise APINotFound("Course not found")
 
-            email = runner_summary['email']
+            # email = runner_summary['email']
+            email = 'raz@cyber.org.il'
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
