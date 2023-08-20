@@ -45,7 +45,7 @@ class GitlabSubmissionPage(INGIniousPage):
         """
         request_zip = get_request_zip()
         try:
-            self.verify_zip_sign(os.path.join('temp-files', request_zip.filename))
+            self.verify_zip_sign(os.path.join('/tmp', request_zip.filename))
             runner_summary = get_runner_summary_data(request_zip)
 
             task_info = runner_summary['pipeline_info'][0]
@@ -99,7 +99,7 @@ class GitlabSubmissionPage(INGIniousPage):
             except Exception as ex:
                 raise APIError(500, str(ex))
         finally:
-            os.remove(os.path.join('temp-files', request_zip.filename))
+            os.remove(os.path.join('/tmp', request_zip.filename))
 
     def get_username(self, email):
         """
@@ -162,12 +162,7 @@ def get_runner_summary_data(file):
 def get_request_zip():
     request_zip = list(flask.request.files.values())[0]
     filename = secure_filename(request_zip.filename)
-    try:
-        os.makedirs('temp-files')
-    except OSError:
-        if not os.path.isdir('temp-files'):
-            raise
-    zip_path = os.path.join('temp-files', filename)
+    zip_path = os.path.join('/tmp', filename)
     logger.info(f'save file in {zip_path}')
     request_zip.save(zip_path)
     return request_zip
