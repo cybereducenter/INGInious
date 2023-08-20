@@ -56,7 +56,7 @@ class GitlabSubmissionPage(INGIniousPage):
             except Exception:
                 raise APINotFound("Course not found")
 
-            email = runner_summary['student_mail']
+            email = runner_summary['email']
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
