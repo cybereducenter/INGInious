@@ -54,7 +54,7 @@ class GitlabSubmissionPage(INGIniousPage):
             try:
                 course = self.course_factory.get_course(course_id)
             except Exception:
-                raise APINotFound("Course not found")
+                raise APIInvalidArguments("Course not found")
 
             email = runner_summary['email']
             username = self.get_username(email)
