@@ -23,6 +23,7 @@ from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 
 from inginious.common.exceptions import TaskNotFoundException, CourseNotFoundException
+from inginious.frontend.feedback_service import get_feedback_file_name, indent
 from inginious.frontend.pages.course import handle_course_unavailable
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
@@ -417,7 +418,7 @@ class BaseTaskPage(object):
         try:
 
             # couldn't open with  get_renderer, errors on js, tries to render the page and run the js
-            feedback_file_name = self.get_feedback_file_name(task_type)
+            feedback_file_name = get_feedback_file_name(task_type)
             file_path = self.template_helper._root_path + '/'+ self.template_helper._template_dir + '/task_page/' +feedback_file_name
             with codecs.open(file_path,'r',encoding='utf8') as f:
                 feedback_html = f.read()
@@ -425,7 +426,7 @@ class BaseTaskPage(object):
             # it might be a good idea to render the html with the task id in it (05-06, for example)
             # that way, the way the js will render in the appropriate modal
             feedback_html_injected_with_id = feedback_html.replace('task_id_to_replace', task_id)
-            feedback_html_injected_with_id = '.. raw:: html' + '\n' + self.indent(feedback_html_injected_with_id, 4)
+            feedback_html_injected_with_id = '.. raw:: html' + '\n' + indent(feedback_html_injected_with_id, 4)
             user_input['html_template'] = feedback_html_injected_with_id
         except Exception as err:
             prefered_encoding = locale.getpreferredencoding()
@@ -437,18 +438,6 @@ class BaseTaskPage(object):
 
         return user_input
 
-
-    def get_feedback_file_name(self, task_type):
-        if task_type == 'python-unit-test':
-            return 'feedback_python.html'
-        if task_type == 'cpp-test':
-            return 'feedback_cpp.html'
-
-        return 'feedback.html'
-    
-    def indent(self, text, amount, ch=' '):
-        padding = amount * ch
-        return ''.join(padding + line for line in text.splitlines(True))
 
 class TaskPageStaticDownload(INGIniousPage):
     """ Allow to download files stored in the task folder """

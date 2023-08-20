@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from werkzeug.utils import secure_filename
 
+from inginious.frontend.feedback_service import add_feedback_html_to_user_input
 from inginious.frontend.pages.api._api_page import (
     APINotFound,
     APIForbidden,
@@ -90,6 +91,7 @@ class GitlabSubmissionPage(INGIniousPage):
             real_name = self.user_manager.get_user_realname(username)
             language = self.user_manager.session_language()
             self.user_manager.connect_user(username, real_name, email, language, False)
+            user_input = add_feedback_html_to_user_input(user_input, task_id, task._type)
 
             try:
                 submission_id, _ = self.submission_manager.add_job(task, user_input, debug)
