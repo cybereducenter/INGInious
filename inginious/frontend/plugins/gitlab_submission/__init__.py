@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import zipfile
 
 import flask
@@ -21,6 +22,7 @@ from inginious.frontend.pages.api._api_page import (
 from inginious.frontend.pages.utils import INGIniousPage
 
 FILE_STORAGE_LOCATION = '/tmp'
+SOURCE_ZIP_FILE = FILE_STORAGE_LOCATION + '/source.zip'
 
 logger = logging.getLogger('inginious.webapp.plugin.gilabsubmission')
 
@@ -54,9 +56,11 @@ rQIDAQAB
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
         request_zip = get_request_zip()
+        shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
         try:
-            self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            runner_summary = get_runner_summary_data(request_zip)
+            self.verify_zip_sign(SOURCE_ZIP_FILE)
+            with zipfile.ZipFile(SOURCE_ZIP_FILE) as source_file:
+                runner_summary = get_runner_summary_data(source_file)
 
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
@@ -110,8 +114,8 @@ rQIDAQAB
             except Exception as ex:
                 raise APIError(500, str(ex))
         finally:
-            request_zip.close()
             os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
+            os.remove(SOURCE_ZIP_FILE)
 
     def get_username(self, email):
         """
@@ -164,8 +168,8 @@ def extract_zip_files(zip_file):
     return zipfile_ob
 
 
-def get_runner_summary_data(file):
-    zipfile_ob = extract_zip_files(file)
+def get_runner_summary_data(zipfile_ob):
+    # zipfile_ob = extract_zip_files(file)
     file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
     with zipfile_ob.open(file_name) as data_read:
         summary_content_str = data_read.read()
