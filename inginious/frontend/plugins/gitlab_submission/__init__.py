@@ -65,7 +65,7 @@ class GitlabSubmissionPage(INGIniousPage):
             try:
                 task = course.get_task(task_id)
             except Exception:
-                raise APIInvalidArguments("Task not found")
+                raise APINotFound("Task not found")
 
             user_input = {'@action': 'submit'}
             for problem in task.get_problems():
