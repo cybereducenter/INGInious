@@ -222,7 +222,7 @@ class BaseTaskPage(object):
                     debug = "ssh"
                 del userinput['@debug-mode']
 
-            if len(task._problems) > 0 and task._problems[0].get_type() == 'code':
+            if len(task._problems) > 0 and (task._problems[0].get_type() == 'code' or task._type == 'cpp-test'):
                     userinput = self.add_feedback_html_to_user_input(userinput, taskid, task_type)
 
             # Start the submission
