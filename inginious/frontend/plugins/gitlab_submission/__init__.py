@@ -53,12 +53,10 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
-        request_zip_saved = list(flask.request.files.values())[0]
-        # request_zip = get_request_zip()
+        request_zip = get_request_zip()
         try:
-            # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), request_zip_saved)
-            # runner_summary = get_runner_summary_data(request_zip_saved)
-            file_like_object = request_zip_saved.stream._file
+            # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
+            runner_summary = get_runner_summary_data(request_zip)
 
             # task_info = runner_summary['pipeline_info'][0]
             # course_id, task_id = runner_summary['courseid'], task_info['taskid']
@@ -87,7 +85,7 @@ rQIDAQAB
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if pid == self.gitlab_problem:
-                    user_input[pid] = request_zip_saved
+                    user_input[pid] = list(flask.request.files.values())[0]
 
             user_input = task.adapt_input_for_backend(user_input)
 
@@ -128,7 +126,7 @@ rQIDAQAB
         user = self.user_manager._database.users.find_one({"email": email})
         return user["username"] if user else None
 
-    def verify_zip_sign(self, zip_file_org, request_zip_saved):
+    def verify_zip_sign(self, zip_file_org, request_zip_saved=None):
         public_key = serialization.load_pem_public_key(self.public_key)
 
         # file_like_object = request_zip_saved.stream._file
@@ -182,10 +180,10 @@ def extract_zip_files(zip_file):
 
 def get_runner_summary_data(file):
     zipfile_ob = extract_zip_files(file)
-    file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
-    with zipfile_ob.open(file_name) as data_read:
-        summary_content_str = data_read.read()
-    return json.loads(summary_content_str)
+    # file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
+    # with zipfile_ob.open(file_name) as data_read:
+    #     summary_content_str = data_read.read()
+    # return json.loads(summary_content_str)
 
 
 def get_request_zip():
