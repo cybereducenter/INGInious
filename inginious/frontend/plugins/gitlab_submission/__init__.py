@@ -62,7 +62,7 @@ rQIDAQAB
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
             # course_id, task_id = 'cpp-course', '04-01'
-            # course_id, task_id = 'tutorial', '14_dorin_test_final'
+            course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
                 course = self.course_factory.get_course(course_id)
@@ -70,7 +70,7 @@ rQIDAQAB
                 raise APINotFound("Course not found")
 
             email = runner_summary['email']
-            # email = 'dorinb@comm-it.com'
+            email = 'dorinb@comm-it.com'
             # email = 'raz@cyber.org.il'
             username = self.get_username(email)
 
@@ -184,10 +184,10 @@ def extract_zip_files(zip_file):
 
 def get_runner_summary_data(file):
     zipfile_ob = extract_zip_files(file)
-    # file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
-    # with zipfile_ob.open(file_name) as data_read:
-    #     summary_content_str = data_read.read()
-    # return json.loads(summary_content_str)
+    file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
+    with zipfile_ob.open(file_name) as data_read:
+        summary_content_str = data_read.read()
+    return json.loads(summary_content_str)
 
 
 def get_request_zip():
