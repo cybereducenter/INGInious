@@ -65,7 +65,7 @@ rQIDAQAB
                 content_type=orig.content_type,
                 headers=orig.headers,
             )
-            self.verify_zip_sign(zip_file_org, zip_path)
+            self.verify_zip_sign(zip_path)
             runner_summary = get_runner_summary_data(orig)
 
             task_info = runner_summary['pipeline_info'][0]
@@ -133,19 +133,19 @@ rQIDAQAB
         user = self.user_manager._database.users.find_one({"email": email})
         return user["username"] if user else None
 
-    def verify_zip_sign(self, zip_file_org, zip_path):
+    def verify_zip_sign(self, zip_path):
         public_key = serialization.load_pem_public_key(self.public_key)
 
         # file_like_object = request_zip_saved.stream._file
         # zip_file_org_saved = zipfile.ZipFile(file_like_object)
 
         # Read the signature from the ZIP comment
-        with zipfile.ZipFile(zip_file_org.filename, 'r') as zip_file:
+        with zipfile.ZipFile(zip_path, 'r') as zip_file:
             signature_base64 = zip_file.comment.decode('utf-8')
             # signature_base64_2 = zip_file_org_saved.comment.decode('utf-8')
 
         # Open the ZIP file and reset the comment
-        with zipfile.ZipFile(zip_file_org.filename, 'a') as zip_file:
+        with zipfile.ZipFile(zip_path, 'a') as zip_file:
             zip_file.comment = ''.encode('utf-8')
             # zip_file_org_saved.comment = ''.encode('utf-8')
 
@@ -161,7 +161,7 @@ rQIDAQAB
         #     hash_value_2 = hashlib.sha256(file_like_object.read()).digest()
 
         # Open the ZIP file and add the signature to the comment
-        with zipfile.ZipFile(zip_file_org.filename, 'a') as zip_file:
+        with zipfile.ZipFile(zip_path, 'a') as zip_file:
             zip_file.comment = signature_base64.encode('utf-8')
             # zip_file_org_saved.comment = signature_base64_2.encode('utf-8')
 
