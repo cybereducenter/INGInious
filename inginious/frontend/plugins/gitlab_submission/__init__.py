@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import zipfile
+from io import BytesIO
 
 import flask
 from cryptography.exceptions import InvalidSignature
@@ -174,7 +175,9 @@ rQIDAQAB
 
 def extract_zip_files(zip_file):
     file_like_object = zip_file.stream._file
-    zipfile_ob = zipfile.ZipFile(file_like_object)
+    file_like_object.seek(0)
+    cloned = BytesIO(file_like_object.read())
+    zipfile_ob = zipfile.ZipFile(cloned)
     return zipfile_ob
 
 
