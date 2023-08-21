@@ -3,7 +3,6 @@ import hashlib
 import json
 import logging
 import os
-import shutil
 import zipfile
 
 import flask
@@ -22,7 +21,6 @@ from inginious.frontend.pages.api._api_page import (
 from inginious.frontend.pages.utils import INGIniousPage
 
 FILE_STORAGE_LOCATION = '/tmp'
-SOURCE_ZIP_FILE = FILE_STORAGE_LOCATION + '/source.zip'
 
 logger = logging.getLogger('inginious.webapp.plugin.gilabsubmission')
 
@@ -55,16 +53,15 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
-        request_zip = get_request_zip()
-        shutil.copy(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), SOURCE_ZIP_FILE)
+        request_zip_saved = list(flask.request.files.values())[0]
+        # request_zip = get_request_zip()
         try:
-            # self.verify_zip_sign(SOURCE_ZIP_FILE)
-            # with zipfile.ZipFile(SOURCE_ZIP_FILE) as source_file:
-            #     runner_summary = get_runner_summary_data(source_file)
+            # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), request_zip_saved)
+            runner_summary = get_runner_summary_data(request_zip_saved)
 
-            # task_info = runner_summary['pipeline_info'][0]
-            # course_id, task_id = runner_summary['courseid'], task_info['taskid']
-            course_id, task_id = 'cpp-course', '04-01'
+            task_info = runner_summary['pipeline_info'][0]
+            course_id, task_id = runner_summary['courseid'], task_info['taskid']
+            # course_id, task_id = 'cpp-course', '04-01'
             # course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
@@ -72,8 +69,9 @@ rQIDAQAB
             except Exception:
                 raise APINotFound("Course not found")
 
-            # email = runner_summary['email']
-            email = 'raz@cyber.org.il'
+            email = runner_summary['email']
+            # email = 'dorinb@comm-it.com'
+            # email = 'raz@cyber.org.il'
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
@@ -88,7 +86,7 @@ rQIDAQAB
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if pid == self.gitlab_problem:
-                    user_input[pid] = request_zip
+                    user_input[pid] = request_zip_saved
 
             user_input = task.adapt_input_for_backend(user_input)
 
@@ -117,8 +115,8 @@ rQIDAQAB
             except Exception as ex:
                 raise APIError(500, str(ex))
         finally:
-            os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            os.remove(SOURCE_ZIP_FILE)
+            # os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
+            pass
 
     def get_username(self, email):
         """
@@ -171,8 +169,8 @@ def extract_zip_files(zip_file):
     return zipfile_ob
 
 
-def get_runner_summary_data(zipfile_ob):
-    # zipfile_ob = extract_zip_files(file)
+def get_runner_summary_data(file):
+    zipfile_ob = extract_zip_files(file)
     file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
     with zipfile_ob.open(file_name) as data_read:
         summary_content_str = data_read.read()
