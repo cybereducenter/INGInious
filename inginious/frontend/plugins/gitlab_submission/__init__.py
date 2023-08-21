@@ -70,7 +70,6 @@ rQIDAQAB
 
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
-            # course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
                 course = self.course_factory.get_course(course_id)
@@ -78,7 +77,6 @@ rQIDAQAB
                 raise APINotFound("Course not found")
 
             email = runner_summary['email']
-            # email = 'dorinb@comm-it.com'
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
@@ -136,34 +134,24 @@ rQIDAQAB
     def verify_zip_sign(self, zip_path):
         public_key = serialization.load_pem_public_key(self.public_key)
 
-        # file_like_object = request_zip_saved.stream._file
-        # zip_file_org_saved = zipfile.ZipFile(file_like_object)
-
         # Read the signature from the ZIP comment
         with zipfile.ZipFile(zip_path, 'r') as zip_file:
             signature_base64 = zip_file.comment.decode('utf-8')
-            # signature_base64_2 = zip_file_org_saved.comment.decode('utf-8')
 
         # Open the ZIP file and reset the comment
         with zipfile.ZipFile(zip_path, 'a') as zip_file:
             zip_file.comment = ''.encode('utf-8')
-            # zip_file_org_saved.comment = ''.encode('utf-8')
 
         # Decode the Base64 signature
         signature = base64.b64decode(signature_base64)
-        # signature_2 = base64.b64decode(signature_base64_2)
 
         # Calculate the hash of the ZIP content, excluding the comment
         with open(zip_path, 'rb') as zip_file:
             hash_value = hashlib.sha256(zip_file.read()).digest()
 
-        # with open(zip_file_org_saved.filename, 'rb') as zip_file:
-        #     hash_value_2 = hashlib.sha256(file_like_object.read()).digest()
-
         # Open the ZIP file and add the signature to the comment
         with zipfile.ZipFile(zip_path, 'a') as zip_file:
             zip_file.comment = signature_base64.encode('utf-8')
-            # zip_file_org_saved.comment = signature_base64_2.encode('utf-8')
 
         # Verify the signature using the public key
         try:
@@ -185,6 +173,7 @@ def clone_bytes(zip_file):
     cloned = BytesIO(file_like_object.read())
     file_like_object.seek(0)
     return cloned
+
 
 def get_runner_summary_data(file):
     zipfile_ob = zipfile.ZipFile(file)
