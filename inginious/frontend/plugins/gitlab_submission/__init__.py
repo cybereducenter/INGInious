@@ -58,6 +58,7 @@ rQIDAQAB
         try:
             # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename), request_zip_saved)
             # runner_summary = get_runner_summary_data(request_zip_saved)
+            file_like_object = request_zip_saved.stream._file
 
             # task_info = runner_summary['pipeline_info'][0]
             # course_id, task_id = runner_summary['courseid'], task_info['taskid']
