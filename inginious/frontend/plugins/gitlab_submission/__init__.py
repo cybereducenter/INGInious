@@ -55,8 +55,9 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
+        orig = list(flask.request.files.values())[0]
+        zip_file_org, zip_path = get_request_zip(orig)
         try:
-            orig = list(flask.request.files.values())[0]
             cloned_bytes = clone_bytes(orig)
             cloned_file = FileStorage(
                 stream=cloned_bytes,
@@ -64,8 +65,8 @@ rQIDAQAB
                 content_type=orig.content_type,
                 headers=orig.headers,
             )
-            # self.verify_zip_sign(orig)
-            runner_summary = get_runner_summary_data(cloned_bytes)
+            self.verify_zip_sign(zip_file_org, zip_path)
+            runner_summary = get_runner_summary_data(orig)
 
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
@@ -92,7 +93,7 @@ rQIDAQAB
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if pid == self.gitlab_problem:
-                    user_input[pid] = list(flask.request.files.values())[0]
+                    user_input[pid] = cloned_file
 
             user_input = task.adapt_input_for_backend(user_input)
 
@@ -121,8 +122,7 @@ rQIDAQAB
             except Exception as ex:
                 raise APIError(500, str(ex))
         finally:
-            # os.remove(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            pass
+            os.remove(zip_path)
 
     def get_username(self, email):
         """
@@ -133,20 +133,19 @@ rQIDAQAB
         user = self.user_manager._database.users.find_one({"email": email})
         return user["username"] if user else None
 
-    def verify_zip_sign(self, cloned_bytes_io):
-        zip_file_org, zip_path = get_request_zip(cloned_bytes_io)
+    def verify_zip_sign(self, zip_file_org, zip_path):
         public_key = serialization.load_pem_public_key(self.public_key)
 
         # file_like_object = request_zip_saved.stream._file
         # zip_file_org_saved = zipfile.ZipFile(file_like_object)
 
         # Read the signature from the ZIP comment
-        with zipfile.ZipFile(zip_file_org, 'r') as zip_file:
+        with zipfile.ZipFile(zip_file_org.filename, 'r') as zip_file:
             signature_base64 = zip_file.comment.decode('utf-8')
             # signature_base64_2 = zip_file_org_saved.comment.decode('utf-8')
 
         # Open the ZIP file and reset the comment
-        with zipfile.ZipFile(zip_file_org, 'a') as zip_file:
+        with zipfile.ZipFile(zip_file_org.filename, 'a') as zip_file:
             zip_file.comment = ''.encode('utf-8')
             # zip_file_org_saved.comment = ''.encode('utf-8')
 
@@ -162,7 +161,7 @@ rQIDAQAB
         #     hash_value_2 = hashlib.sha256(file_like_object.read()).digest()
 
         # Open the ZIP file and add the signature to the comment
-        with zipfile.ZipFile(zip_file_org, 'a') as zip_file:
+        with zipfile.ZipFile(zip_file_org.filename, 'a') as zip_file:
             zip_file.comment = signature_base64.encode('utf-8')
             # zip_file_org_saved.comment = signature_base64_2.encode('utf-8')
 
@@ -195,17 +194,9 @@ def get_runner_summary_data(file):
     return json.loads(summary_content_str)
 
 
-def get_request_zip(cloned_bytes):
-    orig = list(flask.request.files.values())[0]
-    request_zip = FileStorage(
-        stream=cloned_bytes,
-        filename=orig.filename,
-        content_type=orig.content_type,
-        headers=orig.headers,
-    )
+def get_request_zip(request_zip):
     filename = secure_filename(request_zip.filename)
-    zip_path = os.path.join(FILE_STORAGE_LOCATION, filename)
-    logger.info(f'save file in {zip_path}')
+    zip_path = os.path.join(os.getcwd(), filename)
     request_zip.save(zip_path)
     return request_zip, zip_path
 
