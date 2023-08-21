@@ -53,10 +53,10 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
-        request_zip = get_request_zip()
+        # request_zip = get_request_zip()
         try:
             # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            runner_summary = get_runner_summary_data(request_zip)
+            runner_summary = get_runner_summary_data(list(flask.request.files.values())[0])
 
             # task_info = runner_summary['pipeline_info'][0]
             # course_id, task_id = runner_summary['courseid'], task_info['taskid']
