@@ -10,6 +10,7 @@ import flask
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 from inginious.frontend.feedback_service import add_feedback_html_to_user_input
@@ -54,14 +55,20 @@ rQIDAQAB
             - an error 500 Internal server error if the grader is not available,
             - 200 Ok, with {"submissionid": "the submission id"} as output.
         """
-        # request_zip = get_request_zip()
         try:
-            # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
-            runner_summary = get_runner_summary_data(list(flask.request.files.values())[0])
+            orig = list(flask.request.files.values())[0]
+            cloned_bytes = clone_bytes(orig)
+            cloned_file = FileStorage(
+                stream=cloned_bytes,
+                filename=orig.filename,
+                content_type=orig.content_type,
+                headers=orig.headers,
+            )
+            # self.verify_zip_sign(orig)
+            runner_summary = get_runner_summary_data(cloned_bytes)
 
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
-            # course_id, task_id = 'cpp-course', '04-01'
             # course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
@@ -71,7 +78,6 @@ rQIDAQAB
 
             email = runner_summary['email']
             # email = 'dorinb@comm-it.com'
-            # email = 'raz@cyber.org.il'
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
@@ -127,7 +133,8 @@ rQIDAQAB
         user = self.user_manager._database.users.find_one({"email": email})
         return user["username"] if user else None
 
-    def verify_zip_sign(self, zip_file_org, request_zip_saved=None):
+    def verify_zip_sign(self, cloned_bytes_io):
+        zip_file_org, zip_path = get_request_zip(cloned_bytes_io)
         public_key = serialization.load_pem_public_key(self.public_key)
 
         # file_like_object = request_zip_saved.stream._file
@@ -148,7 +155,7 @@ rQIDAQAB
         # signature_2 = base64.b64decode(signature_base64_2)
 
         # Calculate the hash of the ZIP content, excluding the comment
-        with open(zip_file_org, 'rb') as zip_file:
+        with open(zip_path, 'rb') as zip_file:
             hash_value = hashlib.sha256(zip_file.read()).digest()
 
         # with open(zip_file_org_saved.filename, 'rb') as zip_file:
@@ -173,30 +180,34 @@ rQIDAQAB
             raise APIInvalidArguments()
 
 
-def extract_zip_files(zip_file):
+def clone_bytes(zip_file):
     file_like_object = zip_file.stream._file
     file_like_object.seek(0)
     cloned = BytesIO(file_like_object.read())
     file_like_object.seek(0)
-    zipfile_ob = zipfile.ZipFile(cloned)
-    return zipfile_ob
-
+    return cloned
 
 def get_runner_summary_data(file):
-    zipfile_ob = extract_zip_files(file)
+    zipfile_ob = zipfile.ZipFile(file)
     file_name = [name for name in zipfile_ob.namelist() if name.endswith('RunnersSummary.json')][0]
     with zipfile_ob.open(file_name) as data_read:
         summary_content_str = data_read.read()
     return json.loads(summary_content_str)
 
 
-def get_request_zip():
-    request_zip = list(flask.request.files.values())[0]
+def get_request_zip(cloned_bytes):
+    orig = list(flask.request.files.values())[0]
+    request_zip = FileStorage(
+        stream=cloned_bytes,
+        filename=orig.filename,
+        content_type=orig.content_type,
+        headers=orig.headers,
+    )
     filename = secure_filename(request_zip.filename)
     zip_path = os.path.join(FILE_STORAGE_LOCATION, filename)
     logger.info(f'save file in {zip_path}')
     request_zip.save(zip_path)
-    return request_zip
+    return request_zip, zip_path
 
 
 def init(plugin_manager, _, _2, _3):
