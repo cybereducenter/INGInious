@@ -62,7 +62,7 @@ rQIDAQAB
             task_info = runner_summary['pipeline_info'][0]
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
             # course_id, task_id = 'cpp-course', '04-01'
-            course_id, task_id = 'tutorial', '14_dorin_test_final'
+            # course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
                 course = self.course_factory.get_course(course_id)
@@ -70,7 +70,7 @@ rQIDAQAB
                 raise APINotFound("Course not found")
 
             email = runner_summary['email']
-            email = 'dorinb@comm-it.com'
+            # email = 'dorinb@comm-it.com'
             # email = 'raz@cyber.org.il'
             username = self.get_username(email)
 
