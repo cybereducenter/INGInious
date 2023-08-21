@@ -174,8 +174,8 @@ rQIDAQAB
 
 def extract_zip_files(zip_file):
     file_like_object = zip_file.stream._file
-    # zipfile_ob = zipfile.ZipFile(file_like_object)
-    # return zipfile_ob
+    zipfile_ob = zipfile.ZipFile(file_like_object)
+    return zipfile_ob
 
 
 def get_runner_summary_data(file):
