@@ -59,9 +59,9 @@ rQIDAQAB
             # self.verify_zip_sign(os.path.join(FILE_STORAGE_LOCATION, request_zip.filename))
             runner_summary = get_runner_summary_data(list(flask.request.files.values())[0])
 
-            # task_info = runner_summary['pipeline_info'][0]
-            # course_id, task_id = runner_summary['courseid'], task_info['taskid']
-            course_id, task_id = 'cpp-course', '04-01'
+            task_info = runner_summary['pipeline_info'][0]
+            course_id, task_id = runner_summary['courseid'], task_info['taskid']
+            # course_id, task_id = 'cpp-course', '04-01'
             # course_id, task_id = 'tutorial', '14_dorin_test_final'
 
             try:
@@ -69,9 +69,9 @@ rQIDAQAB
             except Exception:
                 raise APINotFound("Course not found")
 
-            # email = runner_summary['email']
+            email = runner_summary['email']
             # email = 'dorinb@comm-it.com'
-            email = 'raz@cyber.org.il'
+            # email = 'raz@cyber.org.il'
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
@@ -177,6 +177,7 @@ def extract_zip_files(zip_file):
     file_like_object = zip_file.stream._file
     file_like_object.seek(0)
     cloned = BytesIO(file_like_object.read())
+    file_like_object.seek(0)
     zipfile_ob = zipfile.ZipFile(cloned)
     return zipfile_ob
 
