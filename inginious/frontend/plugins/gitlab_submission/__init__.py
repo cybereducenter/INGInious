@@ -196,7 +196,7 @@ def get_runner_summary_data(file):
 
 def get_request_zip(request_zip):
     filename = secure_filename(request_zip.filename)
-    zip_path = os.path.join(os.getcwd(), filename)
+    zip_path = os.path.join(FILE_STORAGE_LOCATION, filename)
     request_zip.save(zip_path)
     return request_zip, zip_path
 
