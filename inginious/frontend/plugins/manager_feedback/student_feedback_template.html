@@ -37,24 +37,24 @@
 
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script type="text/x-tmpl" id="tmpl-category">
-        <div  id="feedback-{{%=o.category_eng%}}"
+        <div id="feedback-{{%=o.category%}}"
              class="displayed_feedback section category card mb-4">
              <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
                  style="display: flex; margin: 5px; background-color: #5bc0de;">
                         <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
-                            <div>{{%=o.category%}}</div>
+                            <div>{{%=o.name%}}</div>
                         </span>
                         <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
                               class="dropdown_button fa fa-caret-left"></span>
             </div>
             <div >
                 {{% if (o.feedback) {{ %}}
-                    <div class="message-feedback-{{%=o.category_eng%}} message">
+                    <div class="message-feedback-{{%=o.category%}} message">
                         <span>{{%=o.feedback%}}</span>
                     </div>
                 {{% }} %}}
             </div>
-            <div id="feedback-{{%=o.category_eng%}}-tests" class="content list-group list-group-flush task-feedback" style="display:none;">
+            <div id="feedback-{{%=o.category%}}-tests" class="content list-group list-group-flush task-feedback" style="display:none;">
 
                 <div class="test-container" style=" margin: 1.5rem">
 
@@ -129,25 +129,16 @@
     <script>
         // will be injected by run.py after run of scenarios
         var feedbackData = {feedback_json};
-        console.log("feedbackData", feedbackData)
     </script>
 
     <script>
-        var taskId = 'task_id_to_replace';
         FeedbackPlugin.renderGitlabRows(feedbackData);
     </script>
 
 </body>
 
 <script type="application/javascript">
-    // loading jquery twice creates a bug in inginious.
-    // https://github.com/UCL-INGI/INGInious/issues/243
-    // This code prevents it from happening
-    // right now, relaying on iniginious to load the jquery
 
-    // $.each(feedbackData, function (id, data) {{
-    //         fillModalTerminalBoxes(data, id);
-    // }});
 
 
 </script>
