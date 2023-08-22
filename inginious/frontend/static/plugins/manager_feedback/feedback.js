@@ -4,12 +4,12 @@
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
 var FeedbackPlugin = (function () {
+    const default_categories = ['submission', 'coding']
+    var currentStep = 1
     var courseid = ""
     var taskid = ""
-    var currentStep = 1
     var checkedSections = []
     var displayedSections = []
-    const default_categories = ['submission', 'coding']
     var students_list = []
     var current_student = ""
     var previous_student = ""
@@ -17,7 +17,6 @@ var FeedbackPlugin = (function () {
     var categories = []
     var draft_categories = []
     var total_feedback = ""
-    var url = ""
 
     function init_variables(student_username, students, input_courseid, input_taskid) {
         courseid = input_courseid;
@@ -45,8 +44,7 @@ var FeedbackPlugin = (function () {
         }
     }
 
-    function init_manage_feedback_page(feedbacks, path) {
-        url = path;
+    function init_manage_feedback_page(feedbacks) {
         feedbacks = feedbacks
             .replace(/&#39;/g, '"')
             .replace(/True/g, "true")
@@ -372,7 +370,7 @@ var FeedbackPlugin = (function () {
         for (const key in categories_for_save) {
             var category = categories_for_save[key]
             category['feedback'] = $("#message-feedback-" + key).val();
-            category['tests'].filter(test =>
+            category['tests'] = category['tests'].filter(test =>
                 displayedSections.includes(test['name'])
             )
         }
@@ -430,7 +428,9 @@ var FeedbackPlugin = (function () {
         for (const key in draft_categories) {
             if (displayedSections.includes("feedback-" + key)) {
                 feedback_categories[key] = draft_categories[key];
-                feedback_categories[key]['tests'] = feedback_categories[key]['tests'].filter(test => displayedSections.includes(test['name']));
+                feedback_categories[key]['tests'] = feedback_categories[key]['tests'].filter(test =>
+                    displayedSections.includes(test['name'])
+                );
             }
         }
         send_post_request(feedback_categories, true);

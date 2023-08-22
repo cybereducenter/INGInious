@@ -136,3 +136,12 @@
     flex-wrap: nowrap;
     margin: 10px;
 }
+
+.nav-btn {
+    margin-block: 10px;
+    width: 90%
+}
+
+.save_feedback_btn Div {
+    padding: 0 5px;
+}

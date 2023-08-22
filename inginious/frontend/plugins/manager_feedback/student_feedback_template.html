@@ -89,58 +89,13 @@
            <span>{{%=o%}}</span>
         </div>
     </script>
-    <!--Template for a single scenario row -->
-    <script type="text/x-tmpl" id="tmpl-scenario-row">
-            <tr>
-                <td class="col-md-1 col-xs-1 {{%=o.color%}}">
-
-                    {{% if (!o.result.bool) {{ %}}
-                        <i class="fa fa-times-circle-o feedback-icon" aria-hidden="true"></i>
-                    {{% }} else {{ %}}
-                        <i class="fa fa-check-circle-o feedback-icon" aria-hidden="true"></i>
-                    {{% }} %}}
-                </td>
-
-                <td class="col-md-7 col-xs-7 black-text">
-                    <div class="col-md-2 col-xs-2 pull-right">
-                        #{{%=o.indexId%}}
-                    </div>
-                    <div class="col-md-10 col-xs-10 pull-right">
-                        <div class="row"> {{%=o.name%}} </div>
-                        <div class="row red-text">
-                            {{% if (o.feedback) {{ %}}
-                               {{%=o.feedback.text%}}
-                            {{% }} %}}
-                        </div>
-                    </div>
-
-                </td>
-                <td class="col-md-2 col-xs-2">
-                    <a href="#" class="feedback-cout" data-toggle="modal" data-target="#myModal{{%=o.id%}}">general output</a>
-                </td>
-                <td class="col-md-2 col-xs-2">
-                    <a href="{{%=o.link%}}" class="feedback-link" target="_blank">פרטים נוספים</a>
-                </td>
-            </tr>
-        </script>
-
-
 
     <script>
-        // will be injected by run.py after run of scenarios
         var feedbackData = {feedback_json};
-    </script>
-
-    <script>
         FeedbackPlugin.renderGitlabRows(feedbackData);
     </script>
 
 </body>
 
-<script type="application/javascript">
-
-
-
-</script>
 
 </html>

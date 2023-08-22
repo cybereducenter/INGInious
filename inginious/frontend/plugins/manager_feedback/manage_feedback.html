@@ -3,9 +3,9 @@
 {% block column %}
     <h3>{{student}}</h3>
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
-        <button class="btn btn-primary btn-info btn-sm previous-student-btn" style="margin-block: 10px; width: 90%">Previous Student</button>
-        <button class="btn btn-primary btn-info btn-sm next-student-btn" style="margin-block: 10px; width: 90%" >Next Student</button>
-        <button class="btn btn-primary btn-info btn-sm next-student-btn" style="margin-block: 10px; width: 90%" >Download submission files</button>
+        <button class="btn btn-primary btn-info btn-sm previous-student-btn nav-btn">Previous Student</button>
+        <button class="btn btn-primary btn-info btn-sm next-student-btn nav-btn">Next Student</button>
+        <button class="btn btn-primary btn-info btn-sm download-btn nav-btn">Download submission files</button>
     </div>
 {% endblock %}
 
@@ -123,9 +123,9 @@
     <div id="submit-buttons" style="display: none; flex-wrap: nowrap;">
         <div class="btn-group submit-buttons" >
             <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
-                    onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline" style="padding: 0 5px">Save a draft</div></button>
-            <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
-                    onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline" style="padding: 0 5px">Submit for student</div></button>
+                    onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save a draft</div></button>
+            <button id="submit_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
+                    onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Submit for student</div></button>
         </div>
     </div>
     <div class="page-right-actions">
@@ -148,15 +148,14 @@
 
 
 <script type="text/javascript">
-    var homepath = '{{ get_homepath() }}'
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
     var student_username = "{{ student_username }}";
-    var students = "{{ students }}"
+    var students = "{{ students }}";
     var manager_feedback = "{{ feedback['categories'] }}";
     $(document).ready(function () {
         FeedbackPlugin.init_variables(student_username, students, courseid, taskid);
-        FeedbackPlugin.init_manage_feedback_page(manager_feedback, homepath);
+        FeedbackPlugin.init_manage_feedback_page(manager_feedback);
     });
 </script>
 {% endblock %}
