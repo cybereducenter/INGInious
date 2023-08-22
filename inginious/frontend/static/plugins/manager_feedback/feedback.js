@@ -141,7 +141,7 @@ var FeedbackPlugin = (function () {
         var cout_text = "";
         $.ajax({
                 type: "GET",
-                url: window.location.href + "/" + event.closest(".displayed_test_feedback").id.replace(/ /g, ""),
+                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").id.replace(/ /g, ""),
                 success: function(data) {
                     console.log("success");
                     cout_text = data.split("\n");
