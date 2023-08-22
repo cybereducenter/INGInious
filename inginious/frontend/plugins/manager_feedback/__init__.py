@@ -59,10 +59,10 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         submission_feedback = json.loads(submission.get("text"))
 
         return self.template_helper.render("manage_feedback.html",
-                                           template_folder=os.getcwd(),
+                                           template_folder='frontend/plugins/manager_feedback',
                                            course=course,
                                            task=task,
-                                           student=student_userdata.realname,
+                                           student=student_userdata['realname'],
                                            feedback=submission_feedback,
                                            user=manager_userdata,
                                            student_username=username,
