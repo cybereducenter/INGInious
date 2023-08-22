@@ -34,21 +34,6 @@ categories = {
 }
 
 
-class CoutPage(INGIniousPage):
-    def POST(self, courseid, taskid, username, test):
-        with zipfile.ZipFile(
-                "/home/darias/Documents/pycharm/INGInious/inginious/frontend/plugins/manager_feedback/KfarShmaryahu_ColonelMustard_Ex3.zip",
-                mode="r") as archive:
-            with archive.open("RunnersSummary.json") as f:
-                runner_summary = json.load(f)
-            for file in archive.filelist:
-                if file.filename.startswith("Cout/") and file.file_size > 0:
-                    name = file.filename.split("/")[1].split(".")[0]
-                    if test == name:
-                        return archive.open(file.filename).read()
-        return ""
-
-
 class ManagerFeedbackCoutPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid, submission_id):
         course = self.course_factory.get_course(courseid)
@@ -186,6 +171,5 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_hook('javascript_header', add_qTip_js_file)
     plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<username>",
                             ManagerFeedbackPage.as_view('manager_feedback'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<username>/<test>", CoutPage.as_view('cout'))
     plugin_manager.add_page("/manager_feedback/<courseid>/<submission_id>/cout",
                             ManagerFeedbackCoutPage.as_view('manager_feedback_cout'))
