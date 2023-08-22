@@ -6,7 +6,6 @@
 """ manage_feedback plugin - show course overview of student grades """
 import codecs
 import json
-import logging
 import os
 import zipfile
 from datetime import datetime
@@ -16,22 +15,6 @@ import flask
 from docker.errors import NotFound
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
-from inginious.frontend.pages.utils import INGIniousPage
-
-logger = logging.getLogger("frontend")
-CATEGORY_1 = "config"
-CATEGORY_2 = "progr"
-CATEGORY_3 = "func"
-CATEGORY_4 = "design"
-CATEGORY_5 = "order"
-
-categories = {
-    "submission": "תצורת הגשה",
-    "functionality": "פונקציונליות",
-    "coding": "תכנות נכון",
-    "design": "עיצוב ומבנה התכנית",
-    "readability": "קריאות וסדר",
-}
 
 
 class ManagerFeedbackCoutPage(INGIniousAdminPage):
