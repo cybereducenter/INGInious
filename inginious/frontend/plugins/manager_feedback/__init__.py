@@ -6,22 +6,22 @@
 """ manage_feedback plugin - show course overview of student grades """
 import codecs
 import json
-import os
 import zipfile
 from datetime import datetime
 from io import BytesIO
 
 import flask
 from docker.errors import NotFound
+from pymongo import ReturnDocument
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
 class ManagerFeedbackCoutPage(INGIniousAdminPage):
-    def GET_AUTH(self, courseid, submission_id):
-        course = self.course_factory.get_course(courseid)
+    def GET_AUTH(self, courseid, taskid, submission_id):
+        self.get_course_and_check_rights(courseid, taskid)
         cout_param = flask.request.args.to_dict()['cout']
-        submission = self.submission_manager.get_submission(submission_id, course=course)
+        submission = self.submission_manager.get_submission(submission_id, user_check=False)
         if submission['result'] == 'crash':
             raise NotFound(description=_("No success submission found."))
         if not submission.get("text"):
@@ -41,21 +41,17 @@ class ManagerFeedbackCoutPage(INGIniousAdminPage):
 
 
 class ManagerFeedbackPage(INGIniousAdminPage):
-    def GET_AUTH(self, courseid, taskid, username):
+    def GET_AUTH(self, courseid, taskid, submission_id):
 
         manager_userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
-        student_userdata = self.database.users.find_one({"username": username})
 
         if not manager_userdata:
             raise NotFound(description=_("User unavailable."))
 
         course, task = self.get_course_and_check_rights(courseid, taskid)
         users = self.user_manager.get_course_registered_users(course)
-        submission = self.get_user_last_submission(username, task)
-        if submission['result'] == 'crash':
-            raise NotFound(description=_("No success submission found."))
-        if not submission.get("text"):
-            raise NotFound(description=_("No feedback."))
+        submission = self.get_submission(course, submission_id)
+        student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = json.loads(submission.get("text"))
 
         return self.template_helper.render("manage_feedback.html",
@@ -65,23 +61,29 @@ class ManagerFeedbackPage(INGIniousAdminPage):
                                            student=student_userdata['realname'],
                                            feedback=submission_feedback,
                                            user=manager_userdata,
-                                           student_username=username,
+                                           student_username=submission['username'][0],
                                            students=users,
                                            submission_id=submission['_id'],
                                            now=datetime.now())
 
-    def POST_AUTH(self, courseid, taskid, username):
-        print("we are here")
-        feedback = json.loads(list(flask.request.form.to_dict().keys())[0])
-        feedback_json = feedback['categories']
-        with codecs.open(
-                '/inginious/frontend/plugins/manager_feedback/student_feedback_template.html',
-                'r',
-                encoding='utf8') as f:
-            feedback_html = f.read()
-        injected = self.injectHtml(feedback_html, taskid, feedback_json)
+    def get_submission(self, course, submission_id):
+        submission = self.submission_manager.get_submission(submission_id, course)
+        if submission['result'] == 'crash':
+            raise NotFound(description=_("No success submission found."))
+        if not submission.get("text"):
+            raise NotFound(description=_("No feedback."))
+        return submission
 
-        return injected
+    def POST_AUTH(self, courseid, taskid, submission_id):
+        course, task = self.get_course_and_check_rights(courseid, taskid)
+        submission = self.get_submission(course, submission_id)
+        updated_feedback = json.dumps(flask.request.json)
+        submission = self.submission_manager._database.submissions.find_one_and_update(
+            {"_id": submission["_id"]},
+            {"$set": {"text": updated_feedback}},
+            return_document=ReturnDocument.AFTER
+        )
+        return json.loads(submission['text'])
 
     def add_test_to_category(self, category, feedback, value):
         feedback[category]["tests"].append(value)
@@ -110,20 +112,6 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         padding = amount * ch
         return ''.join(padding + line for line in text.splitlines(True))
 
-    def get_user_last_submission(self, username, task):
-        """
-       :param username:
-       :param task:
-        :return: the last submission of student in course and task, None else
-        submission_manager has no code to get last submission by username, course, task
-       """
-        cursor = self.submission_manager._database.submissions.find({"username": username,
-                                                                     "taskid": task.get_id(),
-                                                                     "courseid": task.get_course_id()})
-        cursor.sort([("submitted_on", -1)])
-        submissions = list(cursor)
-        return submissions[0]
-
 
 def add_css_file():
     """ Add manage_feedback css file to the admin page """
@@ -146,7 +134,7 @@ def add_qTip_js_file():
 
 
 class PreviewPage(INGIniousAdminPage):
-    def GET_AUTH(self, courseid, taskid, username):
+    def GET_AUTH(self, courseid, taskid, submission_id):
         print("we are here")
         injected = ""
         feedback = json.loads(list(flask.request.values.dicts[0].to_dict().keys())[0])
@@ -180,8 +168,8 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_hook('css', add_qTip_css_file)
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qTip_js_file)
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<username>",
+    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>",
                             ManagerFeedbackPage.as_view('manager_feedback'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<submission_id>/cout",
+    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/cout",
                             ManagerFeedbackCoutPage.as_view('manager_feedback_cout'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<username>/preview", PreviewPage.as_view('preview'))
+    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/preview", PreviewPage.as_view('preview'))
