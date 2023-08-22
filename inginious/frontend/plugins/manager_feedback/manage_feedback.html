@@ -3,8 +3,9 @@
 {% block column %}
     <h3>{{student}}</h3>
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
-        <button class="btn btn-primary btn-info btn-sm previous-student-btn" style="margin-block: 10px; width: 90%"">Previous Student</button>
+        <button class="btn btn-primary btn-info btn-sm previous-student-btn" style="margin-block: 10px; width: 90%">Previous Student</button>
         <button class="btn btn-primary btn-info btn-sm next-student-btn" style="margin-block: 10px; width: 90%" >Next Student</button>
+        <button class="btn btn-primary btn-info btn-sm next-student-btn" style="margin-block: 10px; width: 90%" >Download submission files</button>
     </div>
 {% endblock %}
 
@@ -25,7 +26,7 @@
 
 {% block content %}
 <h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} </h3>
-<div class="top-page-actions-container">
+<div class="page-actions-container">
     <div style="display: flex; flex-wrap: nowrap;">
         <div class="step-indicator" data-step=1 style="opacity: 1">Step 1</div>
         <div class="step-indicator" data-step=2 >Step 2</div>
@@ -68,7 +69,7 @@
             </div>
             <div id="feedback-{{category['category_eng']}}-data" class="content list-group list-group-flush task-feedback" style="display:none; ">
                 <div >
-                        <div class="test-section-2 message-feedback-{{category['category_eng']}} message"
+                        <div class="message-section message-feedback-{{category['category_eng']}} message"
                              style="width: 100%;">
                             <textarea id="message-feedback-{{category['category_eng']}}" rows="4" maxlength="500" placeholder="הערות כלליות"></textarea>
                         </div>
@@ -76,10 +77,10 @@
                 <div class="test-container" style="margin: 1.5rem">
                     {%for test in category["tests"]%}
                     <div>
-                        <div id="{{test['name']}}" class="cate displayed_test_feedback" data-result={{test['result']['text']}}
+                        <div id="{{test['name']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
                              style="display:{% if test['result']['text'] == filterValue %} none {% else %} flex {% endif %};
                              border-color:{% if test['result']['text'] == 'Passed' %} green {% else %} red {% endif %}">
-                            <div class="test-section-1">
+                            <div class="test-section">
                                 <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                                     <div class="pull-left" style="padding-inline: 1.5rem">
                                         <div class="row"> {{test["name"]}} </div>
@@ -111,17 +112,23 @@
     </div>
 </div>
 <div id="" class="step3-view step-view" style="display: none">
-    <div id="draft"> </div>
-    <div class="btn-group" style="width: 100%; margin-block: 10px" >
-       <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn" type="button" style="width: 100%" onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save a draft</div></button>
-    </div>
-    <div class="btn-group" style="width: 100%; margin-block: 10px" >
-       <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn" type="button" style="width: 100%" onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Submit for student</div></button>
+    <div id="draft">
+
+
+
     </div>
 </div>
 
-
-<div class="footer-actions">
+<div class="page-actions-container">
+    <div id="submit-buttons" style="display: none; flex-wrap: nowrap;">
+        <div class="btn-group submit-buttons" >
+            <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
+                    onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline" style="padding: 0 5px">Save a draft</div></button>
+            <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
+                    onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline" style="padding: 0 5px">Submit for student</div></button>
+        </div>
+    </div>
+    <div class="page-right-actions">
         <div class="btn-group footer-action-button">
             <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">
                 <div class="d-none d-sm-inline">Back</div></button>
@@ -130,6 +137,7 @@
             <button id="next-btn" class="btn btn-primary btn-info btn-sm next_btn" type="button" onclick="FeedbackPlugin.update_step(1)">
                 <div class="d-none d-sm-inline">Next</div></button>
         </div>
+    </div>
 </div>
 
 <div id="popup" class="cout-shell scrollable-container" >

@@ -9,12 +9,13 @@ var FeedbackPlugin = (function () {
     var currentStep = 1
     var checkedSections = []
     var displayedSections = []
-    const default_categories = ['func', 'config']
+    const default_categories = ['submission', 'coding']
     var students_list = []
     var current_student = ""
     var previous_student = ""
     var next_student = ""
     var categories = []
+    var draft_categories = []
     var total_feedback = ""
     var url = ""
 
@@ -63,33 +64,36 @@ var FeedbackPlugin = (function () {
                 $("#message-feedback-" + category['category_eng']).val(category['feedback']);
             }
             if ('checked' in category) {
-                if (category['checked'] && !displayedSections.includes('feedback-' + category['category_eng'])){
+                if (category['checked'] && !checkedSections.includes('feedback-' + category['category_eng'])){
                     checkedSections.push('feedback-' + category['category_eng']);
                     displayedSections.push('feedback-' + category['category_eng']);
                 }
-                category['tests'].forEach(test => {
-                    if (test['checked'] && !displayedSections.includes(test['name'])) {
-                        checkedSections.push(test['name']);
-                        displayedSections.push(test['name']);
-                    }
-                })
             }
-            else if (default_categories.includes(category['category_eng'])) {
-                if (!displayedSections.includes('feedback-' + category['category_eng'])) {
+            category['tests'].forEach(test => {
+                if ('checked' in test && test['checked'] && !checkedSections.includes(test['name'])) {
+                    checkedSections.push(test['name']);
+                    displayedSections.push(test['name']);
+                    if (!displayedSections.includes('feedback-' + category['category_eng'])){
+                        displayedSections.push('feedback-' + category['category_eng']);
+                    }
+                }
+            })
+            if (default_categories.includes(category['category_eng'])) {
+                if (!checkedSections.includes('feedback-' + category['category_eng'])) {
                     checkedSections.push('feedback-' + category['category_eng']);
                     displayedSections.push('feedback-' + category['category_eng']);
                 }
                 var tests = category['tests']
                 tests.forEach( test => {
-                    if (!displayedSections.includes(test['name'])) {
+                    if (!checkedSections.includes(test['name'])) {
                         checkedSections.push(test['name']);
                         displayedSections.push(test['name']);
                     }
-
                 })
             }
         })
         console.log(checkedSections);
+        console.log(displayedSections);
 
         var checkboxes = $("#feedbacks input[type='checkbox']");
         for (var i = 0; i < checkboxes.length; i++) {
@@ -118,8 +122,11 @@ var FeedbackPlugin = (function () {
           window.location.href = path + '/manager_feedback/' + courseid + '/' + taskid + '/' + previous_student;
           save_to_storage();
         })
-
-        if (currentStep > 1) {
+        if (currentStep === 1) {
+            $("#back-btn")[0].disabled = 'true';
+            $(".message").css("display", "none");
+        } else {
+            console.log("render page - update_page", currentStep)
             update_page(currentStep);
         }
     }
@@ -150,103 +157,95 @@ var FeedbackPlugin = (function () {
         $("#popup-text").empty();
     }
 
+    function change_display_mode(category, mode) {
+        if (currentStep === 2) {
+            if (displayedSections.includes(category.id)) {
+                category.style.display = mode
+            }
+        } else {
+            category.style.display = mode
+        }
+    }
+
     function update_filter(value) {
         console.log({value});
         if (value === "Passed") {
             var passed_tests = $("div[data-result=Passed]")
             for (var i = 0; i < passed_tests.length; i++){
-                if (displayedSections.includes(passed_tests[i].id)){
-                   passed_tests[i].style.display='flex'
-                }
+                change_display_mode(passed_tests[i], "flex");
             }
             var failed_tests = $("div[data-result=Failed]")
             for (var i = 0; i < failed_tests.length; i++){
-                if (displayedSections.includes(failed_tests[i].id)){
-                   failed_tests[i].style.display='none'
-                }
+                change_display_mode(failed_tests[i], "none");
             }
             var failed_categories = $("div[data-status=0]")
             for (var i = 0; i < failed_categories.length; i++){
-                if (displayedSections.includes(failed_categories[i].id)){
-                   failed_categories[i].style.display='none'
-                }
+                change_display_mode(failed_categories[i], "none");
             }
             var passed_categories = $("div[data-status=100]")
             for (var i = 0; i < passed_categories.length; i++){
-                if (displayedSections.includes(passed_categories[i].id)){
-                   passed_categories[i].style.display='flex'
-                }
+                change_display_mode(passed_categories[i], "flex");
             }
         } else if (value === "Failed") {
             var passed_tests = $("div[data-result=Passed]")
             for (var i = 0; i < passed_tests.length; i++){
-                if (displayedSections.includes(passed_tests[i].id)){
-                   passed_tests[i].style.display='none'
-                }
+                change_display_mode(passed_tests[i], "none");
             }
             var failed_tests = $("div[data-result=Failed]")
             for (var i = 0; i < failed_tests.length; i++){
-                if (displayedSections.includes(failed_tests[i].id)){
-                   failed_tests[i].style.display='flex'
-                }
+                change_display_mode(failed_tests[i], "flex");
             }
             var failed_categories = $("div[data-status=0]")
             for (var i = 0; i < failed_categories.length; i++){
-                if (displayedSections.includes(failed_categories[i].id)){
-                   failed_categories[i].style.display='flex'
-                }
+                change_display_mode(failed_categories[i], "flex");
             }
             var passed_categories = $("div[data-status=100]")
             for (var i = 0; i < passed_categories.length; i++){
-                if (displayedSections.includes(passed_categories[i].id)){
-                   passed_categories[i].style.display='none'
-                }
+                change_display_mode(passed_categories[i], "none");
             }
         } else {
             // All
-            var passed_tests = $(".cate")
+            var passed_tests = $(".test-data")
             for (var i = 0; i < passed_tests.length; i++){
-                if (displayedSections.includes(passed_tests[i].id)){
-                   passed_tests[i].style.display='flex'
-                }
+                change_display_mode(passed_tests[i], "flex");
             }
             var passed_categories = $(".category")
             for (var i = 0; i < passed_categories.length; i++){
-                if (displayedSections.includes(passed_categories[i].id)){
-                   passed_categories[i].style.display='flex'
-                }
+                change_display_mode(passed_categories[i], "flex");
             }
         }
     }
 
     function update_step(accumulator) {
-        if (currentStep === 1 && accumulator === -1) {
-            currentStep = 1;
-        } else if (currentStep === 3 && accumulator === 1) {
-            currentStep = 3;
-        } else {
-            currentStep += accumulator;
-        }
+        currentStep += accumulator;
+        save_to_storage();
+        update_page(currentStep);
+    }
 
+    function update_page(currentStep) {
+        try {
+            load_from_storage();
+        } catch (e) {
+            console.log("there is nothing in storage");
+        }
+        $("#back-btn")[0].disabled = currentStep === 1;
+        $("#next-btn")[0].disabled = currentStep === 3;
         // Toggle buttons
         var _currentStep = currentStep + ""
-
         $(".step-indicator").css('opacity', '0.3')
         $("div[data-step=" + _currentStep + "]").css('opacity', '1')
-
         // Toggle views
         $(".step"+ _currentStep + "-view").css('display', 'initial');
         $(".step-view").not(".step"+ _currentStep + "-view").css('display', 'none');
 
-        update_page(currentStep);
-
-        save_to_storage();
-    }
-
-    function update_page(currentStep) {
-        var categories = $("#feedbacks .displayed_feedback");
+        var page_categories = $("#feedbacks .displayed_feedback");
         var tests = $("#feedbacks .displayed_test_feedback");
-        if (currentStep > 1) {
+        if (currentStep === 3) {
+            console.log("update_page in update_page", currentStep)
+            make_preview();
+            $("#submit-buttons")[0].style.display = 'flex';
+        } else if (currentStep === 2) {
+            $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].style.display = 'none';
@@ -257,12 +256,12 @@ var FeedbackPlugin = (function () {
                     console.log("delete" + tests[i].id);
                 }
             }
-            for (var i = 0; i < categories.length; i++) {
-                if (!displayedSections.includes(categories[i].id)) {
-                    categories[i].style.display = 'none';
-                    console.log("delete" + categories[i].id);
+            for (var i = 0; i < page_categories.length; i++) {
+                if (!displayedSections.includes(page_categories[i].id)) {
+                    page_categories[i].style.display = 'none';
+                    console.log("delete" + page_categories[i].id);
                 } else {
-                    var messageInputs = $(".message-" + categories[i].id);
+                    var messageInputs = $(".message-" + page_categories[i].id);
                     console.log({messageInputs})
                     for (var j = 0; j < messageInputs.length; j++) {
                         messageInputs[j].style.display = 'initial';
@@ -270,10 +269,8 @@ var FeedbackPlugin = (function () {
                 }
             }
             $(".total-feedback")[0].style.display = 'initial';
-            if (currentStep === 3) {
-                make_preview();
-            }
-        } else {
+        }else {
+            $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
 
             for (var i = 0; i < checkboxes.length; i++) {
@@ -282,9 +279,9 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < tests.length; i++) {
                 tests[i].style.display = 'flex';
             }
-            for (var i = 0; i < categories.length; i++) {
-                categories[i].style.display = 'flex';
-                var messageInputs = $(".message-" + categories[i].id);
+            for (var i = 0; i < page_categories.length; i++) {
+                page_categories[i].style.display = 'flex';
+                var messageInputs = $(".message-" + page_categories[i].id);
                 console.log({messageInputs})
                 for (var j = 0; j < messageInputs.length; j++) {
                     messageInputs[j].style.display = 'none';
@@ -355,19 +352,26 @@ var FeedbackPlugin = (function () {
             }
         }
         console.log(checkedSections)
+        console.log(displayedSections);
     }
 
     function save_to_storage() {
         var total_feedback = $("#total-feedback").val();
-        categories.forEach( category => {
+        var categories_for_save = categories.filter(category =>
+            displayedSections.includes('feedback-' + category['category_eng'])
+        )
+        categories_for_save.forEach( category => {
             category['feedback'] = $("#message-feedback-" + category['category_eng']).val();
+            category['tests'].filter(test =>
+                displayedSections.includes(test['name'])
+            )
         })
         if (typeof (Storage) !== "undefined") {
             var data = {
                 "currentStep": currentStep,
                 "checkedSections": checkedSections,
                 "displayedSections": displayedSections,
-                "feedback_draft": categories,
+                "feedback_draft": categories_for_save,
                 "total_feedback": total_feedback,
             };
             localStorage.setItem(courseid + "/" + taskid + "/" + current_student, JSON.stringify(data));
@@ -383,9 +387,9 @@ var FeedbackPlugin = (function () {
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
             displayedSections = data.displayedSections ? data.displayedSections : [];
-            categories = data.feedback_draft ? data.feedback_draft : [];
+            draft_categories = data.feedback_draft ? data.feedback_draft : [];
             total_feedback = data.total_feedback ? data.total_feedback : '';
-            categories.forEach(category => {
+            draft_categories.forEach(category => {
                 $("#message-feedback-" + category['category_eng']).val(category['feedback']);
             })
             $("#total-feedback").val(total_feedback)
@@ -395,12 +399,28 @@ var FeedbackPlugin = (function () {
     }
 
     function save_draft() {
-        send_request(false, true);
+        var feedback_categories = categories
+        feedback_categories.filter(category => checkedSections.includes("feedback-" + category["category_eng"]));
+        feedback_categories.forEach( category => {
+            if (checkedSections.includes("feedback-" + category["category_eng"])) {
+                category['checked'] = true;
+            }
+            category['tests'].forEach(test => {
+                if (checkedSections.includes(test['name'])) {
+                    test['checked'] = true;
+                }
+            });
+        });
+        send_post_request(feedback_categories,false);
         save_to_storage();
     }
 
     function submit() {
-        send_request(true, true);
+        var feedback_categories = draft_categories.filter(category => displayedSections.includes("feedback-" + category["category_eng"]));
+        feedback_categories.forEach( category => {
+            category['tests'] = category['tests'].filter(test => displayedSections.includes(test['name']));
+        });
+        send_post_request(feedback_categories, true);
         if (typeof (Storage) !== "undefined") {
             localStorage.removeItem([courseid + "/" + taskid + "/" + current_student]);
         } else {
@@ -409,30 +429,21 @@ var FeedbackPlugin = (function () {
     }
 
     function make_preview() {
-        send_request(false, false);
+        send_get_request();
         save_to_storage();
     }
 
-
-    function send_request(is_final_version, is_for_save) {
-        categories.forEach(category => {
-            category['checked'] = displayedSections.includes("feedback-" + category["category_eng"]);
-            category['tests'].forEach( test => {
-                test['checked'] = displayedSections.includes(test['name']);
-            })
-        });
+    function send_get_request() {
         $.ajax({
-                type: "POST",
-                url: window.location.href,
+                type: "GET",
+                url: window.location.href + "/preview",
                 data: JSON.stringify({
-                    "categories": categories,
+                    "categories": draft_categories,
                     "total_feedback": total_feedback,
-                    "is_final_version": is_final_version,
-                    "is_for_save": is_for_save,
                 }),
                 success: function(data) {
                     console.log("success");
-                    var html = data;
+                    var html = data.replace(/.. raw:: html/g, "");
                     $("#draft").html(html);
                 },
                 error: function (e) {
@@ -441,20 +452,45 @@ var FeedbackPlugin = (function () {
         });
     }
 
+    function send_post_request(feedback, is_final_version) {
+        $.ajax({
+                type: "POST",
+                url: window.location.href,
+                data: JSON.stringify({
+                    "categories": feedback,
+                    "total_feedback": total_feedback,
+                    "is_final_version": is_final_version,
+                }),
+                success: function(data) {
+                    console.log("success");
+                },
+                error: function (e) {
+                    console.log(e)
+                },
+        });
+    }
+
     function renderGitlabRows(feedback_data) {
-        var scenario_row;
+        var category_section;
         console.log('here is feedbackData from Gitlab');
         console.log(feedback_data);
+        var total_feedback = $(tmpl('tmpl-total-feedback', feedback_data['total_feedback']));
+        $('#scenarios-table-' + taskid).append(total_feedback);
 
+        var feedback_categories = feedback_data['categories'];
 
-        feedback_data.forEach(data => {
-                console.log('here is feedback category data');
-                data['id'] = data['category_eng'];
-                scenario_row = $(tmpl('tmpl-category', data));
+        feedback_categories.forEach(data => {
+                console.log('here is feedback category data', data);
+                category_section = $(tmpl('tmpl-category', data));
+                $('#scenarios-table-' + taskid).append(category_section);
+                data['tests'].forEach(test => {
+                    test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red'
+                    var test_section = $(tmpl('tmpl-test', test));
+                    $('#feedback-' + data['category_eng'] + '-tests .test-container').append(test_section);
+                })
                 $('.print-head').hide()
-                $('#scenarios-table-' + taskid).append(scenario_row);
         });
-
+        // update_page(currentStep);
     }
 
     return {

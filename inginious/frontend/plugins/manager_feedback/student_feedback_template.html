@@ -24,7 +24,7 @@
 
     <!-- Primary Page Layout
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <div id="scenarios-table-task_id_to_replace" class="table table-condensed feedback-table">
+    <div id="scenarios-table-task_id_to_replace" class="table table-condensed feedback test-result-table">
 
     </div>
 
@@ -37,9 +37,56 @@
 
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script type="text/x-tmpl" id="tmpl-category">
-        <div  id="feedback-{{%=o.id%}}"
+        <div  id="feedback-{{%=o.category_eng%}}"
              class="displayed_feedback section category card mb-4">
-             kkk
+             <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
+                 style="display: flex; margin: 5px; background-color: #5bc0de;">
+                        <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
+                            <div>{{%=o.category%}}</div>
+                        </span>
+                        <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
+                              class="dropdown_button fa fa-caret-left"></span>
+            </div>
+            <div >
+                {{% if (o.feedback) {{ %}}
+                    <div class="message-feedback-{{%=o.category_eng%}} message">
+                        <span>{{%=o.feedback%}}</span>
+                    </div>
+                {{% }} %}}
+            </div>
+            <div id="feedback-{{%=o.category_eng%}}-tests" class="content list-group list-group-flush task-feedback" style="display:none;">
+
+                <div class="test-container" style=" margin: 1.5rem">
+
+                </div>
+            </div>
+
+        </div>
+    </script>
+    <script type="text/x-tmpl" id="tmpl-test">
+        <div>
+           <div id="{{%=o.name%}}" class="test-data displayed_test_feedback" data-result={{%=o.result.text%}}
+                style="border-color:{{%=o.border_color%}}">
+                <div class="test-section">
+                    <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
+                        <div class="pull-left" style="padding-inline: 1.5rem">
+                            <div class="row" > {{%=o.name%}} </div>
+                            <div class="row" > {{%=o.message%}} </div>
+                        </div>
+                    </div>
+                    <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
+                        <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
+                                type="button" onclick="FeedbackPlugin.add_popup(this)">
+                            <div class="d-none d-sm-inline">פרטים נוספים</div>
+                        </button>
+                    </div>
+                </div>
+           </div>
+        </div>
+    </script>
+    <script type="text/x-tmpl" id="tmpl-total-feedback">
+        <div class="message" style="margin: 20px 0">
+           <span>{{%=o%}}</span>
         </div>
     </script>
     <!--Template for a single scenario row -->
@@ -75,70 +122,14 @@
                     <a href="{{%=o.link%}}" class="feedback-link" target="_blank">פרטים נוספים</a>
                 </td>
             </tr>
-
-
         </script>
-    <!--End Template for a single scenario row -->
 
-    <!--Template for a single scenario hidden modal explanation -->
-    <script type="text/x-tmpl" id="tmpl-modal">
-        <div id="myModal{{%=o.id%}}" class="modal modal-wide fade feedback-modal" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header feedback-modal-header">
-                        <button type="button" class="close close-feedback-modal" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title feedback-modal-title">
-                            {{%=o.name%}}:
-                            <span class="{{%=o.color%}}-text">{{%=o.result.text%}}</span>
-                        </h4>
-                    </div>
-                    <div class="modal-body feedback-modal-body">
-                        <div class="row feedback-modal-failure-text">
-                            <b>
-                            {{% if (!o.result.bool) {{ %}}
-                                {{%=o.feedback.text%}}
-                            {{% }} %}}
-                            </b>
-                        </div>
-
-                        <table class="table table-condensed feedback-modal-table">
-                            <tr class="row feedback-row feedback-modal-text-row">
-                                <td class="col-md-1 col-xs-1 scenario-text">
-                                    <b>תרחיש:</b>
-                                </td>
-                                <td class="col-md-11 col-xs-11 feedback-description">
-                                   {{%=o.description%}}
-                                </td>
-                            </tr>
-
-                            <tr class="row feedback-row">
-                                <td id="empty-column" class="col-md-1 col-xs-1">
-
-                                </td>
-                                <td class="col-md-12 col-xs-12">
-                                    <div class="shell-wrap feedback-shell style="width: 70%;"">
-                                        <p class="shell-top-bar">Command Line</p>
-                                        <ul class="shell-body">
-                                            <div id="commentable-container-{{%=o.id%}}" class="commentable-container">
-                                                <div id="scenario_log-{{%=o.id%}}"></div>
-                                            </div>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </script>
-    <!-- End Template for a single scenario hidden modal explanation -->
 
 
     <script>
         // will be injected by run.py after run of scenarios
         var feedbackData = {feedback_json};
+        console.log("feedbackData", feedbackData)
     </script>
 
     <script>
