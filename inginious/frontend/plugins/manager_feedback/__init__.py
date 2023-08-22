@@ -8,17 +8,6 @@ import codecs
 import json
 import os
 import zipfile
-from gridfs import GridFS
-from collections import OrderedDict
-
-import bson
-import gridfs
-from docker.errors import NotFound
-from pymongo import MongoClient
-
-from inginious.common.base import id_checker
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
-from inginious.common.tasks_constants import TaskConstants
 from datetime import datetime
 from io import BytesIO
 
@@ -109,25 +98,6 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         user = self.user_manager._database.users.find_one({"email": email})
         return user["username"] if user else None
 
-    def createJson(self, runJson, cout_dict, taskid):
-        resJson = {}
-        for idx, job in enumerate(runJson["pipeline_info"][0]["jobs"]):
-            resJson[str(idx)] = {
-                "name": job["name"],
-                "category": job["category"],
-                "exit_code": int(job["message_code"]),
-                "link": "",
-                "cout": job["cout_file"],
-                "message": job["message"],
-                "result": {
-                    "bool": job["status"] == "Passed",
-                    "text": job["status"]
-                },
-                "prompt": "Gitlab Pipeline",
-            }
-        print(resJson)
-        return resJson
-
     def injectHtml(self, html, task_id, doneJson):
         feedback_html_injected_with_id = html.replace('task_id_to_replace', task_id)
         feedback_html_injected_with_id = '.. raw:: html' + '\n' + self.indent(feedback_html_injected_with_id, 4)
@@ -175,8 +145,8 @@ def add_qTip_js_file():
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.js'
 
 
-class PreviewPage(INGIniousPage):
-    def GET(self, courseid, taskid, username):
+class PreviewPage(INGIniousAdminPage):
+    def GET_AUTH(self, courseid, taskid, username):
         print("we are here")
         injected = ""
         feedback = json.loads(list(flask.request.values.dicts[0].to_dict().keys())[0])
