@@ -14,6 +14,8 @@ import flask
 from pymongo import ReturnDocument
 
 import inginious
+from inginious.frontend.feedback_service import indent
+from inginious.frontend.matrix_service import get_course_students
 from inginious.frontend.pages.api._api_page import APIInvalidArguments
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -94,6 +96,22 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         return json.loads(submission['text'])
 
 
+class ManagerFeedbackPrevPage(INGIniousAdminPage):
+    def GET_AUTH(self, courseid, taskid, submission_id):
+        course, _ = self.get_course_and_check_rights(courseid, taskid)
+        submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
+        current_username = submission['username']
+        course_users = get_course_students(course, self.user_manager)
+        cu = course_users[current_username]
+        return 'ok'
+        # feedback_json = json.dumps(flask.request.json)
+        # file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
+        # with codecs.open(file_path, 'r', encoding='utf8') as f:
+        #     feedback_html = f.read()
+        # injected = self.inject_html(feedback_html, taskid, feedback_json)
+        # return injected
+
+
 class PreviewPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
         course, task = self.get_course_and_check_rights(courseid, taskid)
@@ -102,20 +120,8 @@ class PreviewPage(INGIniousAdminPage):
         file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
         with codecs.open(file_path, 'r', encoding='utf8') as f:
             feedback_html = f.read()
-        injected = self.inject_html(feedback_html, taskid, feedback_json)
+        injected = inject_html(feedback_html, taskid, feedback_json)
         return injected
-
-    def inject_html(self, html, task_id, json_data):
-        feedback_html_injected_with_id = html.replace('task_id_to_replace', task_id)
-        feedback_html_injected_with_id = '.. raw:: html' + '\n' + self.indent(feedback_html_injected_with_id, 4)
-        scenario_output_html = feedback_html_injected_with_id.format(
-            feedback_json=u'eval(' + json.dumps(json_data) + u')'
-        )
-        return scenario_output_html
-
-    def indent(self, text, amount, ch=' '):
-        padding = amount * ch
-        return ''.join(padding + line for line in text.splitlines(True))
 
 
 def get_submission_by_id(submission_manager, course, submission_id, logger):
@@ -127,6 +133,15 @@ def get_submission_by_id(submission_manager, course, submission_id, logger):
         logger.error("No available feedback.")
         raise APIInvalidArguments()
     return submission
+
+
+def inject_html(html, task_id, json_data):
+    feedback_html_injected_with_id = html.replace('task_id_to_replace', task_id)
+    feedback_html_injected_with_id = '.. raw:: html' + '\n' + indent(feedback_html_injected_with_id, 4)
+    scenario_output_html = feedback_html_injected_with_id.format(
+        feedback_json=u'eval(' + json.dumps(json_data) + u')'
+    )
+    return scenario_output_html
 
 
 def add_css_file():
@@ -162,3 +177,7 @@ def init(plugin_manager, _, _2, _3):
                             ManagerFeedbackCoutPage.as_view('manager_feedback_cout'))
     plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/preview",
                             PreviewPage.as_view('preview'))
+    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/prev",
+                            ManagerFeedbackPrevPage.as_view('manager_feedback_prev'))
+    # plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/next",
+    #                         ManagerFeedbackNextPage.as_view('manager_feedback_next'))

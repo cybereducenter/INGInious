@@ -7,6 +7,8 @@
 import logging
 
 from collections import OrderedDict
+
+from inginious.frontend.matrix_service import get_course_students
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
 from inginious.common.tasks_constants import TaskConstants
 from datetime import datetime
@@ -21,12 +23,7 @@ class MatrixPage(INGIniousAdminPage):
         data_users = []
 
         """ Get all information about the users """
-        users = sorted(list(
-            self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
-                       key=lambda k: k[1][0] if k[1] is not None else "")
-
-        users = OrderedDict([(user[0], {"username": user[0],
-                                     "realname": user[1][0] if user[1] is not None else None}) for user in users])
+        users = get_course_students(course, self.user_manager)
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         self._get_ordered_task_raz(course)
