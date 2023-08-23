@@ -110,7 +110,7 @@ class PreviewPage(INGIniousAdminPage):
 
 
 def get_submission_by_id(submission_manager, course, submission_id, logger):
-    submission = submission_manager.get_submission(submission_id, course)
+    submission = submission_manager.get_submission(submissionid=submission_id, course=course)
     if submission['result'] == 'crash':
         logger.error("No success submission found.")
         raise APIInvalidArguments()
