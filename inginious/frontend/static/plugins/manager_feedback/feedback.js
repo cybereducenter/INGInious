@@ -4,7 +4,7 @@
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
 var FeedbackPlugin = (function () {
-    const default_categories = ['submission', 'coding']
+    const default_categories = ['submission', 'functionality']
     var currentStep = 1
     var courseid = ""
     var taskid = ""
@@ -59,6 +59,7 @@ var FeedbackPlugin = (function () {
         categories = feedbacks;
         for (const key in feedbacks) {
             var category = feedbacks[key];
+
             if (category['feedback'].length > 0) {
                 $("#message-feedback-" + key).val(category['feedback']);
             }
@@ -127,6 +128,25 @@ var FeedbackPlugin = (function () {
             window.location.href = href;
             save_to_storage();
         })
+
+        var download_btn = $(".download-btn");
+        download_btn.click(function() {
+            var href = window.location.href.split("/");
+            href[href.indexOf("manager_feedback")] = "course";
+            var submissionid = href.pop();
+            href = href.join('/');
+            $.ajax({
+                type: "GET",
+                url: href + "?submissionid=" + submissionid + "&questionid=gitlab",
+                success: function(data) {
+                    console.log("download: success");
+                },
+                error: function (e) {
+                    console.log("download: " + e)
+                },
+            });
+        })
+
         if (currentStep === 1) {
             $("#back-btn")[0].disabled = 'true';
             $(".message").css("display", "none");
@@ -457,12 +477,12 @@ var FeedbackPlugin = (function () {
                     "total_feedback": total_feedback,
                 }),
                 success: function(data) {
-                    console.log("success");
+                    console.log("preview: success");
                     var html = data.replace(/.. raw:: html/g, "");
                     $("#draft").html(html);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log("preview: " + e)
                 },
         });
     }
@@ -478,10 +498,10 @@ var FeedbackPlugin = (function () {
                     "draft": !is_final_version,
                 }),
                 success: function(data) {
-                    console.log("success");
+                    console.log("save: success");
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log("save: " + e);
                 },
         });
     }
