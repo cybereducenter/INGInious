@@ -63,7 +63,6 @@ class ManagerFeedbackPage(INGIniousAdminPage):
             raise APIInvalidArguments()
 
         course, task = self.get_course_and_check_rights(courseid, taskid)
-        users = self.user_manager.get_course_registered_users(course)
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = json.loads(submission.get("text"))
@@ -76,7 +75,6 @@ class ManagerFeedbackPage(INGIniousAdminPage):
                                            feedback=submission_feedback,
                                            user=manager_userdata,
                                            student_username=submission['username'][0],
-                                           students=users,
                                            submission_id=submission['_id'],
                                            now=datetime.now())
 
