@@ -10,7 +10,6 @@ var FeedbackPlugin = (function () {
     var taskid = ""
     var checkedSections = []
     var displayedSections = []
-    var students_list = []
     var current_student = ""
     var previous_student = ""
     var next_student = ""
@@ -18,7 +17,7 @@ var FeedbackPlugin = (function () {
     var draft_categories = []
     var total_feedback = ""
 
-    function init_variables(student_username, students, input_courseid, input_taskid) {
+    function init_variables(student_username, input_courseid, input_taskid) {
         courseid = input_courseid;
         taskid = input_taskid;
         current_student = student_username;
@@ -26,21 +25,6 @@ var FeedbackPlugin = (function () {
             load_from_storage();
         } catch (e) {
             console.log("there is nothing in storage");
-        }
-        if (students_list.length === 0) {
-            students = JSON.parse(students.replace(/&#39;/g, '"'));
-            students_list = students_list.concat(students);
-        }
-        var current_student_index = students_list.indexOf(student_username)
-        if (current_student_index === 0) {
-            previous_student = students_list[students_list.length - 1];
-            next_student = students_list[current_student_index + 1];
-        } else if (current_student_index === students_list.length - 1) {
-            previous_student = students_list[current_student_index - 1];
-            next_student = students_list[0];
-        } else {
-            previous_student = students_list[current_student_index - 1];
-            next_student = students_list[current_student_index + 1];
         }
     }
 
@@ -113,20 +97,32 @@ var FeedbackPlugin = (function () {
 
         var next_student_btn = $(".next-student-btn");
         next_student_btn.click(function() {
-            var href = window.location.href.split("/");
-            href[href.length - 1] = next_student;
-            href = href.join('/');
-            window.location.href = href;
             save_to_storage();
+            $.ajax({
+                type: "GET",
+                url: window.location.href + "/next",
+                success: function(data) {
+                    console.log("next: success");
+                },
+                error: function (e) {
+                    console.log("next: " + e)
+                },
+            });
         })
 
         var previous_student_btn = $(".previous-student-btn");
         previous_student_btn.click(function() {
-            var href = window.location.href.split("/");
-            href[href.length - 1] = previous_student;
-            href = href.join('/');
-            window.location.href = href;
             save_to_storage();
+            $.ajax({
+                type: "GET",
+                url: window.location.href + "/prev",
+                success: function(data) {
+                    console.log("prev: success");
+                },
+                error: function (e) {
+                    console.log("prev: " + e)
+                },
+            });
         })
 
         var download_btn = $(".download-btn");
@@ -479,7 +475,9 @@ var FeedbackPlugin = (function () {
                 success: function(data) {
                     console.log("preview: success");
                     var html = data.replace(/.. raw:: html/g, "");
+                    console.log(html)
                     $("#draft").html(html);
+
                 },
                 error: function (e) {
                     console.log("preview: " + e)
