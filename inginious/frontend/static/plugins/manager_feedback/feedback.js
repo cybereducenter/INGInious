@@ -53,7 +53,8 @@ var FeedbackPlugin = (function () {
             .replace(/\n/g, "\\n")
             .replace(/'/g, '"')
             .replace(/&quot;/g, '"')
-            .replace(/&#34;/g, '\\"');
+            .replace(/&#34;/g, '\\"')
+            .replace(/None/g, '""');
         feedbacks = JSON.parse(feedbacks);
         categories = feedbacks;
         for (const key in feedbacks) {
@@ -61,14 +62,14 @@ var FeedbackPlugin = (function () {
             if (category['feedback'].length > 0) {
                 $("#message-feedback-" + key).val(category['feedback']);
             }
-            if ('checked' in category) {
-                if (category['checked'] && !checkedSections.includes('feedback-' + key)){
+            if ('selected' in category) {
+                if (category['selected'] && !checkedSections.includes('feedback-' + key)){
                     checkedSections.push('feedback-' + key);
                     displayedSections.push('feedback-' + key);
                 }
             }
             category['tests'].forEach(test => {
-                if ('checked' in test && test['checked'] && !checkedSections.includes(test['name'])) {
+                if ('selected' in test && test['selected'] && !checkedSections.includes(test['name'])) {
                     checkedSections.push(test['name']);
                     displayedSections.push(test['name']);
                     if (!displayedSections.includes('feedback-' + key)){
@@ -411,11 +412,11 @@ var FeedbackPlugin = (function () {
         for (const key in feedback_categories) {
             var category = feedback_categories[key]
             if (checkedSections.includes("feedback-" + key)) {
-                category['checked'] = true;
+                category['selected'] = true;
             }
             category['tests'].forEach(test => {
                 if (checkedSections.includes(test['name'])) {
-                    test['checked'] = true;
+                    test['selected'] = true;
                 }
             });
         };
@@ -424,15 +425,15 @@ var FeedbackPlugin = (function () {
     }
 
     function submit() {
-        var feedback_categories = {};
-        for (const key in draft_categories) {
-            if (displayedSections.includes("feedback-" + key)) {
-                feedback_categories[key] = draft_categories[key];
-                feedback_categories[key]['tests'] = feedback_categories[key]['tests'].filter(test =>
-                    displayedSections.includes(test['name'])
-                );
-            }
-        }
+        var feedback_categories = draft_categories;
+        // for (const key in draft_categories) {
+        //     if (displayedSections.includes("feedback-" + key)) {
+        //         feedback_categories[key] = draft_categories[key];
+        //         feedback_categories[key]['tests'] = feedback_categories[key]['tests'].filter(test =>
+        //             displayedSections.includes(test['name'])
+        //         );
+        //     }
+        // }
         send_post_request(feedback_categories, true);
         if (typeof (Storage) !== "undefined") {
             localStorage.removeItem([courseid + "/" + taskid + "/" + current_student]);
@@ -442,13 +443,13 @@ var FeedbackPlugin = (function () {
     }
 
     function make_preview() {
-        send_get_request();
+        send_preview_request();
         save_to_storage();
     }
 
-    function send_get_request() {
+    function send_preview_request() {
         $.ajax({
-                type: "GET",
+                type: "POST",
                 url: window.location.href + "/preview",
                 contentType: 'application/json',
                 data: JSON.stringify({
