@@ -11,6 +11,7 @@ from datetime import datetime
 from io import BytesIO
 
 import flask
+import pymongo
 from pymongo import ReturnDocument
 
 import inginious
@@ -96,18 +97,34 @@ class ManagerFeedbackPage(INGIniousAdminPage):
 
 class ManagerFeedbackPrevPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
-        course, _ = self.get_course_and_check_rights(courseid, taskid)
-        submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
-        current_username = submission['username']
-        course_users = get_course_students(course, self.user_manager)
-        cu = course_users[current_username]
-        return 'ok'
-        # feedback_json = json.dumps(flask.request.json)
-        # file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
-        # with codecs.open(file_path, 'r', encoding='utf8') as f:
-        #     feedback_html = f.read()
-        # injected = self.inject_html(feedback_html, taskid, feedback_json)
-        # return injected
+        return get_next_prev_student(self, courseid, taskid, submission_id, True)
+
+
+class ManagerFeedbackNextPage(INGIniousAdminPage):
+    def GET_AUTH(self, courseid, taskid, submission_id):
+        return get_next_prev_student(self, courseid, taskid, submission_id, False)
+
+
+def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
+    course, _ = page.get_course_and_check_rights(courseid, taskid)
+    submission = get_submission_by_id(page.submission_manager, course, submission_id, page.logger)
+    current_username = submission['username'][0]
+    course_users = list(get_course_students(course, page.user_manager).keys())
+    current_index = course_users.index(current_username)
+    if is_prev:
+        sub_list = course_users[:current_index]  # get users till current user
+        sub_list = sub_list[::-1]  # run in reversed order
+    else:
+        sub_list = course_users[current_index + 1:]
+    for user in sub_list:
+        last_submission = page.database.submissions.find_one(
+            {'username': user, 'courseid': courseid, 'taskid': taskid},
+            sort=[('submitted_on', pymongo.DESCENDING)]
+        )
+        if last_submission:
+            return str(last_submission['_id'])
+    return ''
+
 
 
 class PreviewPage(INGIniousAdminPage):
@@ -177,5 +194,5 @@ def init(plugin_manager, _, _2, _3):
                             PreviewPage.as_view('preview'))
     plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/prev",
                             ManagerFeedbackPrevPage.as_view('manager_feedback_prev'))
-    # plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/next",
-    #                         ManagerFeedbackNextPage.as_view('manager_feedback_next'))
+    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/next",
+                            ManagerFeedbackNextPage.as_view('manager_feedback_next'))
