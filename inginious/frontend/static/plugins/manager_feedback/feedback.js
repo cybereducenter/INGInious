@@ -440,7 +440,7 @@ var FeedbackPlugin = (function () {
                 }
             });
         };
-        send_post_request(feedback_categories,false);
+        send_save_request(feedback_categories,false);
         save_to_storage();
     }
 
@@ -454,7 +454,7 @@ var FeedbackPlugin = (function () {
         //         );
         //     }
         // }
-        send_post_request(feedback_categories, true);
+        send_save_request(feedback_categories, true);
         if (typeof (Storage) !== "undefined") {
             localStorage.removeItem([courseid + "/" + taskid + "/" + current_student]);
         } else {
@@ -487,7 +487,7 @@ var FeedbackPlugin = (function () {
         });
     }
 
-    function send_post_request(feedback, is_final_version) {
+    function send_save_request(feedback, is_final_version) {
         $.ajax({
                 type: "POST",
                 url: window.location.href,
@@ -516,7 +516,8 @@ var FeedbackPlugin = (function () {
         var feedback_categories = feedback_data['categories'];
 
         for (const key in feedback_categories) {
-                var data = feedback_categories[key]
+            var data = feedback_categories[key]
+            if (data['tests'].length > 0) {
                 data["category"] = key
                 console.log('here is feedback category data', data);
                 category_section = $(tmpl('tmpl-category', data));
@@ -527,6 +528,7 @@ var FeedbackPlugin = (function () {
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
                 })
                 $('.print-head').hide()
+            }
         };
     }
 
