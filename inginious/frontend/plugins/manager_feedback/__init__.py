@@ -16,19 +16,27 @@ from pymongo import ReturnDocument
 import inginious
 from inginious.frontend.pages.api._api_page import APIInvalidArguments
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-class ManagerFeedbackCoutPage(INGIniousAdminPage):
+class ManagerFeedbackCoutPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
-        self.get_course_and_check_rights(courseid, taskid)
-        cout_param = flask.request.args.to_dict()['cout']
-        submission = self.submission_manager.get_submission(submission_id, user_check=False)
+        try:
+            course = self.course_factory.get_course(courseid)
+        except:
+            self.logger.error("Course not found")
+            raise APIInvalidArguments()
+        submission = self.submission_manager.get_submission(submission_id, user_check=True, course=course)
+        if submission['courseid'] != courseid or submission['taskid'] != taskid:
+            self.logger.error("Invalid submission .")
+            raise APIInvalidArguments()
         if submission['result'] == 'crash':
             self.logger.error("No success submission found.")
             raise APIInvalidArguments()
         if not submission.get("text"):
             self.logger.error("No available feedback.")
             raise APIInvalidArguments()
+        cout_param = flask.request.args.to_dict()['cout']
         user_input = self.submission_manager.get_input_from_submission(submission, only_input=True)
         zip_bytes = user_input['gitlab']['value']
         filebytes = BytesIO(zip_bytes)
@@ -73,13 +81,14 @@ class ManagerFeedbackPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
-        updated_feedback = json.dumps(flask.request.json)
+        updated_feedback = flask.request.json
         if not updated_feedback['categories']:
             self.logger.error("Invalid categories")
             raise APIInvalidArguments()
+        json_data = json.dumps(updated_feedback)
         submission = self.submission_manager._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
-            {"$set": {"text": updated_feedback}},
+            {"$set": {"text": json_data}},
             return_document=ReturnDocument.AFTER
         )
         return json.loads(submission['text'])
