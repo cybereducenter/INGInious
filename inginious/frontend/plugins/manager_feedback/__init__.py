@@ -86,11 +86,11 @@ class ManagerFeedbackPage(INGIniousAdminPage):
 
 
 class PreviewPage(INGIniousAdminPage):
-    def GET_AUTH(self, courseid, taskid, submission_id):
+    def POST_AUTH(self, courseid, taskid, submission_id):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         feedback_json = json.dumps(flask.request.json)
-        file_path = inginious.get_root_path() + '/plugins/manager_feedback/student_feedback_template.html'
+        file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
         with codecs.open(file_path, 'r', encoding='utf8') as f:
             feedback_html = f.read()
         injected = self.inject_html(feedback_html, taskid, feedback_json)
