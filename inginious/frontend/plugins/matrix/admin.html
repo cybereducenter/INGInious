@@ -105,6 +105,12 @@
                     {{ specific_task['grade']|int }}
                     {% else %}
                     <div class="graded">
+                        <a target="_blank" href="/manager_feedback/{{course.get_id()}}/{{specific_task['taskid'].get_id()}}/{{ specific_task['submissionid'] }}">
+                            <span class="feedback_link"><li class="fa fa-file-text"></li></span>
+                            <div class="feedbacktext"> <!-- This class should hide the element, change it if needed -->
+                                <p>Click for adding feedback</p>
+                            </div>
+                        </a>
                         <a target="_blank" href="{{ specific_task['submission_data']['url'] }}">
                             <span class="graded_icon" id="{{ user['tasks'][task]['submission_data'] }}">
                                 <i class="fa fa-rss fa-rotate-180"></i>

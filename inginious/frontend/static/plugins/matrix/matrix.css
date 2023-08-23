@@ -201,3 +201,15 @@ td.grade {
 th a {
     overflow-wrap: break-word;
 }
+
+.feedback_link {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #4d4d4d;
+}
+
+.feedbacktext {
+    display: none;
+}

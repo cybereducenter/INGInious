@@ -37,6 +37,17 @@ var MatrixPlugin = (function () {
                 }
             })
         })
+        $('.feedback_link').each(function () {
+            $(this).qtip({
+                content: {
+                    text: $(this).next('.feedbacktext')
+                },
+                style: {
+                    classes: 'qtip-bootstrap',
+                    width: 250
+                }
+            })
+        })
     }
 
     //function onHover(data_users) {
@@ -60,7 +71,6 @@ var MatrixPlugin = (function () {
         newJson = JSON.parse(newJson);
         return (newJson["time_passed"]);
     }
-
 
 
     return {
