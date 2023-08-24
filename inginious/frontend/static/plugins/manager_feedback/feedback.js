@@ -533,6 +533,22 @@ var FeedbackPlugin = (function () {
                 console.log('here is feedback category data', data);
                 category_section = $(tmpl('tmpl-category', data));
                 $('#scenarios-table-' + taskid).append(category_section);
+                if (default_categories.includes(key)) {
+                    var color = '#5bc0de';
+                    if (data['status']['percent'] == 100) {
+                        color = 'green'
+                    } else if (data['status']['percent'] > 80) {
+                        color = '#dcd100'
+                    } else if (data['status']['percent'] > 50) {
+                        color = '#fcb738'
+                    } else {
+                        color = 'red'
+                    }
+                    $('#feedback-' + key + ' .category-header').css('background-color', color);
+                    var info = $('<span></span>');
+                    info.text(' - ' + data['status']['passed'] + '/' + data['status']['total'] + ' ' + data['status']['percent'] + '%');
+                    $('#feedback-' + key + '-info').append(info);
+                }
                 data['tests'].forEach(test => {
                     test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
                     var test_section = $(tmpl('tmpl-test', test));

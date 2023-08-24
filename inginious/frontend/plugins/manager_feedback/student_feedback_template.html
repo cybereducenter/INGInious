@@ -38,7 +38,7 @@
                  style="display: flex; margin: 5px; background-color: #5bc0de;">
                         <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
                             <div>{%=o.name%}</div>
-                            <div ></div>
+                            <div id="feedback-{%=o.category%}-info" >&nbsp;</div>
                         </span>
                         <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
                               class="dropdown_button fa fa-caret-left"></span>
@@ -71,10 +71,12 @@
                         </div>
                     </div>
                     <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
+                    {% if (o.cout_file) { %}
                         <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
                                 type="button" onclick="FeedbackPlugin.add_popup(this)">
                             <div class="d-none d-sm-inline">פרטים נוספים</div>
                         </button>
+                    {% } %}
                     </div>
                 </div>
            </div>

@@ -49,6 +49,7 @@
     width: calc(100% - 20px);
     border-radius: 10px;
     margin: 0 10px;
+    padding: 5px;
 }
 
 .message Span {
