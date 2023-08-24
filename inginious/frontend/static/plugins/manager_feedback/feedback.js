@@ -136,6 +136,8 @@ var FeedbackPlugin = (function () {
         if (currentStep === 1) {
             $("#back-btn")[0].disabled = 'true';
             $(".message").css("display", "none");
+            $('#select-btn').val('Failed');
+            update_filter($('#select-btn')[0]);
         } else {
             console.log("render page - update_page", currentStep)
             update_page(currentStep);
@@ -152,7 +154,8 @@ var FeedbackPlugin = (function () {
         }
     }
 
-    function update_filter(value) {
+    function update_filter(event) {
+        var value = event.value;
         console.log({value});
         if (value === "Passed") {
             var passed_tests = $("div[data-result=Passed]")

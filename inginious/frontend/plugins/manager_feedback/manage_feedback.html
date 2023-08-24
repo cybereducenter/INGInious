@@ -35,13 +35,11 @@
     </div>
     <div class="top-page-right-actions">
             <div class="btn-group">
-                <button id="show_failed_btn" class="btn btn-primary btn-info btn-sm show_btn" type="button" onclick="FeedbackPlugin.update_filter('Failed')"><div class="d-none d-sm-inline">Show Failed</div></button>
-            </div>
-            <div class="btn-group">
-                <button id="show_succeeded_btn" class="btn btn-primary btn-info btn-sm show_btn" type="button" onclick="FeedbackPlugin.update_filter('Passed')"><div class="d-none d-sm-inline">Show Succeeded</div></button>
-            </div>
-            <div class="btn-group">
-                <button id="show_all_btn" class="btn btn-primary btn-info btn-sm show_btn" type="button" onclick="FeedbackPlugin.update_filter('All')"><div class="d-none d-sm-inline">Show All</div></button>
+                <select id="select-btn" class="btn btn-primary btn-info btn-sm" onchange="FeedbackPlugin.update_filter(this)">
+                    <option value="Failed">Show Failed</option>
+                    <option value="Passed">Show Succeeded</option>
+                    <option value="All">Show All</option>
+                </select>
             </div>
             <div class="btn-group">
                 <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_draft_feedback_btn" type="button" onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save changes</div></button>
