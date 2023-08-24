@@ -131,7 +131,7 @@ class PreviewPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
-        feedback_json = json.dumps(flask.request.json)
+        feedback_json = flask.request.json
         file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
         with codecs.open(file_path, 'r', encoding='utf8') as f:
             feedback_html = f.read()
@@ -152,11 +152,9 @@ def get_submission_by_id(submission_manager, course, submission_id, logger):
 
 def inject_html(html, task_id, json_data):
     feedback_html_injected_with_id = html.replace('task_id_to_replace', task_id)
+    feedback_html_injected_with_id = feedback_html_injected_with_id.replace('feedback_json', u'eval(' + json.dumps(json_data) + u')')
     feedback_html_injected_with_id = '.. raw:: html' + '\n' + indent(feedback_html_injected_with_id, 4)
-    scenario_output_html = feedback_html_injected_with_id.format(
-        feedback_json=u'eval(' + json.dumps(json_data) + u')'
-    )
-    return scenario_output_html
+    return feedback_html_injected_with_id
 
 
 def add_css_file():

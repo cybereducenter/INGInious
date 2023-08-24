@@ -8,19 +8,17 @@ var FeedbackPlugin = (function () {
     var currentStep = 1
     var courseid = ""
     var taskid = ""
+    var submissionid = ""
     var checkedSections = []
     var displayedSections = []
-    var current_student = ""
-    var previous_student = ""
-    var next_student = ""
     var categories = []
     var draft_categories = []
     var total_feedback = ""
 
-    function init_variables(student_username, input_courseid, input_taskid) {
+    function init_variables(input_courseid, input_taskid, input_submissionid) {
         courseid = input_courseid;
         taskid = input_taskid;
-        current_student = student_username;
+        submissionid = input_submissionid;
         try {
             load_from_storage();
         } catch (e) {
@@ -101,8 +99,9 @@ var FeedbackPlugin = (function () {
             $.ajax({
                 type: "GET",
                 url: window.location.href + "/next",
-                success: function(data) {
+                success: function(response) {
                     console.log("next: success");
+                    send_request_for_another_student(response);
                 },
                 error: function (e) {
                     console.log("next: " + e)
@@ -116,8 +115,9 @@ var FeedbackPlugin = (function () {
             $.ajax({
                 type: "GET",
                 url: window.location.href + "/prev",
-                success: function(data) {
+                success: function(response) {
                     console.log("prev: success");
+                    send_request_for_another_student(response);
                 },
                 error: function (e) {
                     console.log("prev: " + e)
@@ -150,32 +150,6 @@ var FeedbackPlugin = (function () {
             console.log("render page - update_page", currentStep)
             update_page(currentStep);
         }
-    }
-
-    function add_popup(event) {
-        var cout_text = "";
-        $.ajax({
-                type: "GET",
-                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").id.replace(/ /g, ""),
-                success: function(data) {
-                    console.log("success");
-                    cout_text = data.split("\n");
-                    cout_text.forEach(text => {
-                        var line = $('<li></li>');
-                        line.text(text);
-                        $("#popup-text").append(line);
-                    })
-                },
-                error: function (e) {
-                    console.log(e)
-                },
-        });
-        $("#popup").css("display", "initial");
-    }
-
-    function close_popup (event) {
-        $("#popup").css("display", "none");
-        $("#popup-text").empty();
     }
 
     function change_display_mode(category, mode) {
@@ -376,6 +350,53 @@ var FeedbackPlugin = (function () {
         console.log(displayedSections);
     }
 
+    function send_request_for_another_student(response) {
+        if (response) {
+            var href = window.location.href.split("/");
+            href[href.length - 1] = response;
+            href = href.join('/');
+            $.ajax({
+                type: "GET",
+                url: href,
+                success: function(response) {
+                    console.log("update: success");
+                },
+                error: function (e) {
+                    console.log("update: " + e)
+                },
+            });
+        } else {
+            console.log("no more students made submission for this task")
+        }
+
+    }
+
+    function add_popup(event) {
+        var cout_text = "";
+        $.ajax({
+                type: "GET",
+                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").id.replace(/ /g, ""),
+                success: function(data) {
+                    console.log("success");
+                    cout_text = data.split("\n");
+                    cout_text.forEach(text => {
+                        var line = $('<li></li>');
+                        line.text(text);
+                        $("#popup-text").append(line);
+                    })
+                },
+                error: function (e) {
+                    console.log(e)
+                },
+        });
+        $("#popup").css("display", "initial");
+    }
+
+    function close_popup (event) {
+        $("#popup").css("display", "none");
+        $("#popup-text").empty();
+    }
+
     function save_to_storage() {
         var total_feedback = $("#total-feedback").val();
         var categories_for_save = {}
@@ -399,7 +420,7 @@ var FeedbackPlugin = (function () {
                 "feedback_draft": categories_for_save,
                 "total_feedback": total_feedback,
             };
-            localStorage.setItem(courseid + "/" + taskid + "/" + current_student, JSON.stringify(data));
+            localStorage.setItem(courseid + "/" + taskid + "/" + submissionid, JSON.stringify(data));
         } else {
             alert("Your browser doesn't support web storage");
         }
@@ -407,7 +428,7 @@ var FeedbackPlugin = (function () {
 
     function load_from_storage() {
         if (typeof (Storage) !== "undefined") {
-            var data = localStorage[courseid + "/" + taskid + "/" + current_student];
+            var data = localStorage[courseid + "/" + taskid + "/" + submissionid];
             data = JSON.parse(data);
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
@@ -442,17 +463,9 @@ var FeedbackPlugin = (function () {
 
     function submit() {
         var feedback_categories = draft_categories;
-        // for (const key in draft_categories) {
-        //     if (displayedSections.includes("feedback-" + key)) {
-        //         feedback_categories[key] = draft_categories[key];
-        //         feedback_categories[key]['tests'] = feedback_categories[key]['tests'].filter(test =>
-        //             displayedSections.includes(test['name'])
-        //         );
-        //     }
-        // }
         send_save_request(feedback_categories, true);
         if (typeof (Storage) !== "undefined") {
-            localStorage.removeItem([courseid + "/" + taskid + "/" + current_student]);
+            localStorage.removeItem([courseid + "/" + taskid + "/" + submissionid]);
         } else {
             alert("Your browser doesn't support web storage");
         }
@@ -472,10 +485,9 @@ var FeedbackPlugin = (function () {
                     "categories": draft_categories,
                     "total_feedback": total_feedback,
                 }),
-                success: function(data) {
+                success: function(response) {
                     console.log("preview: success");
-                    var html = data.replace(/.. raw:: html/g, "");
-                    console.log(html)
+                    var html = response.replace(/.. raw:: html/g, "");
                     $("#draft").html(html);
 
                 },
@@ -508,9 +520,10 @@ var FeedbackPlugin = (function () {
         var category_section;
         console.log('here is feedbackData from Gitlab');
         console.log(feedback_data);
-        var total_feedback = $(tmpl('tmpl-total-feedback', feedback_data['total_feedback']));
-        $('#scenarios-table-' + taskid).append(total_feedback);
-
+        if (feedback_data['total_feedback']) {
+            var total_feedback = $(tmpl('tmpl-total-feedback', feedback_data['total_feedback']));
+            $('#scenarios-table-' + taskid).append(total_feedback);
+        }
         var feedback_categories = feedback_data['categories'];
 
         for (const key in feedback_categories) {
@@ -521,7 +534,7 @@ var FeedbackPlugin = (function () {
                 category_section = $(tmpl('tmpl-category', data));
                 $('#scenarios-table-' + taskid).append(category_section);
                 data['tests'].forEach(test => {
-                    test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red'
+                    test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
                 })

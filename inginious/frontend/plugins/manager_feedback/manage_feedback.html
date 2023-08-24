@@ -154,10 +154,10 @@
 <script type="text/javascript">
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
-    var student_username = "{{ student_username }}";
+    var submissionid = '{{submission_id}}';
     var manager_feedback = "{{ feedback['categories'] }}";
     $(document).ready(function () {
-        FeedbackPlugin.init_variables(student_username, courseid, taskid);
+        FeedbackPlugin.init_variables(courseid, taskid, submissionid);
         FeedbackPlugin.init_manage_feedback_page(manager_feedback);
     });
 </script>

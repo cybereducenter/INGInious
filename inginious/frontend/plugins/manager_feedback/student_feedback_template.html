@@ -28,33 +28,29 @@
 
     </div>
 
-    <!--here will the modals be injected-->
-    <table id="modals-task_id_to_replace">
-
-    </table>
-
     <!-- End Document
 
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script type="text/x-tmpl" id="tmpl-category">
-        <div id="feedback-{{%=o.category%}}"
+        <div id="feedback-{%=o.category%}"
              class="displayed_feedback section category card mb-4">
              <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
                  style="display: flex; margin: 5px; background-color: #5bc0de;">
                         <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
-                            <div>{{%=o.name%}}</div>
+                            <div>{%=o.name%}</div>
+                            <div ></div>
                         </span>
                         <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
                               class="dropdown_button fa fa-caret-left"></span>
             </div>
             <div >
-                {{% if (o.feedback) {{ %}}
-                    <div class="message-feedback-{{%=o.category%}} message">
-                        <span>{{%=o.feedback%}}</span>
+                {% if (o.feedback) { %}
+                    <div class="message-feedback-{%=o.category%} message">
+                        <span>{%=o.feedback%}</span>
                     </div>
-                {{% }} %}}
+                {% } %}
             </div>
-            <div id="feedback-{{%=o.category%}}-tests" class="content list-group list-group-flush task-feedback" style="display:none;">
+            <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" style="display:none;">
 
                 <div class="test-container" style=" margin: 1.5rem">
 
@@ -65,22 +61,20 @@
     </script>
     <script type="text/x-tmpl" id="tmpl-test">
         <div>
-           <div id="{{%=o.name%}}" class="test-data displayed_test_feedback" data-result={{%=o.result.text%}}
-                style="border-color:{{%=o.border_color%}}">
+           <div id="{%=o.name%}" class="test-data displayed_test_feedback" data-result={%=o.result.text%}
+                style="border-color:{%=o.border_color%}">
                 <div class="test-section">
                     <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                         <div class="pull-left" style="padding-inline: 1.5rem">
-                            <div class="row" > {{%=o.name%}} </div>
-                            <div class="row" > {{%=o.message%}} </div>
+                            <div class="row" > {%=o.name%} </div>
+                            <div class="row" > {%=o.message%} </div>
                         </div>
                     </div>
                     <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
-                    {{%if (o.cout_file) {{%}}
                         <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
                                 type="button" onclick="FeedbackPlugin.add_popup(this)">
                             <div class="d-none d-sm-inline">פרטים נוספים</div>
                         </button>
-                    {{% }} %}}
                     </div>
                 </div>
            </div>
@@ -88,16 +82,21 @@
     </script>
     <script type="text/x-tmpl" id="tmpl-total-feedback">
         <div class="message" style="margin: 20px 0">
-           <span>{{%=o%}}</span>
+           <span>{%=o%}</span>
         </div>
     </script>
 
     <script>
-        var feedbackData = {feedback_json};
+        var feedbackData = feedback_json;
         FeedbackPlugin.renderGitlabRows(feedbackData);
     </script>
 
 </body>
 
+<script type="application/javascript">
+
+
+
+</script>
 
 </html>
