@@ -33,12 +33,7 @@ class ManagerFeedbackCoutPage(INGIniousAuthPage):
         if submission['courseid'] != courseid or submission['taskid'] != taskid:
             self.logger.error("Invalid submission .")
             raise APIInvalidArguments()
-        if submission['result'] == 'crash':
-            self.logger.error("No success submission found.")
-            raise APIInvalidArguments()
-        if not submission.get("text"):
-            self.logger.error("No available feedback.")
-            raise APIInvalidArguments()
+        validate_submission(self.logger, submission)
         cout_param = flask.request.args.to_dict()['cout']
         user_input = self.submission_manager.get_input_from_submission(submission, only_input=True)
         zip_bytes = user_input['gitlab']['value']
@@ -122,6 +117,10 @@ def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
             sort=[('submitted_on', pymongo.DESCENDING)]
         )
         if last_submission:
+            try:
+                validate_submission(page.logger, last_submission)
+            except:
+                continue
             return str(last_submission['_id'])
     return ''
 
@@ -141,13 +140,17 @@ class PreviewPage(INGIniousAdminPage):
 
 def get_submission_by_id(submission_manager, course, submission_id, logger):
     submission = submission_manager.get_submission(submissionid=submission_id, course=course)
+    validate_submission(logger, submission)
+    return submission
+
+
+def validate_submission(logger, submission):
     if submission['result'] == 'crash':
         logger.error("No success submission found.")
         raise APIInvalidArguments()
     if not submission.get("text"):
         logger.error("No available feedback.")
         raise APIInvalidArguments()
-    return submission
 
 
 def inject_html(html, task_id, json_data):
