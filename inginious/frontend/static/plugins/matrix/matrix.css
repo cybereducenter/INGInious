@@ -176,7 +176,7 @@ table {
     display: inline-block;
     position: absolute;
     top: 0;
-    right: 0;
+    right: 1px;
     color: #4d4d4d;
 }
 
@@ -206,7 +206,7 @@ th a {
     display: inline-block;
     position: absolute;
     top: 0;
-    left: 0;
+    left: 1px;
     color: #4d4d4d;
 }
 
