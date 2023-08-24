@@ -232,6 +232,9 @@ var FeedbackPlugin = (function () {
             console.log("update_page in update_page", currentStep)
             make_preview();
             $("#submit-buttons")[0].style.display = 'flex';
+            var show_buttons = $("#select-btn");
+            show_buttons.val('All');
+            update_filter(show_buttons[0]);
         } else if (currentStep === 2) {
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
@@ -277,10 +280,9 @@ var FeedbackPlugin = (function () {
             }
             $(".total-feedback")[0].style.display = 'none';
         }
-        var show_buttons = $(".show_btn");
-        for (var i = 0; i < show_buttons.length; i++) {
-            show_buttons[i].disabled = currentStep === 3;
-        }
+
+        $("#select-btn")[0].disabled = currentStep === 3;
+
     }
 
     function select_category_or_test(event) {
