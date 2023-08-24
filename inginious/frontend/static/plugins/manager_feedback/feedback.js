@@ -125,30 +125,13 @@ var FeedbackPlugin = (function () {
             });
         })
 
-        var download_btn = $(".download-btn");
         var href = window.location.href.split("/");
         href[href.indexOf("manager_feedback")] = "course";
         var submissionid = href.pop();
         href = href.join('/');
         href = href + "?submissionid=" + submissionid + "&questionid=gitlab";
-        var input_file = $('#download-input-file-gitlab');
-        input_file.attr('href', href);
-        // download_btn.click(function() {
-        //     var href = window.location.href.split("/");
-        //     href[href.indexOf("manager_feedback")] = "course";
-        //     var submissionid = href.pop();
-        //     href = href.join('/');
-        //     $.ajax({
-        //         type: "GET",
-        //         url: href + "?submissionid=" + submissionid + "&questionid=gitlab",
-        //         success: function(data) {
-        //             console.log("download: success");
-        //         },
-        //         error: function (e) {
-        //             console.log("download: " + e)
-        //         },
-        //     });
-        // })
+        var download_btn = $(".download-btn");
+        download_btn.attr('href', href);
 
         if (currentStep === 1) {
             $("#back-btn")[0].disabled = 'true';
