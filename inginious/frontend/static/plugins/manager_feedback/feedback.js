@@ -445,25 +445,12 @@ var FeedbackPlugin = (function () {
     }
 
     function save_draft() {
-        var feedback_categories = categories
-        for (const key in feedback_categories) {
-            var category = feedback_categories[key]
-            if (checkedSections.includes("feedback-" + key)) {
-                category['selected'] = true;
-            }
-            category['tests'].forEach(test => {
-                if (checkedSections.includes(test['name'])) {
-                    test['selected'] = true;
-                }
-            });
-        };
-        send_save_request(feedback_categories,false);
+        send_save_request(categories,false);
         save_to_storage();
     }
 
     function submit() {
-        var feedback_categories = draft_categories;
-        send_save_request(feedback_categories, true);
+        send_save_request(categories, true);
         if (typeof (Storage) !== "undefined") {
             localStorage.removeItem([courseid + "/" + taskid + "/" + submissionid]);
         } else {
@@ -498,12 +485,25 @@ var FeedbackPlugin = (function () {
     }
 
     function send_save_request(feedback, is_final_version) {
+        var feedback_categories = feedback;
+        var category;
+        for (const key in feedback_categories) {
+            category = feedback_categories[key]
+            if (checkedSections.includes("feedback-" + key)) {
+                category['selected'] = true;
+            }
+            category['tests'].forEach(test => {
+                if (checkedSections.includes(test['name'])) {
+                    test['selected'] = true;
+                }
+            });
+        };
         $.ajax({
                 type: "POST",
                 url: window.location.href,
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    "categories": feedback,
+                    "categories": feedback_categories,
                     "total_feedback": total_feedback,
                     "draft": !is_final_version,
                 }),
