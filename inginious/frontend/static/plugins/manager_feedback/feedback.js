@@ -397,6 +397,23 @@ var FeedbackPlugin = (function () {
         $("#popup-text").empty();
     }
 
+    function studio_display_feedback_submit_message(title, content, type, dismissible)
+    {
+        var code = getAlertCode(title, content, type, dismissible);
+        $('#feedback_submit_status').html(code);
+
+        if(dismissible)
+        {
+            window.setTimeout(function()
+            {
+                $("#feedback_submit_status").children().fadeTo(1000, 0).slideUp(1000, function()
+                {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+    }
+
     function save_to_storage() {
         var total_feedback = $("#total-feedback").val();
         var categories_for_save = {}
@@ -498,6 +515,8 @@ var FeedbackPlugin = (function () {
                 }
             });
         };
+        var error = "";
+        $('.feedback_submit_button').attr('disabled', true);
         $.ajax({
                 type: "POST",
                 url: window.location.href,
@@ -512,8 +531,16 @@ var FeedbackPlugin = (function () {
                 },
                 error: function (e) {
                     console.log("save: " + e);
+                    error += "<li>An internal error occurred</li>";
                 },
         });
+        if(error)
+            studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: <ul>" + error + "</ul>", "", "danger", true);
+        else
+            var message = is_final_version ? "Feedback submitted" : "Feedback saved";
+            studio_display_feedback_submit_message(message, "", "success", true);
+
+        $('.feedback_submit_button').attr('disabled', false);
     }
 
     function renderGitlabRows(feedback_data) {
