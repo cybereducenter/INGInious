@@ -102,7 +102,7 @@ rQIDAQAB
             self.user_manager.user_saw_task(username, course_id, task_id)
 
             # Verify rights
-            if not self.user_manager.task_can_user_submit(task, username, False):
+            if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
                 raise APIForbidden("You are not allowed to submit for this task")
 
             # Get debug info if the current user is an admin
