@@ -101,12 +101,17 @@ var FeedbackPlugin = (function () {
                 url: window.location.href + "/next",
                 success: function(response) {
                     console.log("next: success");
-                    send_request_for_another_student(response);
+                    if (response) {
+                        send_request_for_another_student(response);
+                    } else {
+                        studio_display_feedback_submit_message("No more students made submission for this course", "", "danger", true);
+                    }
                 },
                 error: function (e) {
                     console.log("next: " + e)
                 },
             });
+
         })
 
         var previous_student_btn = $(".previous-student-btn");
@@ -117,7 +122,11 @@ var FeedbackPlugin = (function () {
                 url: window.location.href + "/prev",
                 success: function(response) {
                     console.log("prev: success");
-                    send_request_for_another_student(response);
+                    if (response) {
+                        send_request_for_another_student(response);
+                    } else {
+                        studio_display_feedback_submit_message("No more students made submission for this course", "", "danger", true);
+                    }
                 },
                 error: function (e) {
                     console.log("prev: " + e)
@@ -363,7 +372,6 @@ var FeedbackPlugin = (function () {
         } else {
             console.log("no more students made submission for this task")
         }
-
     }
 
     function add_popup(event) {
@@ -510,8 +518,8 @@ var FeedbackPlugin = (function () {
                 }
             });
         };
+
         var error = "";
-        $('.feedback_submit_button').attr('disabled', true);
         $.ajax({
                 type: "POST",
                 url: window.location.href,
@@ -529,13 +537,12 @@ var FeedbackPlugin = (function () {
                     error += "<li>An internal error occurred</li>";
                 },
         });
-        if(error)
+        if(error){
             studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: <ul>" + error + "</ul>", "", "danger", true);
-        else
+        } else {
             var message = is_final_version ? "Feedback submitted" : "Feedback saved";
             studio_display_feedback_submit_message(message, "", "success", true);
-
-        $('.feedback_submit_button').attr('disabled', false);
+        }
     }
 
     function renderGitlabRows(feedback_data) {
