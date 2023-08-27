@@ -4,16 +4,20 @@
 # more information about the licensing of this file.
 
 """ Pages that allow editing of tasks """
+import base64
 import json
 import logging
 import tempfile
 import bson
+import gitlab
+import os
 
 import flask
 from collections import OrderedDict
 from zipfile import ZipFile
 from flask import redirect
 from werkzeug.exceptions import NotFound
+from datetime import datetime
 
 from inginious.frontend.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
@@ -23,6 +27,11 @@ from inginious.common.base import dict_from_prefix, id_checker
 from inginious.common.exceptions import TaskNotFoundException
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.tasks import Task
+
+GITLAB_TOKEN = os.environ.get('GITLAB_TOKEN', "glpat-YKP9Ln5ioCH7GRG-GRu8")
+GITLAB_GROUP = os.environ.get('GITLAB_GROUP', 'ExerciseTests')
+GITLAB_PROJECT = os.environ.get('GITLAP_PROJECT', 'SubmissionVerifierFiles')
+GITLAB_FILE = os.environ.get('GITLAP_FILE', 'EkronotTraining2023_71758711_2023.json')
 
 
 class CourseEditTask(INGIniousAdminPage):
@@ -100,7 +109,7 @@ class CourseEditTask(INGIniousAdminPage):
         if not id_checker(taskid) or not id_checker(courseid):
             raise NotFound(description=_("Invalid course/task id"))
 
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, task = self.get_course_and_check_rights(courseid, taskid, allow_all_staff=False)
         data = flask.request.form.copy()
         data["task_file"] = flask.request.files.get("task_file")
 
@@ -289,4 +298,46 @@ class CourseEditTask(INGIniousAdminPage):
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
 
+        if task._type == 'cpp-test':
+            self.update_gitlab_json(courseid, taskid, data['accessible'])
+
         return json.dumps({"status": "ok"})
+
+    def update_gitlab_json(self, courseid, taskid, param):
+        if type(param) != bool:
+            dates = [str(datetime.strptime(x, '%Y-%m-%d %H:%M:%S').date()) if x else x for x in param.split("/")]
+            dates = [dates[0], dates[2]]
+        elif param:
+            dates = [str(datetime.now().date()), None]
+        else:
+            dates = [None, None]
+
+        try:
+            gitlab_client = gitlab.Gitlab(private_token=GITLAB_TOKEN)
+            project = gitlab_client.projects.get(gitlab_client.groups.get(GITLAB_GROUP)
+                                                 .projects.list(search=GITLAB_PROJECT)[0].id)
+            file = project.files.get(GITLAB_FILE, 'main')
+            content = base64.b64decode(file.content).decode('utf-8')
+            content_dict = json.loads(content)
+            if courseid not in content_dict:
+                content_dict[courseid] = {
+                    taskid: {
+                        'startFrom': dates[0],
+                        'dueTo': dates[1]
+                    }
+                }
+            elif taskid not in content_dict:
+                content_dict[courseid][taskid] = {
+                        'startFrom': dates[0],
+                        'dueTo': dates[1]
+                    }
+            else:
+                content_dict[courseid][taskid]['startFrom'] = dates[0]
+                content_dict[courseid][taskid]['dueTo'] = dates[1]
+            file.content = json.dumps(content_dict, indent=4)
+            file.save(branch='main', commit_message=f'change start/end dates for task {taskid} in course {courseid}')
+            self._logger.error(
+                f"Updated GitLab accessibility dates for task {taskid} in course {courseid}")
+        except Exception as e:
+            self._logger.error(
+                f"Failed to update GitLab accessibility dates for task {taskid} in course {courseid}: {e}")

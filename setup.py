@@ -34,6 +34,7 @@ install_requires = [
     "pytidylib>=0.2.4",
     "sphinx-autodoc-typehints>=1.12.0",
     "cryptography>=41.0.2",
+    "python-gitlab>=3.15.0"
 ]
 
 test_requires = [
