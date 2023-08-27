@@ -376,6 +376,7 @@ var FeedbackPlugin = (function () {
 
     function add_popup(event) {
         var cout_text = "";
+        var line;
         $.ajax({
                 type: "GET",
                 url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").id.replace(/ /g, ""),
@@ -383,13 +384,16 @@ var FeedbackPlugin = (function () {
                     console.log("success");
                     cout_text = data.split("\n");
                     cout_text.forEach(text => {
-                        var line = $('<li></li>');
+                        line = $('<li></li>');
                         line.text(text);
                         $("#popup-text").append(line);
                     })
                 },
                 error: function (e) {
                     console.log(e)
+                    line = $('<li></li>');
+                    line.text("Internal server error");
+                    $("#popup-text").append(line);
                 },
         });
         $("#popup").css("display", "initial");
