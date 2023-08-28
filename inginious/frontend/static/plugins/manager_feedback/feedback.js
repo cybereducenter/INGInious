@@ -377,7 +377,7 @@ var FeedbackPlugin = (function () {
         var line;
         $.ajax({
                 type: "GET",
-                url: window.location.origin + "/manager_feedback/" +  + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
+                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
                 success: function(data) {
                     console.log("success");
                     cout_text = data.split("\n");
@@ -522,7 +522,7 @@ var FeedbackPlugin = (function () {
         var error = "";
         $.ajax({
                 type: "POST",
-                url: window.location.href + "/?submit=" + is_final_version,
+                url: window.location.href + "?submit=" + is_final_version,
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "categories": feedback_categories,
@@ -561,7 +561,7 @@ var FeedbackPlugin = (function () {
         console.log(feedback_data);
         if (feedback_data['total_feedback']) {
             var total_feedback = $(tmpl('tmpl-total-feedback', feedback_data['total_feedback']));
-            $('#scenarios-table-' + taskid).append(total_feedback);
+            $('#scenarios-table').append(total_feedback);
         }
         var feedback_categories = feedback_data['categories'];
 
@@ -571,7 +571,7 @@ var FeedbackPlugin = (function () {
                 data["category"] = key
                 console.log('here is feedback category data', data);
                 category_section = $(tmpl('tmpl-category', data));
-                $('#scenarios-table-' + taskid).append(category_section);
+                $('#scenarios-table').append(category_section);
                 if (default_categories.includes(key)) {
                     var color = '#5bc0de';
                     if (data['status']['percent'] == 100) {
