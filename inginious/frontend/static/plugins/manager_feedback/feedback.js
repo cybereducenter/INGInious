@@ -6,6 +6,7 @@
 var FeedbackPlugin = (function () {
     const default_categories = ['submission', 'functionality']
     var currentStep = 1
+    var filter = "Failed"
     var courseid = ""
     var taskid = ""
     var submissionid = ""
@@ -129,25 +130,26 @@ var FeedbackPlugin = (function () {
         var download_btn = $(".download-btn");
         download_btn.attr('href', href);
 
-        if (currentStep === 1) {
-            var checkboxes = $("#feedbacks input[type='checkbox']");
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkedSections.includes(checkboxes[i].value)) {
-                    checkboxes[i].checked = true;
-                    var category_name = "";
-                    if (checkboxes[i].value.startsWith("feedback-")) {
-                        category_name = checkboxes[i].id.replace("checkBoxSelect-feedback-", "");
-                    } else {
-                        category_name = checkboxes[i].closest('.displayed_feedback').id.replace("feedback-", "");
-                    }
-                    if (default_categories.includes(category_name)) {
-                            checkboxes[i].disabled = true;
-                    }
+        var checkboxes = $("#feedbacks input[type='checkbox']");
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkedSections.includes(checkboxes[i].value)) {
+                checkboxes[i].checked = true;
+                var category_name = "";
+                if (checkboxes[i].value.startsWith("feedback-")) {
+                    category_name = checkboxes[i].id.replace("checkBoxSelect-feedback-", "");
+                } else {
+                    category_name = checkboxes[i].closest('.displayed_feedback').id.replace("feedback-", "");
+                }
+                if (default_categories.includes(category_name)) {
+                    checkboxes[i].disabled = true;
                 }
             }
+        }
+
+        if (currentStep === 1) {
             $("#back-btn")[0].disabled = 'true';
             $(".message").css("display", "none");
-            $('#select-btn').val('Failed');
+            $('#select-btn').val(filter);
             update_filter($('#select-btn')[0]);
         } else {
             console.log("render page - update_page", currentStep)
@@ -167,6 +169,7 @@ var FeedbackPlugin = (function () {
 
     function update_filter(event) {
         var value = event.value;
+        filter = value;
         console.log({value});
         if (value === "Passed") {
             var passed_categories = $("div[data-status=100]")
@@ -241,11 +244,11 @@ var FeedbackPlugin = (function () {
         var tests = $("#feedbacks .displayed_test_feedback");
         var show_buttons = $("#select-btn");
         if (currentStep === 3) {
-            show_buttons.val('All');
+            show_buttons.val(filter);
             make_preview();
             $("#submit-buttons")[0].style.display = 'flex';
         } else if (currentStep === 2) {
-            show_buttons.val('Failed');
+            show_buttons.val(filter);
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
@@ -268,7 +271,7 @@ var FeedbackPlugin = (function () {
             }
             $(".total-feedback")[0].style.display = 'initial';
         }else {
-            show_buttons.val('Failed');
+            show_buttons.val(filter);
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
 
@@ -288,7 +291,6 @@ var FeedbackPlugin = (function () {
             $(".total-feedback")[0].style.display = 'none';
         }
         update_filter(show_buttons[0]);
-        $("#select-btn")[0].disabled = currentStep === 3;
         window.scrollTo(0,0);
     }
 
@@ -441,6 +443,7 @@ var FeedbackPlugin = (function () {
                 "displayedSections": displayedSections,
                 "feedback_draft": categories_for_save,
                 "total_feedback": total_feedback,
+                "current_filter": filter,
             };
             localStorage.setItem(courseid + "/" + taskid + "/" + submissionid, JSON.stringify(data));
         } else {
@@ -457,6 +460,7 @@ var FeedbackPlugin = (function () {
             displayedSections = data.displayedSections ? data.displayedSections : [];
             draft_categories = data.feedback_draft ? data.feedback_draft : [];
             total_feedback = data.total_feedback ? data.total_feedback : '';
+            filter = data.current_filter ? data.current_filter : "Failed";
             for (const key in draft_categories) {
                 $("#message-feedback-" + key).val(draft_categories[key]['feedback']);
             }
@@ -597,6 +601,8 @@ var FeedbackPlugin = (function () {
                 $('.print-head').hide()
             }
         };
+        $('#select-btn').val(filter);
+        update_filter($('#select-btn')[0]);
     }
 
     return {
