@@ -61,7 +61,7 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
-        submission_feedback = json.loads(submission.get("text"))
+        submission_feedback = json.loads(submission['custom']['feedback_data'])
 
         return self.template_helper.render("manage_feedback.html",
                                            template_folder='frontend/plugins/manager_feedback',
@@ -82,12 +82,16 @@ class ManagerFeedbackPage(INGIniousAdminPage):
             self.logger.error("Invalid categories")
             raise APIInvalidArguments()
         json_data = json.dumps(updated_feedback)
+
+        feedback_html = submission.get('text')
+        if flask.request.args.to_dict().get('submit', 'false') == 'true':
+            feedback_html = inject_html(taskid, updated_feedback)
         submission = self.submission_manager._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
-            {"$set": {"text": json_data}},
+            {"$set": {"custom": {'feedback_data': json_data}, 'text': feedback_html}},
             return_document=ReturnDocument.AFTER
         )
-        return json.loads(submission['text'])
+        return json.loads(submission['custom']['feedback_data'])
 
 
 class ManagerFeedbackPrevPage(INGIniousAdminPage):
@@ -125,16 +129,12 @@ def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
     return ''
 
 
-
 class PreviewPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         feedback_json = flask.request.json
-        file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
-        with codecs.open(file_path, 'r', encoding='utf8') as f:
-            feedback_html = f.read()
-        injected = inject_html(feedback_html, taskid, feedback_json)
+        injected = inject_html(taskid, feedback_json)
         return injected
 
 
@@ -153,11 +153,14 @@ def validate_submission(logger, submission):
         raise APIInvalidArguments()
 
 
-def inject_html(html, task_id, json_data):
-    feedback_html_injected_with_id = html.replace('task_id_to_replace', task_id)
-    feedback_html_injected_with_id = feedback_html_injected_with_id.replace('feedback_json', u'eval(' + json.dumps(json_data) + u')')
-    feedback_html_injected_with_id = '.. raw:: html' + '\n' + indent(feedback_html_injected_with_id, 4)
-    return feedback_html_injected_with_id
+def inject_html(task_id, feedback_json):
+    file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
+    with codecs.open(file_path, 'r', encoding='utf8') as f:
+        feedback_html = f.read()
+    injected = feedback_html.replace('task_id_to_replace', task_id)
+    injected = injected.replace('feedback_json', u'eval(' + json.dumps(feedback_json) + u')')
+    injected = '.. raw:: html' + '\n' + indent(injected, 4)
+    return injected
 
 
 def add_css_file():
