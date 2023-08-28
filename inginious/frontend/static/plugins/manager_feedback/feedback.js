@@ -61,7 +61,7 @@ var FeedbackPlugin = (function () {
                         displayedSections.push('feedback-' + key);
                     }
                 }
-                add_test_messages(test);
+                add_test_messages(test, false);
 
             })
             if (default_categories.includes(key)) {
@@ -553,12 +553,13 @@ var FeedbackPlugin = (function () {
         }
     }
 
-    function add_test_messages(test) {
-        var messages = test['message'].split("\n")
+    function add_test_messages(test, is_draft) {
+        var messages = test['message'].split("\n");
+        var extra_text = is_draft ? "test-" : "";
         messages.forEach(message => {
             var line = $('<p style="margin: 0"></p>');
             line.text(message);
-            $("." + test['name'].replace(/ /g, '') + "-message").append(line);
+            $("." + extra_text + test['name'].replace(/ /g, '') + "-message").append(line);
         })
     }
 
@@ -599,7 +600,7 @@ var FeedbackPlugin = (function () {
                     test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
-                    add_test_messages(test);
+                    add_test_messages(test, true);
                 })
                 $('.print-head').hide()
             }
