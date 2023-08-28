@@ -297,7 +297,7 @@ var FeedbackPlugin = (function () {
         }
         update_filter(show_buttons[0]);
         $("#select-btn")[0].disabled = currentStep === 3;
-
+        window.scrollTo(0,0);
     }
 
     function select_category_or_test(event) {
