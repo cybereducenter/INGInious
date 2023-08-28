@@ -62,7 +62,6 @@ var FeedbackPlugin = (function () {
                     }
                 }
                 add_test_messages(test, false);
-
             })
             if (default_categories.includes(key)) {
                 if (!checkedSections.includes('feedback-' + key)) {
@@ -80,22 +79,6 @@ var FeedbackPlugin = (function () {
         }
         console.log(checkedSections);
         console.log(displayedSections);
-
-        var checkboxes = $("#feedbacks input[type='checkbox']");
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (checkedSections.includes(checkboxes[i].value)) {
-                checkboxes[i].checked = true;
-                var category_name = "";
-                if (checkboxes[i].value.startsWith("feedback-")) {
-                    category_name = checkboxes[i].id.replace("checkBoxSelect-feedback-", "");
-                } else {
-                    category_name = checkboxes[i].closest('.displayed_feedback').id.replace("feedback-", "");
-                }
-                if (default_categories.includes(category_name)) {
-                        checkboxes[i].disabled = true;
-                }
-            }
-        }
 
         var next_student_btn = $(".next-student-btn");
         next_student_btn.click(function() {
@@ -147,6 +130,21 @@ var FeedbackPlugin = (function () {
         download_btn.attr('href', href);
 
         if (currentStep === 1) {
+            var checkboxes = $("#feedbacks input[type='checkbox']");
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkedSections.includes(checkboxes[i].value)) {
+                    checkboxes[i].checked = true;
+                    var category_name = "";
+                    if (checkboxes[i].value.startsWith("feedback-")) {
+                        category_name = checkboxes[i].id.replace("checkBoxSelect-feedback-", "");
+                    } else {
+                        category_name = checkboxes[i].closest('.displayed_feedback').id.replace("feedback-", "");
+                    }
+                    if (default_categories.includes(category_name)) {
+                            checkboxes[i].disabled = true;
+                    }
+                }
+            }
             $("#back-btn")[0].disabled = 'true';
             $(".message").css("display", "none");
             $('#select-btn').val('Failed');
@@ -171,6 +169,14 @@ var FeedbackPlugin = (function () {
         var value = event.value;
         console.log({value});
         if (value === "Passed") {
+            var passed_categories = $("div[data-status=100]")
+            for (var i = 0; i < passed_categories.length; i++){
+                change_display_mode(passed_categories[i], "flex");
+            }
+            var failed_categories = $("div[data-status=0]")
+            for (var i = 0; i < failed_categories.length; i++){
+                change_display_mode(failed_categories[i], "none");
+            }
             var passed_tests = $("div[data-result=Passed]")
             for (var i = 0; i < passed_tests.length; i++){
                 change_display_mode(passed_tests[i], "flex");
@@ -179,15 +185,15 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < failed_tests.length; i++){
                 change_display_mode(failed_tests[i], "none");
             }
-            var failed_categories = $("div[data-status=0]")
-            for (var i = 0; i < failed_categories.length; i++){
-                change_display_mode(failed_categories[i], "none");
-            }
+        } else if (value === "Failed") {
             var passed_categories = $("div[data-status=100]")
             for (var i = 0; i < passed_categories.length; i++){
-                change_display_mode(passed_categories[i], "flex");
+                change_display_mode(passed_categories[i], "none");
             }
-        } else if (value === "Failed") {
+            var failed_categories = $("div[data-status=0]")
+            for (var i = 0; i < failed_categories.length; i++){
+                change_display_mode(failed_categories[i], "flex");
+            }
             var passed_tests = $("div[data-result=Passed]")
             for (var i = 0; i < passed_tests.length; i++){
                 change_display_mode(passed_tests[i], "none");
@@ -195,14 +201,6 @@ var FeedbackPlugin = (function () {
             var failed_tests = $("div[data-result=Failed]")
             for (var i = 0; i < failed_tests.length; i++){
                 change_display_mode(failed_tests[i], "flex");
-            }
-            var failed_categories = $("div[data-status=0]")
-            for (var i = 0; i < failed_categories.length; i++){
-                change_display_mode(failed_categories[i], "flex");
-            }
-            var passed_categories = $("div[data-status=100]")
-            for (var i = 0; i < passed_categories.length; i++){
-                change_display_mode(passed_categories[i], "none");
             }
         } else {
             // All
@@ -243,11 +241,9 @@ var FeedbackPlugin = (function () {
         var tests = $("#feedbacks .displayed_test_feedback");
         var show_buttons = $("#select-btn");
         if (currentStep === 3) {
-            console.log("update_page in update_page", currentStep)
+            show_buttons.val('All');
             make_preview();
             $("#submit-buttons")[0].style.display = 'flex';
-
-            show_buttons.val('All');
         } else if (currentStep === 2) {
             show_buttons.val('Failed');
             $("#submit-buttons")[0].style.display = 'none';
@@ -258,16 +254,13 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < tests.length; i++) {
                 if (!displayedSections.includes(tests[i].id)) {
                     tests[i].style.display = 'none';
-                    console.log("delete" + tests[i].id);
                 }
             }
             for (var i = 0; i < page_categories.length; i++) {
                 if (!displayedSections.includes(page_categories[i].id)) {
                     page_categories[i].style.display = 'none';
-                    console.log("delete" + page_categories[i].id);
                 } else {
                     var messageInputs = $(".message-" + page_categories[i].id);
-                    console.log({messageInputs})
                     for (var j = 0; j < messageInputs.length; j++) {
                         messageInputs[j].style.display = 'initial';
                     }
@@ -288,7 +281,6 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < page_categories.length; i++) {
                 page_categories[i].style.display = 'flex';
                 var messageInputs = $(".message-" + page_categories[i].id);
-                console.log({messageInputs})
                 for (var j = 0; j < messageInputs.length; j++) {
                     messageInputs[j].style.display = 'none';
                 }
@@ -530,7 +522,7 @@ var FeedbackPlugin = (function () {
         var error = "";
         $.ajax({
                 type: "POST",
-                url: window.location.href,
+                url: window.location.href + "/?submit=" + is_final_version,
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "categories": feedback_categories,
@@ -583,13 +575,13 @@ var FeedbackPlugin = (function () {
                 if (default_categories.includes(key)) {
                     var color = '#5bc0de';
                     if (data['status']['percent'] == 100) {
-                        color = 'green'
+                        color = '#318331'
                     } else if (data['status']['percent'] > 80) {
-                        color = '#dcd100'
+                        color = '#e4e729'
                     } else if (data['status']['percent'] > 50) {
-                        color = '#fcb738'
+                        color = '#ffbc40'
                     } else {
-                        color = 'red'
+                        color = '#fd4242'
                     }
                     $('#feedback-' + key + ' .category-header').css('background-color', color);
                     var info = $('<span></span>');

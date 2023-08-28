@@ -52,10 +52,10 @@
         <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
             <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
                  style="display: flex; margin: 5px;
-                 {% if category['status']['percent'] == 100 %} background-color: green;
-                 {% elif category['status']['percent'] > 80 %} background-color: #dcd100;
-                 {% elif category['status']['percent'] > 50 %} background-color: #fcb738;
-                 {% else %} background-color: red; {% endif %}">
+                 {% if category['status']['percent'] == 100 %} background-color: #318331;
+                 {% elif category['status']['percent'] > 80 %} background-color: #e4e729;
+                 {% elif category['status']['percent'] > 50 %} background-color: #ffbc40;
+                 {% else %} background-color: #fd4242; {% endif %}">
                         <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
                             <div>{{category["name"]}}</div>
                             <div>&nbsp;- {{category['status']['passed']}}/{{category['status']['total']}}  {{category['status']['percent']}}%</div>
