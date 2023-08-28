@@ -7,6 +7,8 @@ import zipfile
 from io import BytesIO
 
 import flask
+from flask_mail import Message
+from inginious.frontend.flask.mail import mail
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -21,6 +23,7 @@ from inginious.frontend.pages.api._api_page import (
     APIError
 )
 from inginious.frontend.pages.utils import INGIniousPage
+from inginious.frontend.user_manager import UserManager
 
 FILE_STORAGE_LOCATION = '/tmp'
 
@@ -190,5 +193,25 @@ def get_request_zip(request_zip):
     return request_zip, zip_path
 
 
+def send_email(submission, archive, newsub, user_manager):
+    if submission["result"] == 'success':
+        try:
+            email = user_manager.get_user_email(submission['username'][0])
+            name = user_manager.get_user_realname(submission['username'][0])
+            subject = _("Submission succeeded")
+            body = _(f"""Dear {name}, 
+            your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
+            Good job!""")
+            email = UserManager.sanitize_email(email)
+            message = Message(recipients=[(name, email)],
+                              subject=subject,
+                              body=body)
+            mail.send(message)
+        except Exception as e:
+            logger.error(f"Failed to send email: {e}")
+            pass
+
+
 def init(plugin_manager, _, _2, _3):
     plugin_manager.add_page("/gitlab/submission", GitlabSubmissionPage.as_view('gitlabsubmission'))
+    plugin_manager.add_hook('submission_done', send_email)
