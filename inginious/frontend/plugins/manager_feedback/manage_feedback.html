@@ -84,8 +84,8 @@
                                 <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                                     <div class="pull-left" style="padding-inline: 1.5rem">
                                         <div class="row"> {{test["name"]}} </div>
-                                        <div class="row">
-                                            {{test["message"]}}
+                                        <div class="row {{test['name'].replace(' ', '')}}-message" style="display: block">
+
                                         </div>
                                     </div>
 
@@ -126,7 +126,7 @@
     <div id="submit-buttons" style="display: none; flex-wrap: nowrap;">
         <div class="btn-group submit-buttons" >
             <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
-                    onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save a draft</div></button>
+                    onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save as draft</div></button>
             <button id="submit_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
                     onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Submit for student</div></button>
         </div>
@@ -153,12 +153,13 @@
 
 
 <script type="text/javascript">
+    var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
     var submissionid = '{{submission_id}}';
     var manager_feedback = "{{ feedback['categories'] }}";
     $(document).ready(function () {
-        FeedbackPlugin.init_variables(courseid, taskid, submissionid);
+        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student);
         FeedbackPlugin.init_manage_feedback_page(manager_feedback);
     });
 </script>

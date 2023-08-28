@@ -9,16 +9,18 @@ var FeedbackPlugin = (function () {
     var courseid = ""
     var taskid = ""
     var submissionid = ""
+    var student = ""
     var checkedSections = []
     var displayedSections = []
     var categories = []
     var draft_categories = []
     var total_feedback = ""
 
-    function init_variables(input_courseid, input_taskid, input_submissionid) {
+    function init_variables(input_courseid, input_taskid, input_submissionid, input_student) {
         courseid = input_courseid;
         taskid = input_taskid;
         submissionid = input_submissionid;
+        student = input_student;
         try {
             load_from_storage();
         } catch (e) {
@@ -42,7 +44,7 @@ var FeedbackPlugin = (function () {
         for (const key in feedbacks) {
             var category = feedbacks[key];
 
-            if (category['feedback'].length > 0) {
+            if (category['feedback'] && category['feedback'].length > 0) {
                 $("#message-feedback-" + key).val(category['feedback']);
             }
             if ('selected' in category) {
@@ -59,6 +61,8 @@ var FeedbackPlugin = (function () {
                         displayedSections.push('feedback-' + key);
                     }
                 }
+                add_test_messages(test);
+
             })
             if (default_categories.includes(key)) {
                 if (!checkedSections.includes('feedback-' + key)) {
@@ -515,15 +519,13 @@ var FeedbackPlugin = (function () {
         var category;
         for (const key in feedback_categories) {
             category = feedback_categories[key]
-            if (checkedSections.includes("feedback-" + key)) {
-                category['selected'] = true;
-            }
+            category['feedback'] = $("#message-feedback-" + key).val();
+            category['selected'] = checkedSections.includes("feedback-" + key);
             category['tests'].forEach(test => {
-                if (checkedSections.includes(test['name'])) {
-                    test['selected'] = true;
-                }
+                    test['selected'] = checkedSections.includes(test['name']);
             });
         };
+        total_feedback = $("#total-feedback").val();
 
         var error = "";
         $.ajax({
@@ -546,9 +548,18 @@ var FeedbackPlugin = (function () {
         if(error){
             studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: <ul>" + error + "</ul>", "", "danger", true);
         } else {
-            var message = is_final_version ? "Feedback submitted" : "Feedback saved";
+            var message = is_final_version ? "Feedback was submitted for student " + student : "Feedback was saved for student " + student;
             studio_display_feedback_submit_message(message, "", "success", true);
         }
+    }
+
+    function add_test_messages(test) {
+        var messages = test['message'].split("\n")
+        messages.forEach(message => {
+            var line = $('<p style="margin: 0"></p>');
+            line.text(message);
+            $("." + test['name'].replace(/ /g, '') + "-message").append(line);
+        })
     }
 
     function renderGitlabRows(feedback_data) {
@@ -588,6 +599,7 @@ var FeedbackPlugin = (function () {
                     test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
+                    add_test_messages(test);
                 })
                 $('.print-head').hide()
             }

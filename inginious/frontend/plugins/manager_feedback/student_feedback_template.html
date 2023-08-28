@@ -67,7 +67,9 @@
                     <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                         <div class="pull-left" style="padding-inline: 1.5rem">
                             <div class="row" > {%=o.name%} </div>
-                            <div class="row" > {%=o.message%} </div>
+                            <div class="row {%=o.name.replaceAll(' ', '')%}-message" style="display: block">
+
+                            </div>
                         </div>
                     </div>
                     <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
