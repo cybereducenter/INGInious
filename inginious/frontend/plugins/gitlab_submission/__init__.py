@@ -68,7 +68,7 @@ rQIDAQAB
             self.verify_zip_sign(zip_path)
             runner_summary = get_runner_summary_data(orig)
 
-            task_info = runner_summary['pipeline_info'][0]
+            task_info = runner_summary['pipeline_info']
             course_id, task_id = runner_summary['courseid'], task_info['taskid']
 
             try:
