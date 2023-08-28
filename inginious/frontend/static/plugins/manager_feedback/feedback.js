@@ -377,7 +377,7 @@ var FeedbackPlugin = (function () {
         var line;
         $.ajax({
                 type: "GET",
-                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
+                url: window.location.origin + "/manager_feedback/" +  + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
                 success: function(data) {
                     console.log("success");
                     cout_text = data.split("\n");
