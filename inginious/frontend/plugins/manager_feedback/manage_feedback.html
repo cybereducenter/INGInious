@@ -77,7 +77,7 @@
                 <div class="test-container" style="margin: 1.5rem">
                     {%for test in category["tests"]%}
                     <div>
-                        <div id="{{test['name']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
+                        <div id="{{test['name']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
                              style="display:{% if test['result']['text'] == filterValue %} none {% else %} flex {% endif %};
                              border-color:{% if test['result']['text'] == 'Passed' %} green {% else %} red {% endif %}">
                             <div class="test-section">

@@ -237,14 +237,15 @@ var FeedbackPlugin = (function () {
 
         var page_categories = $("#feedbacks .displayed_feedback");
         var tests = $("#feedbacks .displayed_test_feedback");
+        var show_buttons = $("#select-btn");
         if (currentStep === 3) {
             console.log("update_page in update_page", currentStep)
             make_preview();
             $("#submit-buttons")[0].style.display = 'flex';
-            var show_buttons = $("#select-btn");
+
             show_buttons.val('All');
-            update_filter(show_buttons[0]);
         } else if (currentStep === 2) {
+            show_buttons.val('Failed');
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
@@ -270,6 +271,7 @@ var FeedbackPlugin = (function () {
             }
             $(".total-feedback")[0].style.display = 'initial';
         }else {
+            show_buttons.val('Failed');
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
 
@@ -289,7 +291,7 @@ var FeedbackPlugin = (function () {
             }
             $(".total-feedback")[0].style.display = 'none';
         }
-
+        update_filter(show_buttons[0]);
         $("#select-btn")[0].disabled = currentStep === 3;
 
     }
@@ -379,7 +381,7 @@ var FeedbackPlugin = (function () {
         var line;
         $.ajax({
                 type: "GET",
-                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").id.replace(/ /g, ""),
+                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
                 success: function(data) {
                     console.log("success");
                     cout_text = data.split("\n");
