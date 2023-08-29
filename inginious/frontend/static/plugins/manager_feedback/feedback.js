@@ -30,17 +30,6 @@ var FeedbackPlugin = (function () {
     }
 
     function init_manage_feedback_page(feedbacks) {
-        feedbacks = feedbacks
-            .replace(/&#39;/g, '"')
-            .replace(/True/g, "true")
-            .replace(/False/g, "false")
-            .replace(/\r/g, '\\r')
-            .replace(/\n/g, "\\n")
-            .replace(/'/g, '"')
-            .replace(/&quot;/g, '"')
-            .replace(/&#34;/g, '\\"')
-            .replace(/None/g, '""');
-        feedbacks = JSON.parse(feedbacks);
         categories = feedbacks;
         for (const key in feedbacks) {
             var category = feedbacks[key];
