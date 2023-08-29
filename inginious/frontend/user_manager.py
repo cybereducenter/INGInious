@@ -938,16 +938,13 @@ class UserManager:
             return True
 
         if not course.get_accessibility().is_open():
-            self._logger.error(f'Course {course.get_id()} is closed')
             return False if not return_reason else "closed"
 
         if not self.course_is_user_registered(course, username) and not course.allow_preview():
-            self._logger.error(f'User {username} is not registered to course {course.get_id()}')
             return False if not return_reason else "unregistered_not_previewable"
 
         # LTI courses can only be accessed from a LTI session
         if lti and course.is_lti() != lti:
-            self._logger.error(f'Course {course.get_id()} is not lti')
             return False if not return_reason else "lti_only"
 
         # If we are not in a LTI session, an LTI course can be accessed if we do not need to send grades back
@@ -957,7 +954,6 @@ class UserManager:
                 return True
             else:
                 return False if not return_reason else "lti_not_registered"
-        self._logger.info(f'User {username} allows to see {course.get_id()}')
         return True
 
     def course_is_user_registered(self, course, username=None):
