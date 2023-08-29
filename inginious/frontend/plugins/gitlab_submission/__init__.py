@@ -194,7 +194,8 @@ def get_request_zip(request_zip):
 
 
 def send_email(submission, archive, newsub, user_manager):
-    if submission["result"] == 'success':
+    if submission["result"] == 'success' or submission["result"] == 'failed':
+        logger.debug(f'Gitlab submission done with {submission["result"]} result')
         try:
             email = user_manager.get_user_email(submission['username'][0])
             name = user_manager.get_user_realname(submission['username'][0])
@@ -207,6 +208,7 @@ def send_email(submission, archive, newsub, user_manager):
                               subject=subject,
                               body=body)
             mail.send(message)
+            logger.debug(f'Gitlab submission done mail was sent to {submission["username"][0]}')
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
             pass
