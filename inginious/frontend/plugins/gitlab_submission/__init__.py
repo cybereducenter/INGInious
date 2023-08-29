@@ -194,7 +194,7 @@ def get_request_zip(request_zip):
 
 
 def send_email(submission, archive, newsub, user_manager):
-    if submission["result"] == 'success':
+    if submission["result"] == 'success' or submission["result"] == 'failed':
         try:
             email = user_manager.get_user_email(submission['username'][0])
             name = user_manager.get_user_realname(submission['username'][0])
