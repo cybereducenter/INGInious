@@ -22,7 +22,7 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-class ManagerFeedbackCoutPage(INGIniousAuthPage):
+class FeedbackCoutPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
         try:
             course = self.course_factory.get_course(courseid)
@@ -134,7 +134,7 @@ class PreviewPage(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         feedback_json = flask.request.json
-        injected = inject_html(taskid, feedback_json)
+        injected = inject_html(courseid, taskid, submission_id, feedback_json)
         return injected
 
 
@@ -153,11 +153,13 @@ def validate_submission(logger, submission):
         raise APIInvalidArguments()
 
 
-def inject_html(task_id, feedback_json):
+def inject_html(courseid, task_id, submissionid, feedback_json):
     file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
     with codecs.open(file_path, 'r', encoding='utf8') as f:
         feedback_html = f.read()
-    injected = feedback_html.replace('task_id_to_replace', task_id)
+    injected = feedback_html.replace('task_id', task_id)
+    injected = injected.replace('course_id', courseid)
+    injected = injected.replace('submission_id', submissionid)
     injected = injected.replace('feedback_json', u'eval(' + json.dumps(feedback_json) + u')')
     injected = '.. raw:: html' + '\n' + indent(injected, 4)
     return injected
@@ -185,15 +187,14 @@ def add_qtip_js_file():
 
 def init(plugin_manager, _, _2, _3):
     """ Init the cpp feedback plugin """
-    # plugin_manager.add_hook('feedback_menu', add_feedback_menu)
     plugin_manager.add_hook('css', add_css_file)
     plugin_manager.add_hook('css', add_qtip_css_file)
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qtip_js_file)
     plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>",
                             ManagerFeedbackPage.as_view('manager_feedback'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/cout",
-                            ManagerFeedbackCoutPage.as_view('manager_feedback_cout'))
+    plugin_manager.add_page("/feedback/<courseid>/<taskid>/<submission_id>/cout",
+                            FeedbackCoutPage.as_view('feedback_cout'))
     plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/preview",
                             PreviewPage.as_view('preview'))
     plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/prev",

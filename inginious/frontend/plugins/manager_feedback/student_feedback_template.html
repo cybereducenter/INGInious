@@ -24,9 +24,18 @@
 
     <!-- Primary Page Layout
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <div id="scenarios-table" class="table table-condensed feedback test-result-table">
+    <div>
+        <div id="scenarios-table" class="table table-condensed feedback test-result-table" style="background-color: rgb(0 0 0 / 0%)">
 
+        </div>
+        <div id="popup" class="cout-popup">
+            <div class="cout-shell scrollable-container">
+            <button type="button" class="close close-feedback-modal close-btn" style="top: 0" onclick="FeedbackPlugin.close_popup(this)">&times;</button>
+            <ul id="popup-text" class="shell-body cout-shell-body" ></ul>
+            </div>
+        </div>
     </div>
+
 
     <!-- End Document
 
@@ -92,7 +101,10 @@
 
     <script>
         var feedbackData = feedback_json;
-        FeedbackPlugin.renderGitlabRows(feedbackData);
+        var courseid = 'course_id';
+        var taskid = 'task_id';
+        var submissionid = 'submission_id'
+        FeedbackPlugin.renderGitlabRows(feedbackData, courseid, taskid, submissionid);
     </script>
 
 </body>

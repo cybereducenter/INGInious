@@ -366,7 +366,7 @@ var FeedbackPlugin = (function () {
         var line;
         $.ajax({
                 type: "GET",
-                url: window.location.href + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
+                url: window.location.origin + '/feedback/' + courseid + "/" + taskid + "/" + submissionid + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
                 success: function(data) {
                     console.log("success");
                     cout_text = data.split("\n");
@@ -546,7 +546,10 @@ var FeedbackPlugin = (function () {
         })
     }
 
-    function renderGitlabRows(feedback_data) {
+    function renderGitlabRows(feedback_data, input_courseid, input_taskid, input_submissionid) {
+        courseid = input_courseid;
+        taskid = input_taskid;
+        submissionid = input_submissionid;
         var category_section;
         console.log('here is feedbackData from Gitlab');
         console.log(feedback_data);
