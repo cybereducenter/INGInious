@@ -7,8 +7,9 @@ import zipfile
 from io import BytesIO
 
 import flask
-from flask_mail import Message
-from inginious.frontend.flask.mail import mail
+from flask import current_app
+from flask_mail import Mail, Message
+
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -18,7 +19,6 @@ from werkzeug.utils import secure_filename
 from inginious.frontend.feedback_service import add_feedback_html_to_user_input
 from inginious.frontend.pages.api._api_page import (
     APINotFound,
-    APIForbidden,
     APIInvalidArguments,
     APIError
 )
@@ -206,11 +206,13 @@ def send_email(submission, archive, newsub, user_manager):
             body = _(f"""Dear {name}, 
             your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
             Good job!""")
-            email = UserManager.sanitize_email(email)
-            message = Message(recipients=[(name, email)],
-                              subject=subject,
-                              body=body)
-            mail.send(message)
+            with current_app.app_context():
+                email = UserManager.sanitize_email(email)
+                message = Message(recipients=[(name, email)],
+                                  subject=subject,
+                                  body=body)
+                flask_mail = Mail(current_app)
+                flask_mail.send(message)
             logger.debug(f'Gitlab submission done mail was sent to {submission["username"][0]}')
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
