@@ -7,6 +7,7 @@ import re
 import flask
 
 from inginious.frontend.accessible_time import AccessibleTime
+from inginious.frontend.gitlab_service import update_gitlab_json
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
@@ -97,6 +98,13 @@ class CourseSettingsPage(INGIniousAdminPage):
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
             course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
+
+        task = list(course.get_tasks().values())[0]
+        if task._type == 'cpp-test':
+            update_gitlab_json(
+                course_content['accessible'].split("/") if data["accessible"] == "custom" else course_content['accessible'],
+                courseid
+            )
 
         return self.page(course, errors, errors is None)
 

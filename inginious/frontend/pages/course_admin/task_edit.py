@@ -19,6 +19,7 @@ from flask import redirect
 from werkzeug.exceptions import NotFound
 from datetime import datetime
 
+from inginious.frontend.gitlab_service import update_gitlab_json
 from inginious.frontend.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -299,45 +300,8 @@ class CourseEditTask(INGIniousAdminPage):
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
 
         if task._type == 'cpp-test':
-            self.update_gitlab_json(courseid, taskid, data['accessible'])
+            new_dates = data['accessible'] if type(data['accessible']) == bool \
+                else [item for i, item in enumerate(data['accessible'].split("/")) if i != 1]
+            update_gitlab_json(new_dates, courseid, taskid)
 
         return json.dumps({"status": "ok"})
-
-    def update_gitlab_json(self, courseid, taskid, param):
-        if type(param) != bool:
-            dates = [str(datetime.strptime(x, '%Y-%m-%d %H:%M:%S').date()) if x else x for x in param.split("/")]
-            dates = [dates[0], dates[2]]
-        elif param:
-            dates = [str(datetime.now().date()), None]
-        else:
-            dates = [None, None]
-
-        try:
-            gitlab_client = gitlab.Gitlab(private_token=GITLAB_TOKEN)
-            project = gitlab_client.projects.get(gitlab_client.groups.get(GITLAB_GROUP)
-                                                 .projects.list(search=GITLAB_PROJECT)[0].id)
-            file = project.files.get(GITLAB_FILE, 'main')
-            content = base64.b64decode(file.content).decode('utf-8')
-            content_dict = json.loads(content)
-            if courseid not in content_dict:
-                content_dict[courseid] = {
-                    taskid: {
-                        'startFrom': dates[0],
-                        'dueTo': dates[1]
-                    }
-                }
-            elif taskid not in content_dict:
-                content_dict[courseid][taskid] = {
-                        'startFrom': dates[0],
-                        'dueTo': dates[1]
-                    }
-            else:
-                content_dict[courseid][taskid]['startFrom'] = dates[0]
-                content_dict[courseid][taskid]['dueTo'] = dates[1]
-            file.content = json.dumps(content_dict, indent=4)
-            file.save(branch='main', commit_message=f'change start/end dates for task {taskid} in course {courseid}')
-            self._logger.error(
-                f"Updated GitLab accessibility dates for task {taskid} in course {courseid}")
-        except Exception as e:
-            self._logger.error(
-                f"Failed to update GitLab accessibility dates for task {taskid} in course {courseid}: {e}")
