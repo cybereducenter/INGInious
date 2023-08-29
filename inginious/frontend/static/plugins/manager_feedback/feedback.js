@@ -351,6 +351,7 @@ var FeedbackPlugin = (function () {
                 url: href,
                 success: function(response) {
                     console.log("update: success");
+                    window.location = href;
                 },
                 error: function (e) {
                     console.log("update: " + e)
