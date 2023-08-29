@@ -6,7 +6,7 @@
 var FeedbackPlugin = (function () {
     const default_categories = ['submission', 'functionality']
     var currentStep = 1
-    var filter = "Failed"
+    var filter = "All"
     var courseid = ""
     var taskid = ""
     var submissionid = ""
@@ -149,7 +149,7 @@ var FeedbackPlugin = (function () {
         if (currentStep === 1) {
             $("#back-btn")[0].disabled = 'true';
             $(".message").css("display", "none");
-            $('#select-btn').val(filter);
+            $('#select-btn').val('Failed');
             update_filter($('#select-btn')[0]);
         } else {
             console.log("render page - update_page", currentStep)
@@ -242,13 +242,11 @@ var FeedbackPlugin = (function () {
 
         var page_categories = $("#feedbacks .displayed_feedback");
         var tests = $("#feedbacks .displayed_test_feedback");
-        var show_buttons = $("#select-btn");
+
         if (currentStep === 3) {
-            show_buttons.val(filter);
             make_preview();
             $("#submit-buttons")[0].style.display = 'flex';
         } else if (currentStep === 2) {
-            show_buttons.val(filter);
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
@@ -271,7 +269,6 @@ var FeedbackPlugin = (function () {
             }
             $(".total-feedback")[0].style.display = 'initial';
         }else {
-            show_buttons.val(filter);
             $("#submit-buttons")[0].style.display = 'none';
             var checkboxes = $("#feedbacks input[type='checkbox']");
 
@@ -290,7 +287,8 @@ var FeedbackPlugin = (function () {
             }
             $(".total-feedback")[0].style.display = 'none';
         }
-        update_filter(show_buttons[0]);
+        $('#select-btn').val(filter);
+        update_filter($('#select-btn')[0]);
         window.scrollTo(0,0);
     }
 
@@ -408,7 +406,7 @@ var FeedbackPlugin = (function () {
     {
         var code = getAlertCode(title, content, type, dismissible);
         $('#feedback_submit_status').html(code);
-
+        window.scrollTo(0,0);
         if(dismissible)
         {
             window.setTimeout(function()
@@ -426,7 +424,7 @@ var FeedbackPlugin = (function () {
         var categories_for_save = {}
         for (const key in categories) {
             if (displayedSections.includes('feedback-' + key)) {
-                categories_for_save[key] = categories[key]
+                categories_for_save[key] = JSON.parse(JSON.stringify(categories[key]));
             }
         }
         for (const key in categories_for_save) {
@@ -511,7 +509,7 @@ var FeedbackPlugin = (function () {
     }
 
     function send_save_request(feedback, is_final_version) {
-        var feedback_categories = feedback;
+        var feedback_categories = JSON.parse(JSON.stringify(feedback));
         var category;
         for (const key in feedback_categories) {
             category = feedback_categories[key]
