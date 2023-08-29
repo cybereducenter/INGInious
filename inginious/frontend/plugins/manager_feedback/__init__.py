@@ -85,7 +85,7 @@ class ManagerFeedbackPage(INGIniousAdminPage):
 
         feedback_html = submission.get('text')
         if flask.request.args.to_dict().get('submit', 'false') == 'true':
-            feedback_html = inject_html(taskid, updated_feedback)
+            feedback_html = inject_html(courseid, taskid, submission_id, updated_feedback)
         submission = self.submission_manager._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
             {"$set": {"custom": {'feedback_data': json_data}, 'text': feedback_html}},
