@@ -80,6 +80,7 @@ rQIDAQAB
                 raise APINotFound("Course not found")
 
             email = runner_summary['email']
+            self.logger.info(f'Gitlab submission for course {course_id}, task {task_id}, user email {email}')
             username = self.get_username(email)
 
             if not self.user_manager.course_is_open_to_user(course, username, False):
