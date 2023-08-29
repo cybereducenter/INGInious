@@ -158,7 +158,7 @@
     var taskid = '{{ task.get_id() }}';
     var submissionid = '{{submission_id}}';
     var feedback = '{{feedback|tojson}}';
-    var manager_feedback = JSON.parse(feedback)['categories'];
+    var manager_feedback = JSON.parse(feedback.replaceAll("\n", ""))['categories'];
     $(document).ready(function () {
         FeedbackPlugin.init_variables(courseid, taskid, submissionid, student);
         FeedbackPlugin.init_manage_feedback_page(manager_feedback);
