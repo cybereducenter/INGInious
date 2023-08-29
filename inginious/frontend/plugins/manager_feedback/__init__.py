@@ -61,7 +61,7 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
-        submission_feedback = json.loads(submission['custom']['feedback_data'])
+        submission_feedback = submission['custom']['feedback_data']
         return self.template_helper.render("manage_feedback.html",
                                            template_folder='frontend/plugins/manager_feedback',
                                            course=course,
