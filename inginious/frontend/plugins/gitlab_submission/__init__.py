@@ -206,12 +206,13 @@ def send_email(app, submission, archive, newsub, user_manager):
             body = _(f"""Dear {name}, 
             your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
             Good job!""")
-            mail = Mail(app)
-            email = UserManager.sanitize_email(email)
-            message = Message(recipients=[(name, email)],
-                              subject=subject,
-                              body=body)
-            mail.send(message)
+            with app.app_context():
+                mail = Mail(app)
+                email = UserManager.sanitize_email(email)
+                message = Message(recipients=[(name, email)],
+                                  subject=subject,
+                                  body=body)
+                mail.send(message)
             logger.info(f'Gitlab submission done mail was sent to {submission["username"][0]}')
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
