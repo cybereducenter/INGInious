@@ -80,7 +80,6 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         if not updated_feedback['categories']:
             self.logger.error("Invalid categories")
             raise APIInvalidArguments()
-        json_data = json.dumps(updated_feedback)
 
         feedback_html = submission.get('text')
         if flask.request.args.to_dict().get('submit', 'false') == 'true':
