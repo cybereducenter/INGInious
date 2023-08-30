@@ -604,7 +604,9 @@ var FeedbackPlugin = (function () {
                     $('#feedback-' + key + '-info').append(info);
                 }
                 data['tests'].forEach(test => {
-                    test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
+                    if (default_categories.includes(test['category'])) {
+                        test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
+                    }
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
                     add_test_messages(test, true);
