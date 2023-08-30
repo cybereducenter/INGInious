@@ -16,10 +16,10 @@ import sys
 from werkzeug.serving import run_simple
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Apache wsgi module only set env vars when a request is done
-os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
+# Apache wsgi module only set env vars when a request is done [Raz: Hack to bypass issue with etting env variables]
+os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "/var/www/inginious/configuration.yaml")
 os.environ['INGINIOUS_WEBAPP_HOST'] = os.environ.get("INGINIOUS_WEBAPP_HOST", "localhost")
-os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "8080")
+os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "80")
 
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.dirname(__file__))
@@ -58,7 +58,7 @@ if not configfile:
 
 # Load configuration and application (!!! For mod_wsgi, application identifier must be present)
 config = load_json_or_yaml(configfile)
-init_logging(config.get('log_directory', 'var/www/inginious/log'), config.get('log_level', 'INFO'))
+init_logging(config.get('log_directory', '/var/www/inginious/log'), config.get('log_level', 'INFO'))
 application, close_app_func = inginious.frontend.app.get_app(config)
 
 logging.getLogger("inginious.webapp").info("http://%s:%d/" % (host, int(port)))

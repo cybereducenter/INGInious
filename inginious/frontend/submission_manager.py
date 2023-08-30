@@ -197,6 +197,7 @@ class WebAppSubmissionManager:
             inputdata["@username"] = username
             inputdata["@email"] = self._user_manager.session_email()
             inputdata["@lang"] = self._user_manager.session_language()
+            inputdata["@taskid"] = task.get_id()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
             submission["user_ip"] = flask.request.remote_addr
@@ -291,6 +292,7 @@ class WebAppSubmissionManager:
         inputdata["@email"] = self._user_manager.session_email()
         inputdata["@lang"] = self._user_manager.session_language()
         inputdata["@time"] = str(obj["submitted_on"])
+        inputdata["@taskid"] = task.get_id()
         my_user_task = self._database.user_tasks.find_one(
             {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"tried": 1, "_id": 0})
         tried_count = my_user_task["tried"]

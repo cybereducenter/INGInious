@@ -583,7 +583,7 @@ function getAlertCode(title, content, type, dismissible, additionnal_content) {
         a += title;
         a += '</div>';
         if (content !== "") {
-            a += '<div class="card-body bg-' + type + '">';
+            a += '<div class="card-body bg-' + ' grade gray feedback-box' + '">';
             a += content;
             a += '</div>';
         }

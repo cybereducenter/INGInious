@@ -26,7 +26,6 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/codemirror/mode/meta.js',
                         '../../inginious/frontend/static/js/common.js',
                         '../../inginious/frontend/static/js/task.js',
-                        '../../inginious/frontend/static/js/process_feedback.js',
                         '../../inginious/frontend/static/js/webapp.js',
                         '../../inginious/frontend/static/js/studio.js',
                         '../../inginious/frontend/static/js/audiences.js',

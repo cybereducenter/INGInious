@@ -10,6 +10,7 @@ import sys
 import flask
 import pymongo
 import oauthlib
+import subprocess
 
 from gridfs import GridFS
 from binascii import hexlify
@@ -182,9 +183,17 @@ def get_app(config):
 
     builtins.__dict__['_'] = l10n_manager.gettext
 
+    try:
+        os_version = subprocess.run(['cat', r'/etc/os-release'], capture_output=True).stdout.decode('utf-8')
+        os_version = os_version.split('PRETTY_NAME=')[1]
+        os_version = os_version.split('\n')[0]
+    except:
+        os_version = "other OS"
+    
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
-        template_helper.add_to_template_globals("get_homepath", get_homepath)
+        template_helper.add_to_template_globals("get_homepath", get_homepath)        
+        template_helper.add_to_template_globals("os_version", os_version)
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
@@ -247,6 +256,7 @@ def get_app(config):
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
+    template_helper.add_to_template_globals("os_version", os_version)
     template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
