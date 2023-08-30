@@ -15,11 +15,12 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-from inginious.frontend.feedback_service import add_feedback_html_to_user_input
+from inginious.frontend import app
 from inginious.frontend.pages.api._api_page import (
     APINotFound,
     APIInvalidArguments,
-    APIError
+    APIError,
+    APIForbidden
 )
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.user_manager import UserManager
@@ -32,7 +33,7 @@ logger = logging.getLogger('inginious.webapp.plugin.gilabsubmission')
 class GitlabSubmissionPage(INGIniousPage):
 
     def __init__(self):
-        self.gitlab_problem = os.environ.get('GITLAB_PROBLEM', 'gitlab')
+        self.gitlab_course_type = os.environ.get('GITLAB_COURSE_TYPE', 'cpp-test')
         self.public_key = os.environ.get('PUBLIC_KEY', """-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1YX92NdNefTiurunFjSZ
 RyCpD8KQYxlAHIRg1bCqM17ygixFX1Lww6kyaA1vmONosdvpHrknoqBzljR/bLuz
@@ -67,7 +68,7 @@ rQIDAQAB
                 content_type=orig.content_type,
                 headers=orig.headers,
             )
-            # self.verify_zip_sign(zip_path)
+            self.verify_zip_sign(zip_path)
             runner_summary = get_runner_summary_data(orig)
 
             task_info = runner_summary['pipeline_info']
@@ -84,8 +85,8 @@ rQIDAQAB
             if not username:
                 raise APINotFound(f"User with email {email} was not found")
 
-            # if not self.user_manager.course_is_open_to_user(course, username, False):
-            #     raise APIForbidden("You are not registered to this course")
+            if not self.user_manager.course_is_open_to_user(course, username, False):
+                raise APIForbidden("You are not registered to this course")
 
             try:
                 task = course.get_task(task_id)
@@ -93,22 +94,22 @@ rQIDAQAB
                 raise APINotFound("Task not found")
 
             user_input = {'@action': 'submit'}
-            for problem in task.get_problems():
-                pid = problem.get_id()
-                if pid == self.gitlab_problem:
-                    user_input[pid] = cloned_file
+            if task._type == self.gitlab_course_type:
+                problem = task.get_problems()[0]
+                user_input[problem.get_id()] = cloned_file
+                self.logger.info(f'Add input {problem.get_id()} to submission')
 
             user_input = task.adapt_input_for_backend(user_input)
 
-            # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
-            #                                 self.default_max_file_size):
-            #     raise APIInvalidArguments()
+            if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
+                                            self.default_max_file_size):
+                raise APIInvalidArguments()
 
             self.user_manager.user_saw_task(username, course_id, task_id)
 
             # Verify rights
-            # if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
-            #     raise APIForbidden("You are not allowed to submit for this task")
+            if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
+                raise APIForbidden("You are not allowed to submit for this task")
 
             # Get debug info if the current user is an admin
             debug = self.user_manager.has_admin_rights_on_course(course, username)
@@ -117,7 +118,6 @@ rQIDAQAB
             real_name = self.user_manager.get_user_realname(username)
             language = self.user_manager.session_language()
             self.user_manager.connect_user(username, real_name, email, language, False)
-            user_input = add_feedback_html_to_user_input(user_input, task_id, task._type)
 
             try:
                 submission_id, _ = self.submission_manager.add_job(task, user_input, debug)
@@ -224,5 +224,5 @@ def init(plugin_manager, _, _2, _3):
 
     def email_hook(submission, archive, newsub, user_manager):
         return send_email(app, submission, archive, newsub, user_manager)
-    
+
     plugin_manager.add_hook('submission_done', email_hook)
