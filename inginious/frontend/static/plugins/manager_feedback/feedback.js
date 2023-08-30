@@ -547,6 +547,26 @@ var FeedbackPlugin = (function () {
         })
     }
 
+    function sort_categories(feedback_categories) {
+        console.log("here")
+        var keys = Object.keys(feedback_categories);
+        keys.sort((k1, k2) => {
+            if (default_categories.includes(k1) && !default_categories.includes(k2)) {
+                return -1;
+            } else if (!default_categories.includes(k1) && default_categories.includes(k2)) {
+                return 1;
+            } else if (default_categories.includes(k1) && default_categories.includes(k2)) {
+                return default_categories.indexOf(k1) < default_categories.indexOf(k2) ? -1 : 1;
+            }
+            return k1.localeCompare(k2);
+        })
+        var sorted_categories = {};
+        for (const key of keys) {
+            sorted_categories[key] = feedback_categories[key];
+        }
+        return sorted_categories;
+    }
+
     function renderGitlabRows(feedback_data, input_courseid, input_taskid, input_submissionid) {
         courseid = input_courseid;
         taskid = input_taskid;
@@ -558,8 +578,7 @@ var FeedbackPlugin = (function () {
             var total_feedback = $(tmpl('tmpl-total-feedback', feedback_data['total_feedback']));
             $('#scenarios-table').append(total_feedback);
         }
-        var feedback_categories = feedback_data['categories'];
-
+        var feedback_categories = sort_categories(feedback_data['categories']);
         for (const key in feedback_categories) {
             var data = feedback_categories[key]
             if (data['tests'].length > 0) {
