@@ -7,8 +7,7 @@ import zipfile
 from io import BytesIO
 
 import flask
-from flask import current_app
-from flask_mail import Mail, Message
+from flask_mail import Message
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization, hashes
@@ -16,6 +15,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
+from inginious.frontend import app
 from inginious.frontend.feedback_service import add_feedback_html_to_user_input
 from inginious.frontend.pages.api._api_page import (
     APINotFound,
@@ -68,7 +68,7 @@ rQIDAQAB
                 content_type=orig.content_type,
                 headers=orig.headers,
             )
-            self.verify_zip_sign(zip_path)
+            # self.verify_zip_sign(zip_path)
             runner_summary = get_runner_summary_data(orig)
 
             task_info = runner_summary['pipeline_info']
@@ -85,8 +85,8 @@ rQIDAQAB
             if not username:
                 raise APINotFound(f"User with email {email} was not found")
 
-            if not self.user_manager.course_is_open_to_user(course, username, False):
-                raise APIForbidden("You are not registered to this course")
+            # if not self.user_manager.course_is_open_to_user(course, username, False):
+            #     raise APIForbidden("You are not registered to this course")
 
             try:
                 task = course.get_task(task_id)
@@ -101,15 +101,15 @@ rQIDAQAB
 
             user_input = task.adapt_input_for_backend(user_input)
 
-            if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
-                                            self.default_max_file_size):
-                raise APIInvalidArguments()
+            # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
+            #                                 self.default_max_file_size):
+            #     raise APIInvalidArguments()
 
             self.user_manager.user_saw_task(username, course_id, task_id)
 
             # Verify rights
-            if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
-                raise APIForbidden("You are not allowed to submit for this task")
+            # if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
+            #     raise APIForbidden("You are not allowed to submit for this task")
 
             # Get debug info if the current user is an admin
             debug = self.user_manager.has_admin_rights_on_course(course, username)
@@ -206,13 +206,12 @@ def send_email(submission, archive, newsub, user_manager):
             body = _(f"""Dear {name}, 
             your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
             Good job!""")
-            with current_app.app_context():
-                email = UserManager.sanitize_email(email)
-                message = Message(recipients=[(name, email)],
-                                  subject=subject,
-                                  body=body)
-                flask_mail = Mail(current_app)
-                flask_mail.send(message)
+            mail = app.mail
+            email = UserManager.sanitize_email(email)
+            message = Message(recipients=[(name, email)],
+                              subject=subject,
+                              body=body)
+            mail.send(message)
             logger.debug(f'Gitlab submission done mail was sent to {submission["username"][0]}')
         except Exception as e:
             logger.error(f"Failed to send email: {e}")

@@ -541,6 +541,7 @@ var FeedbackPlugin = (function () {
         var messages = test['message'].split("\n");
         var extra_text = is_draft ? "test-" : "";
         messages.forEach(message => {
+            message = message.replaceAll(/\"/g, '\\\"')
             var line = $('<p style="margin: 0"></p>');
             line.text(message);
             $("." + extra_text + test['name'].replace(/ /g, '') + "-message").append(line);
@@ -611,6 +612,9 @@ var FeedbackPlugin = (function () {
                 $('.print-head').hide()
             }
         };
+        if (feedback_data['draft'] === false) {
+            $(".message").style.fontWeight = 'bold';
+        }
         $('#select-btn').val(filter);
         update_filter($('#select-btn')[0]);
     }
