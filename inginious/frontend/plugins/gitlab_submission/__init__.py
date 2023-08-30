@@ -97,6 +97,7 @@ rQIDAQAB
             if task._type == self.gitlab_course_type:
                 problem = task.get_problems()[0]
                 user_input[problem.get_id()] = cloned_file
+                self.logger.info(f'Add input {problem.get_id()} to submission')
 
             user_input = task.adapt_input_for_backend(user_input)
 
