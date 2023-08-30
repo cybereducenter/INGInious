@@ -51,16 +51,16 @@
                             <div id="feedback-{%=o.category%}-info" >&nbsp;</div>
                         </span>
                         <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
-                              class="dropdown_button fa fa-caret-left"></span>
+                              class="dropdown_button fa fa-caret-down"></span>
             </div>
             <div >
                 {% if (o.feedback) { %}
                     <div class="message-feedback-{%=o.category%} message">
-                        <span>{%=o.feedback%}</span>
+                        <span style="font-weight: bold">{%=o.feedback%}</span>
                     </div>
                 {% } %}
             </div>
-            <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" style="display:none;">
+            <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" >
 
                 <div class="test-container" style=" margin: 1.5rem">
 
@@ -94,8 +94,8 @@
            </div>
         </div>
     </script>
-    <script type="text/x-tmpl" id="tmpl-total-feedback">
-        <div class="message" style="margin: 20px 0">
+    <script type="text/x-tmpl" id="tmpl-total-feedback" >
+        <div class="message" style="margin: 20px 0; font-weight: bold">
            <span>{%=o%}</span>
         </div>
     </script>

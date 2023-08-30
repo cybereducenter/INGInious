@@ -612,9 +612,6 @@ var FeedbackPlugin = (function () {
                 $('.print-head').hide()
             }
         };
-        if (feedback_data['draft'] === false) {
-            $(".message").style.fontWeight = 'bold';
-        }
         $('#select-btn').val(filter);
         update_filter($('#select-btn')[0]);
     }
