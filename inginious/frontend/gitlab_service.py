@@ -41,7 +41,7 @@ def update_gitlab_json(new_dates, courseid, taskid=None):
             content_dict[courseid]['dueTo'] = dates[1]
         file.content = json.dumps(content_dict, indent=4)
         file.save(branch='main',
-                  commit_message=f"change start/end dates for course {courseid}" + f" for task {taskid}" if taskid else "")
+                  commit_message=f"change start/end dates for course {courseid}" + (f" for task {taskid}" if taskid else ""))
         logger.error(
             f"Updated GitLab accessibility dates for course {courseid}" + (f" for task {taskid}" if taskid else ""))
     except Exception as e:
