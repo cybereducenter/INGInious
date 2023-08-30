@@ -7,7 +7,7 @@ import zipfile
 from io import BytesIO
 
 import flask
-from flask_mail import Message
+from flask_mail import Message, Mail
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization, hashes
@@ -15,7 +15,6 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-from inginious.frontend import app
 from inginious.frontend.feedback_service import add_feedback_html_to_user_input
 from inginious.frontend.pages.api._api_page import (
     APINotFound,
@@ -196,8 +195,9 @@ def get_request_zip(request_zip):
     return request_zip, zip_path
 
 
-def send_email(submission, archive, newsub, user_manager):
-    if submission["result"] == 'success' or submission["result"] == 'failed':
+
+def send_email(app, submission, archive, newsub, user_manager):
+    if submission["result"] == 'success' or submission["result"] == 'failed' or True:
         logger.debug(f'Gitlab submission done with {submission["result"]} result')
         try:
             email = user_manager.get_user_email(submission['username'][0])
@@ -206,13 +206,13 @@ def send_email(submission, archive, newsub, user_manager):
             body = _(f"""Dear {name}, 
             your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
             Good job!""")
-            mail = app.mail
+            mail = Mail(app)
             email = UserManager.sanitize_email(email)
             message = Message(recipients=[(name, email)],
                               subject=subject,
                               body=body)
             mail.send(message)
-            logger.debug(f'Gitlab submission done mail was sent to {submission["username"][0]}')
+            logger.info(f'Gitlab submission done mail was sent to {submission["username"][0]}')
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
             pass
@@ -220,4 +220,9 @@ def send_email(submission, archive, newsub, user_manager):
 
 def init(plugin_manager, _, _2, _3):
     plugin_manager.add_page("/gitlab/submission", GitlabSubmissionPage.as_view('gitlabsubmission'))
-    plugin_manager.add_hook('submission_done', send_email)
+    app = plugin_manager._flask_app
+
+    def email_hook(submission, archive, newsub, user_manager):
+        return send_email(app, submission, archive, newsub, user_manager)
+    
+    plugin_manager.add_hook('submission_done', email_hook)
