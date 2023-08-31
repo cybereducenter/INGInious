@@ -27,7 +27,7 @@ from inginious.frontend.user_manager import UserManager
 
 FILE_STORAGE_LOCATION = '/tmp'
 
-logger = logging.getLogger('inginious.webapp.plugin.gilabsubmission')
+logger = logging.getLogger('inginious/frontend/plugins/gitlab_submission')
 
 
 class GitlabSubmissionPage(INGIniousPage):
@@ -197,15 +197,15 @@ def get_request_zip(request_zip):
 
 
 def send_email(app, submission, archive, newsub, user_manager):
-    if submission["result"] == 'success' or submission["result"] == 'failed' or True:
+    if submission["result"] == 'success' or submission["result"] == 'failed':
         logger.debug(f'Gitlab submission done with {submission["result"]} result')
         try:
             email = user_manager.get_user_email(submission['username'][0])
             name = user_manager.get_user_realname(submission['username'][0])
             subject = _("Submission succeeded")
             body = _(f"""Dear {name}, 
-            your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
-            Good job!""")
+your submission for course '{submission['courseid']}' / task '{submission['taskid']}' succeeded! 
+Good job!""")
             with app.app_context():
                 mail = Mail(app)
                 email = UserManager.sanitize_email(email)
@@ -221,6 +221,7 @@ def send_email(app, submission, archive, newsub, user_manager):
 
 def init(plugin_manager, _, _2, _3):
     plugin_manager.add_page("/gitlab/submission", GitlabSubmissionPage.as_view('gitlabsubmission'))
+
     app = plugin_manager._flask_app
 
     def email_hook(submission, archive, newsub, user_manager):
