@@ -105,7 +105,7 @@
                     {{ specific_task['grade']|int }}
                     {% else %}
                     <div class="graded">
-                        {% if specific_task['taskid']._type == 'cpp-test' %}
+                        {% if specific_task['submission_data']['has_feedback_data'] %}
                         <a target="_blank" href="/manager_feedback/{{course.get_id()}}/{{specific_task['taskid'].get_id()}}/{{ specific_task['submissionid'] }}">
                             <span class="feedback_link"><li class="fa fa-file-text"></li></span>
                             <div class="feedbacktext"> <!-- This class should hide the element, change it if needed -->
