@@ -115,7 +115,7 @@ var FeedbackPlugin = (function () {
         href[href.indexOf("manager_feedback")] = "course";
         var submissionid = href.pop();
         href = href.join('/');
-        href = href + "?submissionid=" + submissionid + "&questionid=gitlab";
+        href = href + "?submissionid=" + submissionid + "&questionid=program";
         var download_btn = $(".download-btn");
         download_btn.attr('href', href);
 
@@ -565,7 +565,7 @@ var FeedbackPlugin = (function () {
         return sorted_categories;
     }
 
-    function renderGitlabRows(feedback_data, input_courseid, input_taskid, input_submissionid) {
+    function render_student_feedback(feedback_data, input_courseid, input_taskid, input_submissionid) {
         courseid = input_courseid;
         taskid = input_taskid;
         submissionid = input_submissionid;
@@ -627,7 +627,7 @@ var FeedbackPlugin = (function () {
         submit: submit,
         add_popup: add_popup,
         close_popup: close_popup,
-        renderGitlabRows: renderGitlabRows
+        render_student_feedback: render_student_feedback
     }
 })(jQuery);
 
