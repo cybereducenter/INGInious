@@ -252,6 +252,13 @@ class CourseEditTask(INGIniousAdminPage):
         try:
             orig_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
             data["order"] = orig_data["order"]
+
+            # Preserve additional task attributes
+            missing_keys = set(orig_data.keys()) - set(data.keys())
+            self._logger.info(f'missing_keys = {missing_keys}')
+            for key in missing_keys:
+                data[key] = orig_data[key]
+
         except:
             pass
 
