@@ -36,7 +36,7 @@ class FeedbackCoutPage(INGIniousAuthPage):
         validate_submission(self.logger, submission)
         cout_param = flask.request.args.to_dict()['cout']
         user_input = self.submission_manager.get_input_from_submission(submission, only_input=True)
-        zip_bytes = user_input['problem']['value']
+        zip_bytes = user_input['program']['value']
         filebytes = BytesIO(zip_bytes)
         zip_file = zipfile.ZipFile(filebytes)
         try:
