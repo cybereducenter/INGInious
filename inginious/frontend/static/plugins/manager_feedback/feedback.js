@@ -14,6 +14,7 @@ var FeedbackPlugin = (function () {
     var checkedSections = []
     var displayedSections = []
     var categories = []
+    var tests = {}
     var draft_categories = []
     var total_feedback = ""
 
@@ -51,6 +52,8 @@ var FeedbackPlugin = (function () {
                         displayedSections.push('feedback-' + key);
                     }
                 }
+                tests[test['name']] = test;
+                add_test_popup(test);
                 add_test_messages(test, false);
             })
             if (default_categories.includes(key)) {
@@ -58,8 +61,7 @@ var FeedbackPlugin = (function () {
                     checkedSections.push('feedback-' + key);
                     displayedSections.push('feedback-' + key);
                 }
-                var tests = category['tests']
-                tests.forEach( test => {
+                category['tests'].forEach( test => {
                     if (!checkedSections.includes(test['name'])) {
                         checkedSections.push(test['name']);
                         displayedSections.push(test['name']);
@@ -146,6 +148,12 @@ var FeedbackPlugin = (function () {
         }
     }
 
+    function add_test_popup(test) {
+        if ((('cout_text' in test) && test['cout_text']) || (('cout_file' in test) && test['cout_file'])) {
+            $("." + test['name'].replace(/ /g, '') + "-popup").css("display", "initial");
+        }
+    }
+
     function change_display_mode(category, mode) {
         if (currentStep === 2) {
             if (displayedSections.includes(category.id)) {
@@ -196,13 +204,13 @@ var FeedbackPlugin = (function () {
             }
         } else {
             // All
-            var passed_tests = $(".test-data")
-            for (var i = 0; i < passed_tests.length; i++){
-                change_display_mode(passed_tests[i], "flex");
+            var all_tests = $(".test-data")
+            for (var i = 0; i < all_tests.length; i++){
+                change_display_mode(all_tests[i], "flex");
             }
-            var passed_categories = $(".category")
-            for (var i = 0; i < passed_categories.length; i++){
-                change_display_mode(passed_categories[i], "flex");
+            var all_categories = $(".category")
+            for (var i = 0; i < all_categories.length; i++){
+                change_display_mode(all_categories[i], "flex");
             }
         }
     }
@@ -230,7 +238,7 @@ var FeedbackPlugin = (function () {
         $(".step-view").not(".step"+ _currentStep + "-view").css('display', 'none');
 
         var page_categories = $("#feedbacks .displayed_feedback");
-        var tests = $("#feedbacks .displayed_test_feedback");
+        var page_tests = $("#feedbacks .displayed_test_feedback");
 
         if (currentStep === 3) {
             make_preview();
@@ -241,9 +249,9 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].style.display = 'none';
             }
-            for (var i = 0; i < tests.length; i++) {
-                if (!displayedSections.includes(tests[i].id)) {
-                    tests[i].style.display = 'none';
+            for (var i = 0; i < page_tests.length; i++) {
+                if (!displayedSections.includes(page_tests[i].id)) {
+                    page_tests[i].style.display = 'none';
                 }
             }
             for (var i = 0; i < page_categories.length; i++) {
@@ -264,8 +272,8 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].style.display = 'initial';
             }
-            for (var i = 0; i < tests.length; i++) {
-                tests[i].style.display = 'flex';
+            for (var i = 0; i < page_tests.length; i++) {
+                page_tests[i].style.display = 'flex';
             }
             for (var i = 0; i < page_categories.length; i++) {
                 page_categories[i].style.display = 'flex';
@@ -362,28 +370,38 @@ var FeedbackPlugin = (function () {
         }
     }
 
-    function add_popup(event) {
-        var cout_text = "";
+    function print_popup(data, line) {
+        data.split("\n").forEach(text => {
+            line = $('<li></li>');
+            line.text(text);
+            $("#popup-text").append(line);
+        })
+    }
+
+    function open_popup(event) {
+        const test_element = event.closest(".displayed_test_feedback");
+        const test_id = test_element.attributes['id'].value;
+        const test = tests[test_id];
+        var cout_text = test['cout_text'] || "";
         var line;
-        $.ajax({
-                type: "GET",
-                url: window.location.origin + '/feedback/' + courseid + "/" + taskid + "/" + submissionid + '/cout?cout=' + event.closest(".displayed_test_feedback").attributes['cout-name'].value,
-                success: function(data) {
-                    console.log("success");
-                    cout_text = data.split("\n");
-                    cout_text.forEach(text => {
+        if (cout_text) {
+            print_popup(cout_text, line);
+        } else {
+            $.ajax({
+                    type: "GET",
+                    url: window.location.origin + '/feedback/' + courseid + "/" + taskid + "/" + submissionid + '/cout?cout=' + test['cout-file'],
+                    success: function(data) {
+                        console.log("success");
+                        print_popup(data, line);
+                    },
+                    error: function (e) {
+                        console.log(e)
                         line = $('<li></li>');
-                        line.text(text);
+                        line.text("Internal server error");
                         $("#popup-text").append(line);
-                    })
-                },
-                error: function (e) {
-                    console.log(e)
-                    line = $('<li></li>');
-                    line.text("Internal server error");
-                    $("#popup-text").append(line);
-                },
-        });
+                    },
+            })
+        }
         $("#popup").css("display", "initial");
     }
 
@@ -606,6 +624,8 @@ var FeedbackPlugin = (function () {
                     }
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
+                    tests[test['name']] = test;
+                    add_test_popup(test);
                     add_test_messages(test, true);
                 })
                 $('.print-head').hide()
@@ -629,7 +649,7 @@ var FeedbackPlugin = (function () {
         load_from_storage: load_from_storage,
         save_draft: save_draft,
         submit: submit,
-        add_popup: add_popup,
+        open_popup: open_popup,
         close_popup: close_popup,
         render_student_feedback: render_student_feedback
     }

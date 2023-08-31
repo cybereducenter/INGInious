@@ -74,12 +74,12 @@
                         </div>
                     </div>
                     <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
-                    {% if (o.cout_file) { %}
-                        <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
-                                type="button" onclick="FeedbackPlugin.add_popup(this)">
-                            <div class="d-none d-sm-inline">פרטים נוספים</div>
-                        </button>
-                    {% } %}
+                        <div class="{%=o.name.replaceAll(' ', '')%}-popup" style="display: none">
+                            <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
+                                    type="button" onclick="FeedbackPlugin.open_popup(this)">
+                                <div class="d-none d-sm-inline">פרטים נוספים</div>
+                            </button>
+                        </div>
                     </div>
                 </div>
            </div>
