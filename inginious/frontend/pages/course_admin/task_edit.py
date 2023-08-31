@@ -261,7 +261,14 @@ class CourseEditTask(INGIniousAdminPage):
         # Get original data
         try:
             orig_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
+            
+            # Preserve custom task attributes
+            custom_keys = set(orig_data.keys()) - set(data.keys())
+            for key in custom_keys:
+                data[key] = orig_data[key]
+            
             data["order"] = orig_data["order"]
+
         except:
             pass
 
