@@ -24,16 +24,7 @@
 
     <!-- Primary Page Layout
         –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <div>
-        <div id="scenarios-table" class="table table-condensed feedback test-result-table" style="background-color: rgb(0 0 0 / 0%)">
-
-        </div>
-        <div id="popup" class="cout-popup">
-            <div class="cout-shell scrollable-container">
-            <button type="button" class="close close-feedback-modal close-btn" style="top: 0" onclick="FeedbackPlugin.close_popup(this)">&times;</button>
-            <ul id="popup-text" class="shell-body cout-shell-body" ></ul>
-            </div>
-        </div>
+    <div id="scenarios-table" class="table table-condensed feedback test-result-table" style="background-color: rgb(0 0 0 / 0%)">
     </div>
 
 
@@ -97,6 +88,14 @@
     <script type="text/x-tmpl" id="tmpl-total-feedback" >
         <div class="message" style="margin: 20px 0; font-weight: bold">
            <span>{%=o%}</span>
+        </div>
+    </script>
+    <script type="text/x-tmpl" id="tmpl-popup" >
+        <div id="popup" class="cout-popup">
+            <div class="cout-shell scrollable-container">
+            <button type="button" class="close close-feedback-modal close-btn" style="top: 0" onclick="FeedbackPlugin.close_popup(this)">&times;</button>
+            <ul id="popup-text" class="shell-body cout-shell-body" ></ul>
+            </div>
         </div>
     </script>
 

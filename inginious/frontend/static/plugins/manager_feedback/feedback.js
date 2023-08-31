@@ -611,6 +611,10 @@ var FeedbackPlugin = (function () {
                 $('.print-head').hide()
             }
         };
+        if (feedback_data['draft'] === false) {
+            var popup_section = $(tmpl('tmpl-popup', data));
+            $('#scenarios-table').append(popup_section);
+        }
         $('#select-btn').val(filter);
         update_filter($('#select-btn')[0]);
     }
