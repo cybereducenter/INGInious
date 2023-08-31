@@ -95,7 +95,7 @@ class ManagerFeedbackPage(INGIniousAdminPage):
             {"$set": {"custom": {'feedback_data': updated_feedback}, 'text': feedback_html}},
             return_document=ReturnDocument.AFTER
         )
-        return json.loads(submission['custom']['feedback_data'])
+        return submission['custom']['feedback_data']
 
 
 class ManagerFeedbackPrevPage(INGIniousAdminPage):

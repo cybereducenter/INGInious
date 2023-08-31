@@ -511,7 +511,7 @@ var FeedbackPlugin = (function () {
         };
         total_feedback = $("#total-feedback").val();
 
-        var error = "";
+        var error_message = "";
         $.ajax({
                 type: "POST",
                 url: window.location.href + "?submit=" + is_final_version,
@@ -523,18 +523,15 @@ var FeedbackPlugin = (function () {
                 }),
                 success: function(data) {
                     console.log("save: success");
+                    var message = is_final_version ? "Feedback was submitted for student " + student : "Feedback was saved for student " + student;
+                    studio_display_feedback_submit_message(message, "", "success", true);
                 },
                 error: function (e) {
-                    console.log("save: " + e);
-                    error += "<li>An internal error occurred</li>";
+                    console.log("save: " + e.toString());
+                    error_message = "An internal error occurred";
+                    studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: " + error_message, "", "danger", true);
                 },
         });
-        if(error){
-            studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: <ul>" + error + "</ul>", "", "danger", true);
-        } else {
-            var message = is_final_version ? "Feedback was submitted for student " + student : "Feedback was saved for student " + student;
-            studio_display_feedback_submit_message(message, "", "success", true);
-        }
     }
 
     function add_test_messages(test, is_draft) {
