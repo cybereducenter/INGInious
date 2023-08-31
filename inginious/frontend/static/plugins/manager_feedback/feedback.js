@@ -389,7 +389,7 @@ var FeedbackPlugin = (function () {
         } else {
             $.ajax({
                     type: "GET",
-                    url: window.location.origin + '/feedback/' + courseid + "/" + taskid + "/" + submissionid + '/cout?cout=' + test['cout-file'],
+                    url: window.location.origin + '/feedback/' + courseid + "/" + taskid + "/" + submissionid + '/cout?cout=' + test['cout_file'],
                     success: function(data) {
                         console.log("success");
                         print_popup(data, line);
