@@ -9,7 +9,7 @@ import gitlab
 GITLAB_TOKEN = os.environ.get('GITLAB_TOKEN', "glpat-YKP9Ln5ioCH7GRG-GRu8")
 GITLAB_GROUP = os.environ.get('GITLAB_GROUP', 'ExerciseTests')
 GITLAB_PROJECT = os.environ.get('GITLAP_PROJECT', 'SubmissionVerifierFiles')
-GITLAB_FILE = os.environ.get('GITLAP_FILE', 'EkronotTraining2023_71758711_2023.json')
+GITLAB_FILE = os.environ.get('GITLAP_FILE', 'CourseAccessibility.json')
 
 logger = logging.getLogger("inginious.frontend.gitlab_service")
 
@@ -41,10 +41,12 @@ def update_gitlab_json(new_dates, courseid, taskid=None):
             content_dict[courseid]['dueTo'] = dates[1]
         file.content = json.dumps(content_dict, indent=4)
         file.save(branch='main',
-                  commit_message=f"change start/end dates for course {courseid}" + (f" for task {taskid}" if taskid else ""))
-        logger.error(
+                  commit_message=f"change start/end dates for course {courseid}" +
+                                 (f" for task {taskid}" if taskid else ""))
+        logger.debug(
             f"Updated GitLab accessibility dates for course {courseid}" + (f" for task {taskid}" if taskid else ""))
     except Exception as e:
         logger.error(
             f"Failed to update GitLab accessibility dates for course {courseid}" +
-            (f" for task {taskid}" if taskid else "" + f": {e}"))
+            (f" for task {taskid}" if taskid else "") +
+            f": {e}")
