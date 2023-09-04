@@ -36,9 +36,9 @@
     <div class="top-page-right-actions">
             <div class="btn-group">
                 <select id="select-btn" class="btn btn-primary btn-info btn-sm" onchange="FeedbackPlugin.update_filter(this)">
-                    <option value="Failed">Show Failed</option>
-                    <option value="Passed">Show Succeeded</option>
-                    <option value="All">Show All</option>
+                    <option value="failed">Show Failed</option>
+                    <option value="passed">Show Succeeded</option>
+                    <option value="all">Show All</option>
                 </select>
             </div>
             <div class="btn-group">
@@ -79,7 +79,7 @@
                     <div>
                         <div id="{{test['name']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
                              style="display:{% if test['result']['text'] == filterValue %} none {% else %} flex {% endif %};
-                             border-color:{% if test['result']['text'] == 'Passed' %} green {% else %} red {% endif %}">
+                             border-color:{% if test['result']['text'] == 'passed' %} green {% elif test['result']['text'] == 'failed' %} red {% else %} black {% endif %}">
                             <div class="test-section">
                                 <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                                     <div class="pull-left" style="padding-inline: 1.5rem">

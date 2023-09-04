@@ -6,7 +6,7 @@
 var FeedbackPlugin = (function () {
     const default_categories = ['submission', 'functionality']
     var currentStep = 1
-    var filter = "All"
+    var filter = "all"
     var courseid = ""
     var taskid = ""
     var submissionid = ""
@@ -140,7 +140,7 @@ var FeedbackPlugin = (function () {
         if (currentStep === 1) {
             $("#back-btn")[0].disabled = 'true';
             $(".message").css("display", "none");
-            $('#select-btn').val('Failed');
+            $('#select-btn').val('failed');
             update_filter($('#select-btn')[0]);
         } else {
             console.log("render page - update_page", currentStep)
@@ -168,7 +168,7 @@ var FeedbackPlugin = (function () {
         var value = event.value;
         filter = value;
         console.log({value});
-        if (value === "Passed") {
+        if (value === "passed") {
             var passed_categories = $("div[data-status=100]")
             for (var i = 0; i < passed_categories.length; i++){
                 change_display_mode(passed_categories[i], "flex");
@@ -177,15 +177,15 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < failed_categories.length; i++){
                 change_display_mode(failed_categories[i], "none");
             }
-            var passed_tests = $("div[data-result=Passed]")
+            var passed_tests = $("div[data-result=passed]")
             for (var i = 0; i < passed_tests.length; i++){
                 change_display_mode(passed_tests[i], "flex");
             }
-            var failed_tests = $("div[data-result=Failed]")
+            var failed_tests = $("div[data-result=failed]")
             for (var i = 0; i < failed_tests.length; i++){
                 change_display_mode(failed_tests[i], "none");
             }
-        } else if (value === "Failed") {
+        } else if (value === "failed") {
             var passed_categories = $("div[data-status=100]")
             for (var i = 0; i < passed_categories.length; i++){
                 change_display_mode(passed_categories[i], "none");
@@ -194,11 +194,11 @@ var FeedbackPlugin = (function () {
             for (var i = 0; i < failed_categories.length; i++){
                 change_display_mode(failed_categories[i], "flex");
             }
-            var passed_tests = $("div[data-result=Passed]")
+            var passed_tests = $("div[data-result=passed]")
             for (var i = 0; i < passed_tests.length; i++){
                 change_display_mode(passed_tests[i], "none");
             }
-            var failed_tests = $("div[data-result=Failed]")
+            var failed_tests = $("div[data-result=failed]")
             for (var i = 0; i < failed_tests.length; i++){
                 change_display_mode(failed_tests[i], "flex");
             }
@@ -466,7 +466,7 @@ var FeedbackPlugin = (function () {
             displayedSections = data.displayedSections ? data.displayedSections : [];
             draft_categories = data.feedback_draft ? data.feedback_draft : [];
             total_feedback = data.total_feedback ? data.total_feedback : '';
-            filter = data.current_filter ? data.current_filter : "Failed";
+            filter = data.current_filter ? data.current_filter : "failed";
             for (const key in draft_categories) {
                 $("#message-feedback-" + key).val(draft_categories[key]['feedback']);
             }
@@ -620,7 +620,11 @@ var FeedbackPlugin = (function () {
                 }
                 data['tests'].forEach(test => {
                     if (default_categories.includes(test['category'])) {
-                        test["border_color"] = test['result']['text'] === 'Passed' ? 'green' : 'red';
+                        if (test['result']['text'] === 'passed') {
+                            test["border_color"] = 'green';
+                        } else if (test['result']['text'] === 'failed') {
+                            test["border_color"] = 'red';
+                        }
                     }
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
