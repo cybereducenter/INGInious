@@ -89,6 +89,9 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
             user_input["users"] = user_input["users"][0].split(',')
         user_input["users"] = [user for user in user_input["users"] if user in users]
 
+        # Always show student names
+        user_input["show_stud_name"] = 1
+
         # Sanitise audiences
         if len(user_input.get("audiences", [])) == 1 and "," in user_input["audiences"][0]:
             user_input["audiences"] = user_input["audiences"][0].split(',')
