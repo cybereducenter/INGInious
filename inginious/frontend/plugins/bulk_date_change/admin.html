@@ -1,0 +1,111 @@
+$def with (course, lessons, current_lesson, webterm_link, AccessibleTime, tasks, min_date, max_date)
+
+$var title: $:course.get_name() - Manual Test
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='bulk_date_change')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li>
+            <a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a>
+        </li>
+
+        <li>
+            <a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i>
+            </a>
+        </li>
+
+        <li class="active">
+            <a href="#"><i class="fa fa-clock-o"></i> Bulk Deadline Change <span class="sr-only">(current)</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+
+
+<h2 class="manual-title">Bulk Date Change</h2>
+
+<div>
+    <div class="radio">
+      <label>
+        <input type="radio" name="accessible" value="custom" checked>
+        Custom
+      </label>
+    </div>
+
+    <div class="lessons container">
+        <div class="row container">
+
+            <div class="col-md-2">
+                <div class="lesson-title">
+                    Select Lesson:
+                </div>
+                <select id="list" class="btn btn-default selected_lesson" name="selected_lesson" >
+                    $for lesson in lessons:
+                    <option value=$lessons[lesson]['name']>$lessons[lesson]['name']</option>
+                </select>
+            </div>
+
+            <div class="col-md-3" >
+                    <div class="lesson-title">
+                        Start Date:
+                    </div>
+                    <div class='input-group date' id='accessible_start_picker'>
+                        <input id="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value=${min_date} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
+                        <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
+                    </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="lesson-title">
+                    End Date:
+                </div>
+                    <div class='input-group date' id='accessible_end_picker'>
+                        <input id="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value=${max_date} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
+                        <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="radio">
+  <label>
+    <input type="radio" name="accessible" value="always">
+    Always
+  </label>
+</div>
+
+<div class="radio">
+  <label>
+    <input type="radio" name="accessible" value="never">
+    Never
+  </label>
+</div>
+
+
+
+
+
+                        <div class="panel panel-default">
+                        </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button type="submit" class="btn btn-default btn-lg btn-block center-block submit-btn">Submit</button>
+                    </div>
+                </div>
+
+
+
+
+
+<script>
+
+    BulkDateChangePlugin.onClickSave("$:course.get_id()", "$current_lesson");
+     \$(function() {
+     \$('#accessible_start_picker').datetimepicker({sideBySide: true});
+     \$('#accessible_end_picker').datetimepicker({sideBySide: true});
+     });
+
+</script>

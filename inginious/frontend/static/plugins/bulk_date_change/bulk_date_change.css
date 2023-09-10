@@ -1,0 +1,73 @@
+.lessons {
+    margin-bottom: 12px;
+}
+
+.lessons .lesson-title {
+    font-size: 20px;
+}
+
+.students {
+    margin-bottom: 12px;
+}
+
+.students .student-title {
+    font-size: 20px;
+}
+
+.feedback {
+    width: 100%;
+    max-width: 100%;
+    direction: rtl;
+}
+
+.overall-grade {
+    margin-top: 20px;
+}
+
+.overall-grade table {
+    width: auto;
+    max-width: auto;
+}
+
+.task-anchor {
+    margin-top: 20px;
+}
+
+.users {
+    min-width: 160px;
+}
+
+.btn-disabled {
+    background: #f7f7f7;
+    cursor: default;
+    border-color: #cccccc;
+}
+
+.btn-disabled i {
+    color: #b1b1b1;
+}
+
+.btn-disabled:hover {
+    background: #f7f7f7;
+    border-color: #cccccc;
+}
+
+.btn-disabled:focus {
+    background: #f7f7f7;
+    border-color: #cccccc;
+}
+
+.btn-disabled:active {
+    background: #f7f7f7;
+    border-color: #cccccc;
+}
+
+.btn-disabled:visited {
+    background: #f7f7f7;
+    border-color: #cccccc;
+}
+
+.overall-grade-input {
+    width: 100%;
+    max-width: 100%;
+}
