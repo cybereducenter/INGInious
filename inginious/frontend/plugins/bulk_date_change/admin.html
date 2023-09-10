@@ -1,28 +1,28 @@
-$def with (course, lessons, current_lesson, webterm_link, AccessibleTime, tasks, min_date, max_date)
+{% extends "layout.html" %}
 
-$var title: $:course.get_name() - Manual Test
+{% block title %} {{course.get_name(user_manager.session_language())}} - Matrix
+{% endblock %}
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='bulk_date_change')
+{% block column %}
+{{ template_helper.call('course_admin_menu',course=course,current='matrix') | safe }}
+{% endblock %}
 
-$def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li>
-            <a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a>
+{% block navbar %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a
+                href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a>
         </li>
-
-        <li>
-            <a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
-                <i class="fa fa-user-secret"></i>
-            </a>
-        </li>
-
-        <li class="active">
-            <a href="#"><i class="fa fa-clock-o"></i> Bulk Deadline Change <span class="sr-only">(current)</span></a>
-        </li>
+        <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}"
+                title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+        <li class="breadcrumb-item active"><a href="#"><i class="fa fa-graduation-cap"></i> Matrix <span
+                    class="sr-only">(current)</span></a></li>
     </ol>
-$var Navbar: $:NavbarF()
+</nav>
+{% endblock %}
 
-
+{% block content %}
 
 <h2 class="manual-title">Bulk Date Change</h2>
 
@@ -42,8 +42,9 @@ $var Navbar: $:NavbarF()
                     Select Lesson:
                 </div>
                 <select id="list" class="btn btn-default selected_lesson" name="selected_lesson" >
-                    $for lesson in lessons:
-                    <option value=$lessons[lesson]['name']>$lessons[lesson]['name']</option>
+                    {% for lesson in lessons: %}
+                    <option value={{ lesson['name'] }}>{{ lesson['name'] }}</option>
+                    {% endfor %}
                 </select>
             </div>
 
@@ -52,7 +53,7 @@ $var Navbar: $:NavbarF()
                         Start Date:
                     </div>
                     <div class='input-group date' id='accessible_start_picker'>
-                        <input id="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value=${min_date} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
+                        <input id="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value={{ min_date }} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
                         <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
                     </div>
             </div>
@@ -62,7 +63,7 @@ $var Navbar: $:NavbarF()
                     End Date:
                 </div>
                     <div class='input-group date' id='accessible_end_picker'>
-                        <input id="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value=${max_date} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
+                        <input id="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value={{ max_date }} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
                         <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
                     </div>
             </div>
@@ -102,7 +103,7 @@ $var Navbar: $:NavbarF()
 
 <script>
 
-    BulkDateChangePlugin.onClickSave("$:course.get_id()", "$current_lesson");
+    BulkDateChangePlugin.onClickSave("{{ course.get_id() }}", "{{ current_lesson }}");
      \$(function() {
      \$('#accessible_start_picker').datetimepicker({sideBySide: true});
      \$('#accessible_end_picker').datetimepicker({sideBySide: true});

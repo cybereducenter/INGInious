@@ -1,7 +1,6 @@
-import web
 from collections import OrderedDict
-from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage, get_task_and_lesson
-from inginious.frontend.webapp.accessible_time import AccessibleTime
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, get_task_and_lesson
+from inginious.frontend.accessible_time import AccessibleTime
 import json
 from datetime import datetime, date, timedelta
 import os
