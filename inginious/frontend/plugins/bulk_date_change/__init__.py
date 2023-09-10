@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, get_task_and_lesson
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.accessible_time import AccessibleTime
 import json
 from datetime import datetime, date, timedelta
@@ -96,6 +96,13 @@ class IndexPage(DateChangePlugin):
         return json.dumps({'status': 'success'})
 
 
+# according to a naming convention lesson-task
+def get_task_and_lesson(task_name):
+    task_splitted = task_name.split('-')
+    lesson_name = task_splitted[0]
+    task_name = task_splitted[len(task_splitted) - 1]
+
+    return lesson_name, task_name
 
 
 def add_admin_menu(course):
