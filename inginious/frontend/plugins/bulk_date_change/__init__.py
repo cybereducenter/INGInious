@@ -6,6 +6,7 @@ from datetime import datetime, date, timedelta
 import os
 import datetime
 import re
+import flask
 
 MANUAL_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -31,10 +32,10 @@ class BulkDateChangePage(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):
         course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
-        data = json.loads(web.data().decode())
-        tasks = self.get_tasks(course)
+        data = flask.request.form
+        tasks = self._get_tasks(course)
 
-        filtered_tasks = self.get_lesson_tasks(course, data['selected_lesson'])
+        filtered_tasks = self._get_lesson_tasks(course, data['selected_lesson'])
         for task_id in filtered_tasks:
             try:
                 task_data = self.task_factory.get_task_descriptor_content(courseid, task_id)
@@ -113,17 +114,28 @@ def add_admin_menu(course):
     return ('bulk_date_change', '<i class="fa fa-clock-o fa-fw"></i>&nbsp; Bulk Deadline Change')
 
 
+def add_course_menu(course, template_helper):
+    html = f'''
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{flask.request.url_root}/admin/{course.get_id()}/bulk_date_change">
+            <i class="fa fa-clock-o fa-fw"></i>&nbsp; Bulk Deadline Change
+            </a>
+        </div>
+    '''
+    return html
+
 def add_css_file():
     """ Add date change css file to the admin page """
     return '/static/plugins/bulk_date_change/bulk_date_change.css'
 
 
 def add_js_file():
-    """ Add matrix css file to the admin page """
+    """ Add date change css file to the admin page """
     return '/static/plugins/bulk_date_change/bulk_date_change.js'
 
 
 def init(plugin_manager, _, _2, _3):
+    plugin_manager.add_hook('course_menu', add_course_menu)
     plugin_manager.add_hook("course_admin_menu", add_admin_menu)
     plugin_manager.add_hook('course_admin_main_menu', add_admin_menu)
     plugin_manager.add_hook('javascript_header', add_js_file)
