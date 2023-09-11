@@ -42,8 +42,8 @@
                     Select Lesson:
                 </div>
                 <select id="list" class="btn btn-default selected_lesson" name="selected_lesson" >
-                    {% for lesson in lessons: %}
-                    <option value={{ lesson['name'] }}>{{ lesson['name'] }}</option>
+                    {% for lesson in lessons %}
+                    <option value={{ lessons[lesson]['name'] }}>{{ lessons[lesson]['name'] }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -104,9 +104,9 @@
 <script>
 
     BulkDateChangePlugin.onClickSave("{{ course.get_id() }}", "{{ current_lesson }}");
-     \$(function() {
-     \$('#accessible_start_picker').datetimepicker({sideBySide: true});
-     \$('#accessible_end_picker').datetimepicker({sideBySide: true});
+      $(function() {
+      $('#accessible_start_picker').datetimepicker({sideBySide: true});
+      $('#accessible_end_picker').datetimepicker({sideBySide: true});
      });
 
 </script>
