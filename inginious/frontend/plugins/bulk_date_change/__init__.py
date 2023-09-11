@@ -5,12 +5,11 @@ import json
 from datetime import datetime, date, timedelta
 import os
 import datetime
-
 import re
 
 MANUAL_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
-class DateChangePlugin(INGIniousAdminPage):
+class BulkDateChangePage(INGIniousAdminPage):
     """ Bulk Dadeline change """
 
     """ Get all lessons """
@@ -58,7 +57,6 @@ class DateChangePlugin(INGIniousAdminPage):
         return output
 
 
-class IndexPage(DateChangePlugin):
     def GET_AUTH(self, courseid):
         course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
         lessons = self.get_lessons(course)
@@ -112,12 +110,12 @@ def add_admin_menu(course):
 
 def add_css_file():
     """ Add date change css file to the admin page """
-    return web.ctx.homepath + '/static/plugins/bulk_date_change/bulk_date_change.css'
+    return '/static/plugins/bulk_date_change/bulk_date_change.css'
 
 
 def add_js_file():
     """ Add matrix css file to the admin page """
-    return web.ctx.homepath + '/static/plugins/bulk_date_change/bulk_date_change.js'
+    return '/static/plugins/bulk_date_change/bulk_date_change.js'
 
 
 def init(plugin_manager, _, _2, _3):
@@ -125,4 +123,4 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_hook('course_admin_main_menu', add_admin_menu)
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('css', add_css_file)
-    plugin_manager.add_page("/admin/([^/]+)/bulk_date_change", IndexPage)
+    plugin_manager.add_page("/admin/<coursid>/bulk_date_change", BulkDateChangePage.as_view('bulk_date_change'))
