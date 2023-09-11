@@ -32,7 +32,7 @@ class BulkDateChangePage(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):
         course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
-        data = flask.request.form
+        data = json.loads(list(flask.request.form.to_dict().keys())[0])
         tasks = self._get_tasks(course)
 
         filtered_tasks = self._get_lesson_tasks(course, data['selected_lesson'])
@@ -91,7 +91,7 @@ class BulkDateChangePage(INGIniousAdminPage):
         return OrderedDict(sorted(list(output.items())))
 
     def _get_lesson_tasks(self, course, lesson):
-        tasks = self.get_tasks(course)
+        tasks = self._get_tasks(course)
         output = {}
         pattern = re.compile("^" + lesson)
 
