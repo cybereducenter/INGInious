@@ -4,20 +4,21 @@
 # more information about the licensing of this file.
 
 """ Matrix plugin - show course overview of student grades """
-import logging
 
 from collections import OrderedDict
-
-from inginious.frontend.matrix_service import get_course_students
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
-from inginious.common.tasks_constants import TaskConstants
 from datetime import datetime
-import pymongo
+
 import flask
+import pymongo
+
+from inginious.common.tasks_constants import TaskConstants
+from inginious.frontend.matrix_service import get_course_students
+from inginious.frontend.pages.api._api_page import APIInvalidArguments
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
 
 
 class MatrixPage(INGIniousAdminPage):
-    def GET_AUTH(self, courseid): # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
         data_users = []
@@ -39,30 +40,30 @@ class MatrixPage(INGIniousAdminPage):
         else:
             first_id = 0
 
-        return self.template_helper.render("admin.html", 
+        return self.template_helper.render("admin.html",
                                            template_folder='frontend/plugins/matrix',
-                                           course=course, 
-                                           data_users=data_users, 
-                                           order_tasks=order_tasks, 
+                                           course=course,
+                                           data_users=data_users,
+                                           order_tasks=order_tasks,
                                            possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
                                            first_id=first_id,
                                            now=datetime.now())
 
     def _get_ordered_task_raz(self, course):
         now = datetime.now().date()
-        tasks = course.get_tasks()        
-        
+        tasks = course.get_tasks()
+
         # calc next deadline
         next_deadline_first_ix = 0
         next_deadline_last_ix = len(tasks)
         for i, task in enumerate(tasks):
             end_date = tasks[task].get_accessible_time().get_end_date().date()
-            if  now <= end_date < datetime.max.date():
+            if now <= end_date < datetime.max.date():
                 next_deadline_first_ix = i
                 break
         for i, task in enumerate(tasks):
             end_date = tasks[task].get_accessible_time().get_end_date().date()
-            if  now <= end_date < datetime.max.date():
+            if now <= end_date < datetime.max.date():
                 next_deadline_last_ix = i
 
         ordered_task = []
@@ -80,8 +81,8 @@ class MatrixPage(INGIniousAdminPage):
         for i, task in enumerate(ordered_task):
             end_date = task.get_accessible_time().get_end_date().date()
             self.logger.info(f'{i:2} - {end_date} - {task.get_id()}')
-        return 
-        
+        return
+
     def _get_ordered_task(self, course):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         tasks = course.get_tasks()
@@ -116,11 +117,12 @@ class MatrixPage(INGIniousAdminPage):
         tasks_with_future_deadline = past_future_tasks + future_tasks
 
         """ Sort By Deadline """
-        tasks_with_future_deadline = sorted(tasks_with_future_deadline, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+        tasks_with_future_deadline = sorted(tasks_with_future_deadline,
+                                            key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
         past_tasks = sorted(past_tasks, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
 
         order_tasks = tasks_with_future_deadline + always_tasks + past_tasks + never_tasks
-        
+
         if past_tasks:
             return order_tasks, past_tasks[0]
         elif never_tasks:
@@ -138,18 +140,18 @@ class MatrixPage(INGIniousAdminPage):
                                                                  "status": TaskConstants.DEFAULT_STATUS,
                                                                  "grade": 0}) for taskid in order_tasks])
 
-        user_tasks = list(self.database.user_tasks.find({"username":  username, "courseid": course_id}))
+        user_tasks = list(self.database.user_tasks.find({"username": username, "courseid": course_id}))
         user_task_submissions_by_task_id = self._get_user_task_submissions(username, course_id)
 
         ordered_tasks_for_user = self._calculate_user_tasks(
-                                    user_tasks, ordered_tasks_for_user,
-                                    user_task_submissions_by_task_id, course_id, username)
+            user_tasks, ordered_tasks_for_user,
+            user_task_submissions_by_task_id, course_id, username)
 
         data_user = {'name': user_data, 'tasks': ordered_tasks_for_user}
         return data_user
 
     def _calculate_user_tasks(self, user_tasks, ordered_tasks_for_user,
-                             user_task_submissions_by_task_id, course_name, student_name):
+                              user_task_submissions_by_task_id, course_name, student_name):
         for user_task in user_tasks:
             task_id = user_task["taskid"]
 
@@ -172,13 +174,13 @@ class MatrixPage(INGIniousAdminPage):
                     href_to_submissions = self._build_student_submissions_url(course_name, student_name, task_id)
                     time_passed = calculate_time_passed_since(user_task_latest_submission["submitted_on"])
                     has_feedback_data = True if user_task_latest_submission['custom'].get("feedback_data") else False
-                    task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed':  time_passed, 'has_feedback_data': has_feedback_data}
+                    task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed': time_passed,
+                                                        'has_feedback_data': has_feedback_data}
 
         return ordered_tasks_for_user
 
     def _build_student_submissions_url(self, course_name, student_name, task_name):
-          return '/admin/'+ course_name + '/submissions?tasks=' + task_name + '&users=' + student_name
-
+        return '/admin/' + course_name + '/submissions?tasks=' + task_name + '&users=' + student_name
 
     def _get_user_task_submissions(self, username, course_id):
         '''
@@ -187,7 +189,7 @@ class MatrixPage(INGIniousAdminPage):
         since we are sorting by date, the first we'll encounter
         will be the latest one
         '''
-        user_task_submissions = list(self.database.submissions.find({"username":  username, "courseid": course_id})
+        user_task_submissions = list(self.database.submissions.find({"username": username, "courseid": course_id})
                                      .sort([("submitted_on", pymongo.DESCENDING)]))
 
         user_task_submissions_by_task_id = {}
@@ -215,18 +217,21 @@ def add_course_menu(course, template_helper):
     '''
     return html
 
+
 def add_css_file():
     """ Add matrix css file to the admin page """
-    return ('/static/plugins/matrix/matrix.css') ### TODO - change ###
+    return ('/static/plugins/matrix/matrix.css')  ### TODO - change ###
 
 
 def add_js_file():
     """ Add matrix js file to the admin page """
     return '/static/plugins/matrix/matrix.js'
 
+
 def add_qTip_css_file():
     """ Add matrix css file to the admin page """
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.css'
+
 
 def add_qTip_js_file():
     """ Add matrix js file to the admin page """
