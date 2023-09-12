@@ -8,6 +8,7 @@
 from collections import OrderedDict
 from datetime import datetime
 
+import bson
 import flask
 import pymongo
 
@@ -141,7 +142,7 @@ class MatrixPage(INGIniousAdminPage):
                                                                  "grade": 0}) for taskid in order_tasks])
 
         user_tasks = list(self.database.user_tasks.find({"username": username, "courseid": course_id}))
-        user_task_submissions_by_task_id = self._get_user_task_submissions(username, course_id)
+        user_task_submissions_by_task_id = _get_user_task_submissions(self, username, course_id)
 
         ordered_tasks_for_user = self._calculate_user_tasks(
             user_tasks, ordered_tasks_for_user,
@@ -182,23 +183,24 @@ class MatrixPage(INGIniousAdminPage):
     def _build_student_submissions_url(self, course_name, student_name, task_name):
         return '/admin/' + course_name + '/submissions?tasks=' + task_name + '&users=' + student_name
 
-    def _get_user_task_submissions(self, username, course_id):
-        '''
-        get all the relevant submissions - the last ones and not the ones with the highest score
-        group by taskid and select the latest one,
-        since we are sorting by date, the first we'll encounter
-        will be the latest one
-        '''
-        user_task_submissions = list(self.database.submissions.find({"username": username, "courseid": course_id})
-                                     .sort([("submitted_on", pymongo.DESCENDING)]))
 
-        user_task_submissions_by_task_id = {}
-        for user_task_submission in user_task_submissions:
-            task_id = user_task_submission['taskid']
-            if not user_task_submissions_by_task_id.get(task_id):
-                user_task_submissions_by_task_id[task_id] = user_task_submission
+def _get_user_task_submissions(self, username, course_id):
+    """
+    get all the relevant submissions - the last ones and not the ones with the highest score
+    group by taskid and select the latest one,
+    since we are sorting by date, the first we'll encounter
+    will be the latest one
+    """
+    user_task_submissions = list(self.database.submissions.find({"username": username, "courseid": course_id})
+                                 .sort([("submitted_on", pymongo.DESCENDING)]))
 
-        return user_task_submissions_by_task_id
+    user_task_submissions_by_task_id = {}
+    for user_task_submission in user_task_submissions:
+        task_id = user_task_submission['taskid']
+        if not user_task_submissions_by_task_id.get(task_id):
+            user_task_submissions_by_task_id[task_id] = user_task_submission
+
+    return user_task_submissions_by_task_id
 
 
 def add_admin_menu(course):
@@ -237,6 +239,138 @@ def add_qTip_js_file():
     """ Add matrix js file to the admin page """
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.js'
 
+
+class MergeFeedbackPage(INGIniousAdminPage):
+    def POST_AUTH(self, courseid, taskid):
+        course, task = self.get_course_and_check_rights(courseid, taskid=taskid, allow_all_staff=True)
+        if not task._data.get('feedback', False):
+            self.logger.error(f'Task {taskid} is not feedback task!')
+            raise APIInvalidArguments()
+        selected_student = flask.request.json.get('student')
+        all_students = list(
+            self.user_manager.get_users_info(
+                self.user_manager.get_course_registered_users(course, False)
+            ).items()
+        )
+        if selected_student and selected_student not in [user['username'] for user in all_students]:
+            self.logger.error(f'Student {selected_student} not in course {courseid}!')
+            raise APIInvalidArguments()
+            all_students = [selected_student]
+
+        for student in all_students:
+            username = student['username']
+            user_task_submissions_by_task_id = _get_user_task_submissions(self, username, courseid)
+
+            user_input = {'@action': 'submit'}
+            for problem in task.get_problems():
+                source_task_id = problem.get_id()  # pid = task_id
+                user_task_latest_submission = user_task_submissions_by_task_id.get(source_task_id)
+                if user_task_latest_submission:
+                    user_input[pid] = user_task_latest_submission
+
+            # user_input = task.adapt_input_for_backend(user_input)
+            # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
+            #                                 self.default_max_file_size):
+            #     raise APIInvalidArguments()
+            self.user_manager.user_saw_task(username, course_id, source_task_id)
+
+            # Verify rights
+            # if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
+            #     raise APIForbidden("You are not allowed to submit for this task")
+
+            try:
+                submission_id, _ = self.add_submission_job(task, user_input, True, username, student['email'])
+            except Exception as ex:
+                self.logger.error(f'Failed to create submission job for user {username}, error: {ex}')
+                raise APIError(500, str(ex))
+            # submission = self.submission_manager.get_submission(submission_id, user_check=False)
+        return 'ok'
+
+    def add_submission_job(self, task, inputdata, debug, username, email):
+        """
+        Add a job in the queue and returns a submission id.
+        :param task:  Task instance
+        :type task: inginious.frontend.tasks.Task
+        :param inputdata: the input as a dictionary
+        :type inputdata: dict
+        :param debug: If debug is true, more debug data will be saved
+        :type debug: bool or string
+        :param username: student username
+        :type username: string
+        :param email: student email
+        :type email: string
+        :returns: the new submission id and the removed submission id
+        """
+
+        # Prevent student from submitting several submissions together
+        waiting_submission = self.database.submissions.find_one({
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "username": username,
+            "status": "waiting"})
+
+        if waiting_submission is not None:
+            raise Exception("A submission is already pending for this task!")
+
+        obj = {
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "status": "waiting",
+            "submitted_on": datetime.now(),
+            "username": [username],
+            "response_type": task.get_response_type(),
+            "user_ip": flask.request.remote_addr
+        }
+
+        inputdata["@username"] = username
+        inputdata["@email"] = email
+        inputdata["@lang"] = self.user_manager.session_language()
+        inputdata["@time"] = str(obj["submitted_on"])
+        inputdata["@taskid"] = task.get_id()
+        my_user_task = self.database.user_tasks.find_one(
+            {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"tried": 1, "_id": 0})
+        tried_count = my_user_task["tried"]
+        inputdata["@attempts"] = str(tried_count + 1)
+        # Retrieve input random
+        states = self.database.user_tasks.find_one(
+            {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
+            {"random": 1, "state": 1})
+        inputdata["@random"] = states["random"] if "random" in states else []
+        inputdata["@state"] = states["state"] if "state" in states else ""
+
+        self.plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
+
+        self.submission_manager._before_submission_insertion(task, inputdata, debug, obj)
+        obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
+        submissionid = self.database.submissions.insert_one(obj).inserted_id
+        to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+
+        ssh_callback = lambda host, port, user, password: \
+            self.submission_manager._handle_ssh_callback(submissionid,
+                                                         host, port, user,
+                                                         password)
+        jobid = self.submission_manager._client.new_job(0, task, inputdata,
+                                                        (lambda result, grade, problems, tests, custom, state, archive,
+                                                                stdout, stderr:
+                                                         self.submission_manager._job_done_callback(submissionid, task,
+                                                                                                    result, grade,
+                                                                                                    problems, tests,
+                                                                                                    custom, state,
+                                                                                                    archive, stdout,
+                                                                                                    stderr, True)),
+                                                        "Frontend - {}".format(username), debug, ssh_callback)
+
+        self.database.submissions.update_one(
+            {"_id": submissionid, "status": "waiting"},
+            {"$set": {"jobid": jobid}}
+        )
+
+        self.logger.info("New submission from %s - %s - %s/%s - %s", username, email, task.get_course_id(),
+                         task.get_id(), flask.request.remote_addr)
+
+        return submissionid, to_remove
+
+
 def init(plugin_manager, _, _2, _3):
     """ Init the matrix plugin """
     plugin_manager.add_hook('course_menu', add_course_menu)
@@ -246,3 +380,4 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qTip_js_file)
     plugin_manager.add_page("/admin/<courseid>/matrix", MatrixPage.as_view('matrtix'))
+    plugin_manager.add_page("/admin/<courseid>/<taskid>/merge_feedback", MergeFeedbackPage.as_view('merge_feedback'))
