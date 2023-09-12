@@ -14,7 +14,7 @@ import pymongo
 
 from inginious.common.tasks_constants import TaskConstants
 from inginious.frontend.matrix_service import get_course_students
-from inginious.frontend.pages.api._api_page import APIInvalidArguments
+from inginious.frontend.pages.api._api_page import APIInvalidArguments, APIError
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
 
 
@@ -246,16 +246,17 @@ class MergeFeedbackPage(INGIniousAdminPage):
         if not task._data.get('feedback', False):
             self.logger.error(f'Task {taskid} is not feedback task!')
             raise APIInvalidArguments()
-        selected_student = flask.request.json.get('student')
-        all_students = list(
-            self.user_manager.get_users_info(
-                self.user_manager.get_course_registered_users(course, False)
-            ).items()
-        )
-        if selected_student and selected_student not in [user['username'] for user in all_students]:
-            self.logger.error(f'Student {selected_student} not in course {courseid}!')
-            raise APIInvalidArguments()
-            all_students = [selected_student]
+        selected_students = flask.request.json.get('student', [])
+        all_students = self.get_course_users(course)
+        students_to_merge = []
+        if selected_students:
+            for username in selected_students:
+                if username not in all_students.keys():
+                    self.logger.error(f'Student {username} not in course {courseid}!')
+                    raise APIInvalidArguments()
+                students_to_merge.append(all_students[username])
+        else:
+            students_to_merge.extend(all_students.values())
 
         for student in all_students:
             username = student['username']
@@ -266,13 +267,13 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 source_task_id = problem.get_id()  # pid = task_id
                 user_task_latest_submission = user_task_submissions_by_task_id.get(source_task_id)
                 if user_task_latest_submission:
-                    user_input[pid] = user_task_latest_submission
+                    user_input[source_task_id] = user_task_latest_submission
 
             # user_input = task.adapt_input_for_backend(user_input)
             # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
             #                                 self.default_max_file_size):
             #     raise APIInvalidArguments()
-            self.user_manager.user_saw_task(username, course_id, source_task_id)
+            self.user_manager.user_saw_task(username, courseid, source_task_id)
 
             # Verify rights
             # if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
@@ -285,6 +286,16 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 raise APIError(500, str(ex))
             # submission = self.submission_manager.get_submission(submission_id, user_check=False)
         return 'ok'
+
+    def get_course_users(self, course):
+        students = list(
+            self.user_manager.get_users_info(
+                self.user_manager.get_course_registered_users(course, False)
+            ).items()
+        )
+        return {
+            user['username']: user for user in students
+        }
 
     def add_submission_job(self, task, inputdata, debug, username, email):
         """
