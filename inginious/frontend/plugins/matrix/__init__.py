@@ -391,8 +391,6 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
         return submissionid, to_remove
 
-    def job_done_callback(self):
-
 
     def _handle_ssh_callback(self, submission_id, host, port, user, password):
         """ Handles the creation of a remote ssh server """
