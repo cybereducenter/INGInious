@@ -362,16 +362,22 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
         self.plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
 
-        with self.plugin_manager._flask_app.app_context():
-            obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
-            submissionid = self.database.submissions.insert_one(obj).inserted_id
-            to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
-            ssh_callback = lambda host, port, user, password: \
-                self._handle_ssh_callback(submissionid, host, port, user, password)
-            jobid = self.submission_manager._client.new_job(0, task, inputdata,
-                         (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
-                         self._job_done_callback(submissionid, task, result, grade, problems, tests,
-                                                                  custom, state, archive, stdout, stderr, True)),
+
+        obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
+        submissionid = self.database.submissions.insert_one(obj).inserted_id
+        to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+
+        def ssh_callback(host, port, user, password):
+            with self.app.app_context():
+                self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
+
+
+        def job_done_callback(result, grade, problems, tests, custom, state, archive, stdout, stderr):
+            with self.app.app_context():
+                self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
+                                        custom, state, archive, stdout, stderr, True)
+
+        jobid = self.submission_manager._client.new_job(0, task, inputdata, job_done_callback,
                          "Frontend - {}".format(username), debug, ssh_callback)
 
 
@@ -384,6 +390,9 @@ class MergeFeedbackPage(INGIniousAdminPage):
                           task.get_id(), flask.request.remote_addr)
 
         return submissionid, to_remove
+
+    def job_done_callback(self):
+
 
     def _handle_ssh_callback(self, submission_id, host, port, user, password):
         """ Handles the creation of a remote ssh server """
