@@ -11,13 +11,13 @@ from datetime import datetime
 import bson
 import flask
 import pymongo
-from pymongo import ReturnDocument
-from flask import current_app
+from flask import Flask
 
 from inginious.common.tasks_constants import TaskConstants
 from inginious.frontend.matrix_service import get_course_students
 from inginious.frontend.pages.api._api_page import APIInvalidArguments, APIError
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
+from inginious.frontend.submission_manager import WebAppSubmissionManager
 
 
 class MatrixPage(INGIniousAdminPage):
@@ -368,17 +368,20 @@ class MergeFeedbackPage(INGIniousAdminPage):
         submissionid = self.database.submissions.insert_one(obj).inserted_id
         to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
-        def ssh_callback(host, port, user, password):
-            app = flask.Flask(__name__)
-            with app.app_context():
-                self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
+        def callbacks(app: Flask, submission_manager: WebAppSubmissionManager):
 
-        def job_done_callback(result, grade, problems, tests, custom, state, archive, stdout, stderr):
-            app = flask.Flask(__name__)
-            with app.app_context():
-                self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
-                                        custom, state, archive, stdout, stderr, True)
+            def ssh_callback(host, port, user, password):
+                with app.app_context():
+                    submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
 
+            def job_done_callback(result, grade, problems, tests, custom, state, archive, stdout, stderr):
+                with app.app_context():
+                    submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
+                                            custom, state, archive, stdout, stderr, True)
+
+            return ssh_callback, job_done_callback
+
+        ssh_callback, job_done_callback = callbacks(self.app, self.submission_manager)
         jobid = self.submission_manager._client.new_job(0, task, inputdata, job_done_callback,
                          "Frontend - {}".format(username), debug, ssh_callback)
 
@@ -394,78 +397,78 @@ class MergeFeedbackPage(INGIniousAdminPage):
         return submissionid, to_remove
 
 
-    def _handle_ssh_callback(self, submission_id, host, port, user, password):
-        """ Handles the creation of a remote ssh server """
-        if host is not None:  # ignore late calls (a bit hacky, but...)
-            obj = {
-                "ssh_host": host,
-                "ssh_port": port,
-                "ssh_user": user,
-                "ssh_password": password
-            }
-            self.database.submissions.update_one({"_id": submission_id}, {"$set": obj})
-
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, state, archive, stdout,
-                           stderr, newsub=True):
-        """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
-        job """
-        submission = self.submission_manager.get_submission(submissionid, False)
-
-        submission = self.submission_manager.get_input_from_submission(submission)
-
-        data = {
-            "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
-            # error only if error was made by INGInious
-            "result": result[0],
-            "grade": grade,
-            "text": result[1],
-            "tests": tests,
-            "problems": problems,
-            "archive": (self.submission_manager._gridfs.put(archive) if archive is not None else None),
-            "custom": custom,
-            "state": state,
-            "stdout": stdout,
-            "stderr": stderr
-        }
-
-        unset_obj = {
-            "jobid": "",
-            "ssh_host": "",
-            "ssh_port": "",
-            "ssh_user": "",
-            "ssh_password": ""
-        }
-
-        # Save submission to database
-        try:
-            submission = self.database.submissions.find_one_and_update(
-                {"_id": submission["_id"]},
-                {"$set": data, "$unset": unset_obj},
-                return_document=ReturnDocument.AFTER
-            )
-
-            for username in submission["username"]:
-                self.submission_manager._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
-
-        # Check for size as it also takes the MongoDB command into consideration
-        except pymongo.errors.DocumentTooLarge:
-            data = {"status": "error", "text": _("Maximum submission size exceeded. Check feedback, stdout, stderr and state."), "grade": 0.0}
-            submission = self.database.submissions.find_one_and_update(
-                {"_id": submission["_id"]},
-                {"$set": data, "$unset": unset_obj},
-                return_document=ReturnDocument.AFTER
-            )
-
-        self.plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub, user_manager=self.user_manager)
-
-        if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
-            for username in submission["username"]:
-                self.lti_outcome_manager.add(username,
-                                              submission["courseid"],
-                                              submission["taskid"],
-                                              submission["outcome_consumer_key"],
-                                              submission["outcome_service_url"],
-                                              submission["outcome_result_id"])
+    # def _handle_ssh_callback(self, submission_id, host, port, user, password):
+    #     """ Handles the creation of a remote ssh server """
+    #     if host is not None:  # ignore late calls (a bit hacky, but...)
+    #         obj = {
+    #             "ssh_host": host,
+    #             "ssh_port": port,
+    #             "ssh_user": user,
+    #             "ssh_password": password
+    #         }
+    #         self.database.submissions.update_one({"_id": submission_id}, {"$set": obj})
+    #
+    # def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, state, archive, stdout,
+    #                        stderr, newsub=True):
+    #     """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
+    #     job """
+    #     submission = self.submission_manager.get_submission(submissionid, False)
+    #
+    #     submission = self.submission_manager.get_input_from_submission(submission)
+    #
+    #     data = {
+    #         "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
+    #         # error only if error was made by INGInious
+    #         "result": result[0],
+    #         "grade": grade,
+    #         "text": result[1],
+    #         "tests": tests,
+    #         "problems": problems,
+    #         "archive": (self.submission_manager._gridfs.put(archive) if archive is not None else None),
+    #         "custom": custom,
+    #         "state": state,
+    #         "stdout": stdout,
+    #         "stderr": stderr
+    #     }
+    #
+    #     unset_obj = {
+    #         "jobid": "",
+    #         "ssh_host": "",
+    #         "ssh_port": "",
+    #         "ssh_user": "",
+    #         "ssh_password": ""
+    #     }
+    #
+    #     # Save submission to database
+    #     try:
+    #         submission = self.database.submissions.find_one_and_update(
+    #             {"_id": submission["_id"]},
+    #             {"$set": data, "$unset": unset_obj},
+    #             return_document=ReturnDocument.AFTER
+    #         )
+    #
+    #         for username in submission["username"]:
+    #             self.submission_manager._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
+    #
+    #     # Check for size as it also takes the MongoDB command into consideration
+    #     except pymongo.errors.DocumentTooLarge:
+    #         data = {"status": "error", "text": _("Maximum submission size exceeded. Check feedback, stdout, stderr and state."), "grade": 0.0}
+    #         submission = self.database.submissions.find_one_and_update(
+    #             {"_id": submission["_id"]},
+    #             {"$set": data, "$unset": unset_obj},
+    #             return_document=ReturnDocument.AFTER
+    #         )
+    #
+    #     self.plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub, user_manager=self.user_manager)
+    #
+    #     if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
+    #         for username in submission["username"]:
+    #             self.lti_outcome_manager.add(username,
+    #                                           submission["courseid"],
+    #                                           submission["taskid"],
+    #                                           submission["outcome_consumer_key"],
+    #                                           submission["outcome_service_url"],
+    #                                           submission["outcome_result_id"])
 
 
 def init(plugin_manager, _, _2, _3):
