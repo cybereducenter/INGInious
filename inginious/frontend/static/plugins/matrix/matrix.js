@@ -104,7 +104,7 @@ var MatrixPlugin = (function () {
                     studio_display_feedback_submit_message(message, "", "success", true);
                 },
                 error: function (e) {
-                    console.log("error: " + e)
+                    console.log("error: " + e.statusText)
                     message = "An internal error occurred";
                     studio_display_feedback_submit_message("Some error(s) occurred during submission: " + message, "", "danger", true);
                 },
