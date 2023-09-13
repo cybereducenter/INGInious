@@ -369,12 +369,13 @@ class MergeFeedbackPage(INGIniousAdminPage):
         to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         def ssh_callback(host, port, user, password):
-            with current_app.app_context():
+            app = flask.Flask(__name__)
+            with app.app_context():
                 self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
 
-
         def job_done_callback(result, grade, problems, tests, custom, state, archive, stdout, stderr):
-            with current_app.app_context():
+            app = flask.Flask(__name__)
+            with app.app_context():
                 self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
                                         custom, state, archive, stdout, stderr, True)
 
