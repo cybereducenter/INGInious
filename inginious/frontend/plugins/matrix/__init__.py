@@ -292,7 +292,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
             try:
                 submission_id, _ = self.add_submission_job(task, user_input, True, username, student.email, feedback_data)
-                submission_ids[username] = submission_id
+                submission_ids[username] = str(submission_id)
             except Exception as ex:
                 self.logger.error(f'Failed to create submission job for user {username}, error: {ex}')
                 raise APIError(500, str(ex))

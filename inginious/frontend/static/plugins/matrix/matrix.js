@@ -100,7 +100,7 @@ var MatrixPlugin = (function () {
                     if (response) {
                         console.log(response)
                     }
-                    message = "Lesson" + lesson + " was submitted for students: " + students;
+                    message = "Lesson " + lesson + " was submitted for students: " + students;
                     studio_display_feedback_submit_message(message, "", "success", true);
                 },
                 error: function (e) {
