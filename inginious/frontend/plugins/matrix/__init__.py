@@ -245,7 +245,7 @@ def add_qTip_js_file():
 class MergeFeedbackPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid, taskid):
         course, task = self.get_course_and_check_rights(courseid, taskid=taskid, allow_all_staff=True)
-        if not task._data.get('feedback', False):
+        if not task._data.get('feedback'):
             self.logger.error(f'Task {taskid} is not feedback task!')
             raise APIInvalidArguments()
         selected_students = flask.request.json.get('student', [])
