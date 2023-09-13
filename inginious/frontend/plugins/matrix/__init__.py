@@ -12,6 +12,7 @@ import bson
 import flask
 import pymongo
 from pymongo import ReturnDocument
+from flask import current_app
 
 from inginious.common.tasks_constants import TaskConstants
 from inginious.frontend.matrix_service import get_course_students
@@ -368,12 +369,12 @@ class MergeFeedbackPage(INGIniousAdminPage):
         to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         def ssh_callback(host, port, user, password):
-            with self.plugin_manager._flask_app.app_context():
+            with current_app.app_context():
                 self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
 
 
         def job_done_callback(result, grade, problems, tests, custom, state, archive, stdout, stderr):
-            with self.plugin_manager._flask_app.app_context():
+            with current_app.app_context():
                 self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
                                         custom, state, archive, stdout, stderr, True)
 
