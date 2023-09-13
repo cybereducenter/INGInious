@@ -86,6 +86,8 @@ var MatrixPlugin = (function () {
         var href = window.location.href.split("/");
         href[href.length - 1] = lesson;
         href = href.join('/');
+
+        var message = "";
         $.ajax({
                 type: "POST",
                 url: href + "/merge_feedback",
@@ -98,14 +100,34 @@ var MatrixPlugin = (function () {
                     if (response) {
                         console.log(response)
                     }
+                    message = is_final_version ? "Feedback was submitted for student " + student : "Feedback was saved for student " + student;
+                    studio_display_feedback_submit_message(message, "", "success", true);
                 },
                 error: function (e) {
                     console.log("error: " + e)
+                    message = "An internal error occurred";
+                    studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: " + message, "", "danger", true);
                 },
             });
 
     }
 
+    function studio_display_feedback_submit_message(title, content, type, dismissible)
+    {
+        var code = getAlertCode(title, content, type, dismissible);
+        $('#feedback_submit_status').html(code);
+        window.scrollTo(0,0);
+        if(dismissible)
+        {
+            window.setTimeout(function()
+            {
+                $("#feedback_submit_status").children().fadeTo(1000, 0).slideUp(1000, function()
+                {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+    }
 
     return {
         onHover: onHover,
