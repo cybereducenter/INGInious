@@ -270,7 +270,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 source_task_id = problem.get_id()  # pid = task_id
                 user_task_latest_submission = user_task_submissions_by_task_id.get(source_task_id)
                 if user_task_latest_submission:
-                    user_input[source_task_id] = self.submission_manager.get_input_from_submission(user_task_latest_submission)['input']['program']
+                    user_input[source_task_id] = self.submission_manager.get_input_from_submission(user_task_latest_submission)['input']['gitlab']
                     latest_submission_feedback = user_task_latest_submission['custom'].get('feedback_data', {})
                     if latest_submission_feedback and not feedback_data:
                         feedback_data = latest_submission_feedback
@@ -361,17 +361,17 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
         self.plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
 
-        obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
-        submissionid = self.database.submissions.insert_one(obj).inserted_id
-        to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
-
-        ssh_callback = lambda host, port, user, password: \
-            self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
-        jobid = self.submission_manager._client.new_job(0, task, inputdata,
-                     (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
-                     self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
-                                                              custom, state, archive, stdout, stderr, True)),
-                     "Frontend - {}".format(username), debug, ssh_callback)
+        with self.app.app_context():
+            obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
+            submissionid = self.database.submissions.insert_one(obj).inserted_id
+            to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+            ssh_callback = lambda host, port, user, password: \
+                self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
+            jobid = self.submission_manager._client.new_job(0, task, inputdata,
+                         (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
+                         self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
+                                                                  custom, state, archive, stdout, stderr, True)),
+                         "Frontend - {}".format(username), debug, ssh_callback)
 
         self.database.submissions.update_one(
             {"_id": submissionid, "status": "waiting"},
