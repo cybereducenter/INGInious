@@ -367,10 +367,10 @@ class MergeFeedbackPage(INGIniousAdminPage):
             submissionid = self.database.submissions.insert_one(obj).inserted_id
             to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
             ssh_callback = lambda host, port, user, password: \
-                self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
+                self._handle_ssh_callback(submissionid, host, port, user, password)
             jobid = self.submission_manager._client.new_job(0, task, inputdata,
                          (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
-                         self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
+                         self._job_done_callback(submissionid, task, result, grade, problems, tests,
                                                                   custom, state, archive, stdout, stderr, True)),
                          "Frontend - {}".format(username), debug, ssh_callback)
 
