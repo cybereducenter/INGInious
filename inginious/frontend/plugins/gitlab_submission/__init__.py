@@ -223,6 +223,7 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_page("/gitlab/submission", GitlabSubmissionPage.as_view('gitlabsubmission'))
 
     app = plugin_manager._flask_app
+    app.app_context().push()
 
     def email_hook(submission, archive, newsub, user_manager):
         return send_email(app, submission, archive, newsub, user_manager)
