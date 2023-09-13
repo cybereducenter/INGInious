@@ -100,13 +100,13 @@ var MatrixPlugin = (function () {
                     if (response) {
                         console.log(response)
                     }
-                    message = is_final_version ? "Feedback was submitted for student " + student : "Feedback was saved for student " + student;
+                    message = "Lesson" + lesson + " was submitted for students: " + students;
                     studio_display_feedback_submit_message(message, "", "success", true);
                 },
                 error: function (e) {
                     console.log("error: " + e)
                     message = "An internal error occurred";
-                    studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: " + message, "", "danger", true);
+                    studio_display_feedback_submit_message("Some error(s) occurred during submission: " + message, "", "danger", true);
                 },
             });
 
