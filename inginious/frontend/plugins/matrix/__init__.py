@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Matrix plugin - show course overview of student grades """
-
+import json
 from collections import OrderedDict
 from datetime import datetime
 
@@ -22,6 +22,7 @@ class MatrixPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
+        course_type = list(course.get_tasks().values())[0]._type
         data_users = []
 
         """ Get all information about the users """
@@ -44,6 +45,7 @@ class MatrixPage(INGIniousAdminPage):
         return self.template_helper.render("admin.html",
                                            template_folder='frontend/plugins/matrix',
                                            course=course,
+                                           course_type=course_type,
                                            data_users=data_users,
                                            order_tasks=order_tasks,
                                            possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
@@ -254,20 +256,33 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 if username not in all_students.keys():
                     self.logger.error(f'Student {username} not in course {courseid}!')
                     raise APIInvalidArguments()
-                students_to_merge.append(all_students[username])
+                students_to_merge.append(username)
         else:
             students_to_merge.extend(all_students.values())
 
-        for student in all_students:
-            username = student['username']
+        for username, student in all_students.items():
             user_task_submissions_by_task_id = _get_user_task_submissions(self, username, courseid)
 
             user_input = {'@action': 'submit'}
+            feedback_data = {}
             for problem in task.get_problems():
                 source_task_id = problem.get_id()  # pid = task_id
                 user_task_latest_submission = user_task_submissions_by_task_id.get(source_task_id)
                 if user_task_latest_submission:
                     user_input[source_task_id] = user_task_latest_submission
+                    latest_submission_feedback = json.loads(user_task_latest_submission['custom']['feedback_data']) if type(user_task_latest_submission['custom']['feedback_data']) == str else user_task_latest_submission['custom']['feedback_data']
+                    if not feedback_data:
+                        feedback_data = latest_submission_feedback
+                    else:
+                        feedback_categories = feedback_data['categories']
+                        for category, data in latest_submission_feedback['categories'].items():
+                            if category not in feedback_categories:
+                                feedback_categories[category] = data
+                            else:
+                                feedback_categories[category]['tests'].extend(data['tests'])
+                                feedback_categories[category]['status']['total'] += data['status']['total']
+                                feedback_categories[category]['status']['passed'] += data['status']['passed']
+                                feedback_categories[category]['status']['percent'] += data['status']['percent']
 
             # user_input = task.adapt_input_for_backend(user_input)
             # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
@@ -280,7 +295,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
             #     raise APIForbidden("You are not allowed to submit for this task")
 
             try:
-                submission_id, _ = self.add_submission_job(task, user_input, True, username, student['email'])
+                submission_id, _ = self.add_submission_job(task, user_input, True, username, student['email'], feedback_data)
             except Exception as ex:
                 self.logger.error(f'Failed to create submission job for user {username}, error: {ex}')
                 raise APIError(500, str(ex))
@@ -293,11 +308,9 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 self.user_manager.get_course_registered_users(course, False)
             ).items()
         )
-        return {
-            user['username']: user for user in students
-        }
+        return dict(students)
 
-    def add_submission_job(self, task, inputdata, debug, username, email):
+    def add_submission_job(self, task, inputdata, debug, username, email, feedback_data):
         """
         Add a job in the queue and returns a submission id.
         :param task:  Task instance
@@ -373,7 +386,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
         self.database.submissions.update_one(
             {"_id": submissionid, "status": "waiting"},
-            {"$set": {"jobid": jobid}}
+            {"$set": {"jobid": jobid, "custom": {"feedback_data": feedback_data}}}
         )
 
         self.logger.info("New submission from %s - %s - %s/%s - %s", username, email, task.get_course_id(),

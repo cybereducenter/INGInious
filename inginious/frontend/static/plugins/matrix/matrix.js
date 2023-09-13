@@ -72,9 +72,44 @@ var MatrixPlugin = (function () {
         return (newJson["time_passed"]);
     }
 
+    function final_submission(event) {
+        const user_len = parseInt(event.value);
+        const lesson = $('#select_lesson')[0].value;
+        var students = [];
+        const selectElement = $('#select_students')[0];
+        for (var i = 0; i < selectElement.options.length; i++) {
+            if (selectElement.options[i].selected) {
+                students.push(selectElement.options[i].value);
+            }
+        }
+
+        var href = window.location.href.split("/");
+        href[href.length - 1] = lesson;
+        href = href.join('/');
+        $.ajax({
+                type: "POST",
+                url: href + "/merge_feedback",
+                contentType: 'application/json',
+                data: JSON.stringify(students.length !== user_len ? {
+                    "student": students,
+                } : {}),
+                success: function(response) {
+                    console.log("success");
+                    if (response) {
+                        console.log(response)
+                    }
+                },
+                error: function (e) {
+                    console.log("error: " + e)
+                },
+            });
+
+    }
+
 
     return {
         onHover: onHover,
+        final_submission: final_submission,
     }
 })(jQuery);
 
