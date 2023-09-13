@@ -361,7 +361,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
         self.plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
 
-        with self.app.app_context():
+        with self.plugin_manager._flask_app.app_context():
             obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
             submissionid = self.database.submissions.insert_one(obj).inserted_id
             to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
