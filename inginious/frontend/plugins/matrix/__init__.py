@@ -270,7 +270,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 source_task_id = problem.get_id()  # pid = task_id
                 user_task_latest_submission = user_task_submissions_by_task_id.get(source_task_id)
                 if user_task_latest_submission:
-                    user_input[source_task_id] = user_task_latest_submission
+                    user_input[source_task_id] = self.submission_manager.get_input_from_submission(user_task_latest_submission)['input']['program']
                     latest_submission_feedback = user_task_latest_submission['custom'].get('feedback_data', {})
                     if latest_submission_feedback and not feedback_data:
                         feedback_data = latest_submission_feedback
