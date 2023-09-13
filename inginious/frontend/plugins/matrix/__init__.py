@@ -176,7 +176,7 @@ class MatrixPage(INGIniousAdminPage):
                     # link to the all submissions page, for example /admin/tutorial/student/ohad/03_tasks
                     href_to_submissions = self._build_student_submissions_url(course_name, student_name, task_id)
                     time_passed = calculate_time_passed_since(user_task_latest_submission["submitted_on"])
-                    has_feedback_data = True if user_task_latest_submission['custom'].get("feedback_data") else False
+                    has_feedback_data = bool(user_task_latest_submission.get('custom')) and bool(user_task_latest_submission['custom'].get("feedback_data"))
                     task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed': time_passed,
                                                         'has_feedback_data': has_feedback_data}
 
@@ -250,17 +250,18 @@ class MergeFeedbackPage(INGIniousAdminPage):
             raise APIInvalidArguments()
         selected_students = flask.request.json.get('student', [])
         all_students = self.get_course_users(course)
-        students_to_merge = []
+        students_to_merge = {}
         if selected_students:
             for username in selected_students:
                 if username not in all_students.keys():
                     self.logger.error(f'Student {username} not in course {courseid}!')
                     raise APIInvalidArguments()
-                students_to_merge.append(username)
+                students_to_merge[username] = all_students[username]
         else:
-            students_to_merge.extend(all_students.values())
+            students_to_merge = all_students
 
-        for username, student in all_students.items():
+        submission_ids = {}
+        for username, student in students_to_merge.items():
             user_task_submissions_by_task_id = _get_user_task_submissions(self, username, courseid)
 
             user_input = {'@action': 'submit'}
@@ -284,23 +285,19 @@ class MergeFeedbackPage(INGIniousAdminPage):
                                 feedback_categories[category]['status']['passed'] += data['status']['passed']
                                 feedback_categories[category]['status']['percent'] += data['status']['percent']
 
-            # user_input = task.adapt_input_for_backend(user_input)
-            # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions,
-            #                                 self.default_max_file_size):
+            user_input = task.adapt_input_for_backend(user_input)
+            # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions, self.default_max_file_size):
             #     raise APIInvalidArguments()
             self.user_manager.user_saw_task(username, courseid, task.get_id())
 
-            # Verify rights
-            # if not self.user_manager.task_can_user_submit(task, username=username, only_check='groups'):
-            #     raise APIForbidden("You are not allowed to submit for this task")
-
             try:
-                submission_id, _ = self.submission_manager.add_submission_job(task, user_input, True, username, student.email, feedback_data)
+                submission_id, _ = self.add_submission_job(task, user_input, True, username, student.email, feedback_data)
+                submission_ids[username] = submission_id
             except Exception as ex:
                 self.logger.error(f'Failed to create submission job for user {username}, error: {ex}')
                 raise APIError(500, str(ex))
             # submission = self.submission_manager.get_submission(submission_id, user_check=False)
-        return 'ok'
+        return submission_ids
 
     def get_course_users(self, course):
         students = list(
@@ -310,7 +307,81 @@ class MergeFeedbackPage(INGIniousAdminPage):
         )
         return dict(students)
 
+    def add_submission_job(self, task, inputdata, debug, username, email, feedback_data):
+        """
+        Add a job in the queue and returns a submission id.
+        :param task:  Task instance
+        :type task: inginious.frontend.tasks.Task
+        :param inputdata: the input as a dictionary
+        :type inputdata: dict
+        :param debug: If debug is true, more debug data will be saved
+        :type debug: bool or string
+        :param username: student username
+        :type username: string
+        :param email: student email
+        :type email: string
+        :returns: the new submission id and the removed submission id
+        """
 
+        # Prevent student from submitting several submissions together
+        waiting_submission = self.database.submissions.find_one({
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "username": username,
+            "status": "waiting"})
+
+        if waiting_submission is not None:
+            raise Exception("A submission is already pending for this task!")
+
+        obj = {
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "status": "waiting",
+            "submitted_on": datetime.now(),
+            "username": [username],
+            "response_type": task.get_response_type(),
+            "user_ip": flask.request.remote_addr
+        }
+
+        inputdata["@username"] = username
+        inputdata["@email"] = email
+        inputdata["@lang"] = self.user_manager.session_language()
+        inputdata["@time"] = str(obj["submitted_on"])
+        inputdata["@taskid"] = task.get_id()
+        my_user_task = self.database.user_tasks.find_one(
+            {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"tried": 1, "_id": 0})
+        tried_count = my_user_task["tried"]
+        inputdata["@attempts"] = str(tried_count + 1)
+        # Retrieve input random
+        states = self.database.user_tasks.find_one(
+            {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
+            {"random": 1, "state": 1})
+        inputdata["@random"] = states["random"] if "random" in states else []
+        inputdata["@state"] = states["state"] if "state" in states else ""
+
+        self.plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
+
+        obj["input"] = self.submission_manager._gridfs.put(bson.BSON.encode(inputdata))
+        submissionid = self.database.submissions.insert_one(obj).inserted_id
+        to_remove = self.submission_manager._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+
+        ssh_callback = lambda host, port, user, password: \
+            self.submission_manager._handle_ssh_callback(submissionid, host, port, user, password)
+        jobid = self.submission_manager._client.new_job(0, task, inputdata,
+                     (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
+                     self.submission_manager._job_done_callback(submissionid, task, result, grade, problems, tests,
+                                                              custom, state, archive, stdout, stderr, True)),
+                     "Frontend - {}".format(username), debug, ssh_callback)
+
+        self.database.submissions.update_one(
+            {"_id": submissionid, "status": "waiting"},
+            {"$set": {"jobid": jobid, "custom": {"feedback_data": feedback_data}}}
+        )
+
+        self.logger.info("New submission from %s - %s - %s/%s - %s", username, email, task.get_course_id(),
+                          task.get_id(), flask.request.remote_addr)
+
+        return submissionid, to_remove
 
 
 def init(plugin_manager, _, _2, _3):
