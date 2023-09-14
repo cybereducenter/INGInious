@@ -28,6 +28,7 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 10px;
+    font-family: "Open Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 }
 
 .test-section .content {
@@ -164,4 +165,12 @@
 
 .save_feedback_btn Div {
     padding: 0 5px;
+}
+
+.feedback_label {
+    width: 100%;
+    text-align: end;
+    font-weight: bold;
+    color: #8080808f;
+    padding-right: 10px;
 }

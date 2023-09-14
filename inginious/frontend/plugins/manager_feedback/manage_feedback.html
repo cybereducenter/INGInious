@@ -71,7 +71,8 @@
                 <div >
                         <div class="message-section message-feedback-{{category_en}} message"
                              style="width: 100%;">
-                            <textarea id="message-feedback-{{category_en}}" rows="4" maxlength="500" placeholder="הערות כלליות"></textarea>
+                            <label for="message-feedback-{{category_en}}" class="feedback_label">משוב מסכם</label>
+                            <textarea id="message-feedback-{{category_en}}" rows="4" maxlength="500"></textarea>
                         </div>
                 </div>
                 <div class="test-container" style="margin: 1.5rem">
@@ -83,8 +84,15 @@
                             <div class="test-section">
                                 <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                                     <div class="pull-left" style="padding-inline: 1.5rem">
-                                        <div class="row">{% if test.get("taskid") %}{{test["taskid"]}} - {% endif %}{{test["name"]}} </div>
-                                        <div class="row {{test['name'].replace(' ', '')}}-message" style="display: block">
+                                        <div class="row" style="display: block">
+                                            {% if test.get("taskid") %}<div style="font-size: larger">{{test["taskid"]}}</div>{% endif %}
+                                            {% if test.get("link") %}
+                                                <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
+                                            {% else %}
+                                                <div>{{test["name"]}}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="row {{test['name'].replace(' ', '')}}-message" style="display: block; font-style: italic">
 
                                         </div>
                                     </div>
@@ -111,7 +119,8 @@
     {%endif%}
     {%endfor%}
     <div class="total-feedback message">
-        <textarea id="total-feedback" rows="8" maxlength="1000" placeholder="הערות כלליות">{{feedback['total_feedback']}}</textarea>
+        <label for="total-feedback" class="feedback_label">משוב מסכם</label>
+        <textarea id="total-feedback" rows="8" maxlength="1000">{{feedback['total_feedback']}}</textarea>
     </div>
 </div>
 <div id="" class="step3-view step-view" style="display: none">
