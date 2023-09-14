@@ -45,12 +45,19 @@ class WebAppSubmissionManager:
         self._lti_outcome_manager = lti_outcome_manager
 
     def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, state, archive, stdout,
-                           stderr, newsub=True):
+                           stderr, newsub=True, scenario=None):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
 
         submission = self.get_input_from_submission(submission)
+
+        presaved_feedback = scenario.add_feedback_data()
+        if presaved_feedback:
+            if not custom:
+                custom = {"feedback_data": presaved_feedback}
+            else:
+                custom.update({"feedback_data": presaved_feedback})
 
         data = {
             "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
@@ -287,10 +294,13 @@ class WebAppSubmissionManager:
         jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests,
-                                                              custom, state, archive, stdout, stderr, True)),
+                                                              custom, state, archive, stdout, stderr, True, scenario)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
-        scenario.after_job_done(jobid, submissionid)
+        self._database.submissions.update_one(
+            {"_id": submissionid, "status": "waiting"},
+            {"$set": {"jobid": jobid}}
+        )
 
         self._logger.info("New submission from %s - %s - %s/%s - %s", scenario.get_username(),
                           scenario.get_email(), task.get_course_id(), task.get_id(),
@@ -718,8 +728,8 @@ class AddJobStrategy(object):
     def before_submission_insertion(self, task=None, inputdata=None, debug=False, obj=None):
         pass
 
-    def after_job_done(self, job_id=None, submission_id=None):
-        pass
+    def add_feedback_data(self):
+        return None
 
 
 class DefaultStrategy(AddJobStrategy):
@@ -776,10 +786,4 @@ class DefaultStrategy(AddJobStrategy):
                     group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
                     users = self._database.users.find({"username": {"$in": group["students"]}})
                     inputdata["@username"] = ','.join(group["students"])
-                    inputdata["@email"] = ','.join([user["email"] for user in users])
 
-    def after_job_done(self, job_id=None, submission_id=None):
-        self._database.submissions.update_one(
-            {"_id": submission_id, "status": "waiting"},
-            {"$set": {"jobid": job_id}}
-        )

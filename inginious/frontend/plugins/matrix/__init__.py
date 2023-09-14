@@ -298,8 +298,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 submission_id, _ = self.submission_manager.add_job(task, user_input, True,
                                                                    ExtraStrategy(username=username,
                                                                                  email=student.email,
-                                                                                 feedback=feedback_data,
-                                                                                 database=self.database))
+                                                                                 feedback=feedback_data))
                 submission_ids[username] = str(submission_id)
             except Exception as ex:
                 self.logger.error(f'Failed to create submission job for user {username}, error: {ex}')
@@ -317,11 +316,10 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
 
 class ExtraStrategy(AddJobStrategy):
-    def __init__(self, username, email, feedback, database):
+    def __init__(self, username, email, feedback):
         self.username = username
         self.email = email
         self.feedback_data = feedback
-        self._database = database
 
     def get_username(self):
         return self.username
@@ -329,21 +327,8 @@ class ExtraStrategy(AddJobStrategy):
     def get_email(self):
         return self.email
 
-    def before_submission_insertion(self, task=None, inputdata=None, debug=False, obj=None):
-        pass
-
-    def after_job_done(self, job_id=None, submission_id=None):
-        query = {'custom': {'$ne': ''}}
-        if self._database.submissions.count_documents(query) > 0:
-            self._database.submissions.update_one(
-                {"_id": submission_id},
-                {"$set": {"jobid": job_id, "custom": {"feedback_data": self.feedback_data}}}
-            )
-        else:
-            self._database.submissions.update_one(
-                {"_id": submission_id},
-                {"$set": {"jobid": job_id, f"custom.{'feedback_data'}": self.feedback_data}}
-            )
+    def add_feedback_data(self):
+        return self.feedback_data
 
 def init(plugin_manager, _, _2, _3):
     """ Init the matrix plugin """
