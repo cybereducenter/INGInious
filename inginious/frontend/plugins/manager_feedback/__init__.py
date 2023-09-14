@@ -12,6 +12,7 @@ from io import BytesIO
 
 import flask
 import pymongo
+from bson import ObjectId
 from pymongo import ReturnDocument
 
 import inginious
@@ -72,11 +73,26 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
         extra_submission_feedback = submission['custom'].get('extra_feedback_data', [])
+        total = 0
+        passed = 0
         for test in extra_submission_feedback:
             if test["category"] not in submission_feedback['categories']:
                 submission_feedback['categories'][test["category"]] = self.build_feedback_data(test)
             else:
                 submission_feedback['categories'][test["category"]]['tests'].append(self.build_test_feedback(test))
+            total_tests = submission_feedback['categories'][test["category"]]['tests']
+            passed_tests = [t for t in total_tests if t['result']['bool']]
+            submission_feedback['categories'][test["category"]]['status'] = {
+                "total": len(total_tests),
+                "passed": len(passed_tests),
+                "percent": round(100 * len(passed_tests) / len(total_tests))
+            }
+        for data in submission_feedback['categories'].values():
+            total += len(data['tests'])
+            passed += len([t for t in data['tests'] if t['result']['bool']])
+        self.database.submissions.update_one({"_id": ObjectId(submission_id)},
+                                             {"$set": {"custom": {"feedback_data": submission_feedback},
+                                                       "grade": int(100 * passed / total)}})
 
         return self.template_helper.render("manage_feedback.html",
                                            template_folder='frontend/plugins/manager_feedback',

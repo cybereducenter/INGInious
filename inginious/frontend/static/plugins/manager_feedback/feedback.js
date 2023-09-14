@@ -553,14 +553,16 @@ var FeedbackPlugin = (function () {
     }
 
     function add_test_messages(test, is_draft) {
-        var messages = test['message'].split("\n");
-        var extra_text = is_draft ? "test-" : "";
-        messages.forEach(message => {
-            message = message.replaceAll(/\"/g, '\\\"')
-            var line = $('<p style="margin: 0"></p>');
-            line.text(message);
-            $("." + extra_text + test['name'].replace(/ /g, '') + "-message").append(line);
-        })
+        if (test['message']) {
+            var messages = test['message'].split("\n");
+            var extra_text = is_draft ? "test-" : "";
+            messages.forEach(message => {
+                message = message.replaceAll(/\"/g, '\\\"')
+                var line = $('<p style="margin: 0"></p>');
+                line.text(message);
+                $("." + extra_text + test['name'].replace(/ /g, '') + "-message").append(line);
+            })
+        }
     }
 
     function sort_categories(feedback_categories) {
