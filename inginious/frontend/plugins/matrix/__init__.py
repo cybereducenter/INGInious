@@ -285,9 +285,9 @@ class MergeFeedbackPage(INGIniousAdminPage):
                                 feedback_categories[category] = data
                             else:
                                 feedback_categories[category]['tests'].extend(data['tests'])
-                                feedback_categories[category]['status']['total'] += data['status']['total']
-                                feedback_categories[category]['status']['passed'] += data['status']['passed']
-                                feedback_categories[category]['status']['percent'] += int(
+                            feedback_categories[category]['status']['total'] = len(feedback_categories[category]['tests'])
+                            feedback_categories[category]['status']['passed'] = len([t for t in feedback_categories[category]['tests'] if t['status']['bool']])
+                            feedback_categories[category]['status']['percent'] = int(
                                     100 * feedback_categories[category]['status']['passed'] / feedback_categories[category]['status']['total']
                                 )
 
