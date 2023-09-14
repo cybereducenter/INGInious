@@ -556,11 +556,12 @@ var FeedbackPlugin = (function () {
         if (test['message']) {
             var messages = test['message'].split("\n");
             var extra_text = is_draft ? "test-" : "";
+            var taskid = test['taskid'] ? test['taskid'] : "";
             messages.forEach(message => {
                 message = message.replaceAll(/\"/g, '\\\"')
                 var line = $('<p style="margin: 0"></p>');
                 line.text(message);
-                $("." + extra_text + test['name'].replace(/ /g, '') + "-message").append(line);
+                $("." + extra_text + taskid + test['name'].replace(/ /g, '') + "-message").append(line);
             })
         }
     }
