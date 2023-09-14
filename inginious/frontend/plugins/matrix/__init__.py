@@ -178,7 +178,9 @@ class MatrixPage(INGIniousAdminPage):
                     # link to the all submissions page, for example /admin/tutorial/student/ohad/03_tasks
                     href_to_submissions = self._build_student_submissions_url(course_name, student_name, task_id)
                     time_passed = calculate_time_passed_since(user_task_latest_submission["submitted_on"])
-                    has_feedback_data = bool(user_task_latest_submission.get('custom')) and bool(user_task_latest_submission['custom'].get("feedback_data"))
+                    has_feedback_data = (bool(user_task_latest_submission.get('custom'))
+                                         and bool(user_task_latest_submission['custom'].get("feedback_data")
+                                                  or user_task_latest_submission['custom'].get("extra_feedback_data")))
                     task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed': time_passed,
                                                         'has_feedback_data': has_feedback_data}
 
@@ -334,12 +336,12 @@ class ExtraStrategy(AddJobStrategy):
         query = {'custom': {'$ne': ''}}
         if self._database.submissions.count_documents(query) > 0:
             self._database.submissions.update_one(
-                {"_id": submission_id, "status": "waiting"},
+                {"_id": submission_id},
                 {"$set": {"jobid": job_id, "custom": {"feedback_data": self.feedback_data}}}
             )
         else:
             self._database.submissions.update_one(
-                {"_id": submission_id, "status": "waiting"},
+                {"_id": submission_id},
                 {"$set": {"jobid": job_id, f"custom.{'feedback_data'}": self.feedback_data}}
             )
 
