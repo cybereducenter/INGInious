@@ -22,6 +22,15 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
+FEEDBACK_TEST_CATEGORIES = {
+    "submission": "תצורת הגשה",
+    "functionality": "פונקציונליות",
+    "coding": "תכנות נכון",
+    "design": "עיצוב ומבנה התוכנית",
+    "readability": "קריאות וסדר",
+}
+
+
 class FeedbackCoutPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
         try:
@@ -62,7 +71,13 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
-        # todo merge extra feedback data from custom
+        extra_submission_feedback = submission['custom'].get('extra_feedback_data', [])
+        for test in extra_submission_feedback:
+            if test["category"] not in submission_feedback['categories']:
+                submission_feedback['categories'][test["category"]] = self.build_feedback_data(test)
+            else:
+                submission_feedback['categories'][test["category"]]['tests'].append(self.build_test_feedback(test))
+
         return self.template_helper.render("manage_feedback.html",
                                            template_folder='frontend/plugins/manager_feedback',
                                            course=course,
@@ -97,6 +112,36 @@ class ManagerFeedbackPage(INGIniousAdminPage):
             return_document=ReturnDocument.AFTER
         )
         return submission['custom']['feedback_data']
+
+    def build_test_feedback(self, test):
+        return {
+            "name": test["name"],
+            "category": FEEDBACK_TEST_CATEGORIES.get(test["category"], test["category"]),
+            "exit_code": test.get("message_code", 0),
+            "link": test.get("link", ""),
+            "cout_file": None if test.get("cout_file", "N/A") == 'N/A' else "Cout/" + test["cout_file"],
+            "cout_text": test.get("cout"),
+            "message": test["message"],
+            "result": {
+                "bool": test["status"] == "passed",
+                "text": test["status"]
+            },
+            'selected': False
+        }
+
+    def build_feedback_data(self, extra_feedback):
+        passed = int(extra_feedback['status'] == "passed")
+        percent = round(passed * 100 / 1)
+        new_category = {
+            extra_feedback['category']: {
+                "name": extra_feedback['category'],
+                "status": {"total": 1, "passed": passed, "percent": percent},
+                "tests": [self.build_test_feedback(extra_feedback)],
+                "feedback": '',
+                'selected': False
+            }
+        }
+        return new_category
 
 
 class ManagerFeedbackPrevPage(INGIniousAdminPage):
