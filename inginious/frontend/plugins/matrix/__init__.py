@@ -287,7 +287,9 @@ class MergeFeedbackPage(INGIniousAdminPage):
                                 feedback_categories[category]['tests'].extend(data['tests'])
                                 feedback_categories[category]['status']['total'] += data['status']['total']
                                 feedback_categories[category]['status']['passed'] += data['status']['passed']
-                                feedback_categories[category]['status']['percent'] += data['status']['percent']
+                                feedback_categories[category]['status']['percent'] += int(
+                                    100 * feedback_categories[category]['status']['passed'] / feedback_categories[category]['status']['total']
+                                )
 
             user_input = task.adapt_input_for_backend(user_input)
             # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions, self.default_max_file_size):
