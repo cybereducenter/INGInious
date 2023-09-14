@@ -132,6 +132,14 @@ def set_custom_value(custom_name, custom_val):
     rdict["custom"][custom_name] = custom_val
     save_feedback(rdict)
 
+def get_custom_value():
+    """
+    Get a custom value to be given back in the feedback
+    :param custom_name: name/key of the entry to be placed in the custom dict
+    """
+    rdict = _load_feedback()
+    return rdict.get("custom", {})
+
 
 def get_feedback():
     """ Returns the dictionary containing the feedback """
