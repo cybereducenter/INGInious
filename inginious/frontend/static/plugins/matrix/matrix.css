@@ -119,7 +119,7 @@ table {
     height: 40px;
     text-align: center;
     position: relative;
-    background: #eeeeee;
+    /* background: #eeeeee; */
     border-top: 3px solid black !important;
     /* padding: 17px !important; */
 }
