@@ -52,9 +52,11 @@
                     <div class="lesson-title">
                         Start Date:
                     </div>
-                    <div class='input-group date' id='accessible_start_picker'>
-                        <input id="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value={{ min_date }} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
-                        <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
+                    <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
+                        <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{ min_time }}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                        <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
                     </div>
             </div>
 
@@ -62,11 +64,13 @@
                 <div class="lesson-title">
                     End Date:
                 </div>
-                    <div class='input-group date' id='accessible_end_picker'>
-                        <input id="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value={{ max_date }} placeholder="2014-06-29 10:00" type='text' class="input-xs" />
-                        <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
+                <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
+                    <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{ max_value }}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                    <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                     </div>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -101,13 +105,12 @@
 
 
 
-<script>
-
+<script type="text/javascript">
     BulkDateChangePlugin.onClickSave("{{ course.get_id() }}", "{{ current_lesson }}");
-      $(function() {
-      $('#accessible_start_picker').datetimepicker({sideBySide: true});
-      $('#accessible_end_picker').datetimepicker({sideBySide: true});
-     });
-
+    $(function() {
+        $('#accessible_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+    });
 </script>
+
 {% endblock %}
