@@ -18,7 +18,7 @@ class BulkDateChangePage(INGIniousAdminPage):
         current_lesson = list(lessons)[0] if len(list(lessons)) > 0 else None
         tasks = self._get_tasks(course)
         min_date = date.today().strftime('%Y-%m-%d %H:%M:%S')
-        max_date = (date.today() + timedelta(days=7) - timedelta(seconds=-1)).strftime('%Y-%m-%d %H:%M:%S')
+        max_date = (date.today() + timedelta(days=7) - timedelta(seconds=1)).strftime('%Y-%m-%d %H:%M:%S')
 
         # return self.template_helper.get_custom_renderer('frontend/plugins/bulk_date_change')\
         #     .admin(course, lessons, current_lesson, self.webterm_link, AccessibleTime, tasks, min_date, max_date)
