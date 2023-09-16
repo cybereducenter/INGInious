@@ -2,9 +2,8 @@ from collections import OrderedDict
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.accessible_time import AccessibleTime
 import json
-from datetime import datetime, date, timedelta
+import datetime as dt
 import os
-import datetime
 import re
 import flask
 
@@ -17,8 +16,9 @@ class BulkDateChangePage(INGIniousAdminPage):
         lessons = self._get_lessons(course)
         current_lesson = list(lessons)[0] if len(list(lessons)) > 0 else None
         tasks = self._get_tasks(course)
-        min_date = date.today().strftime('%Y-%m-%d %H:%M:%S')
-        max_date = (date.today() + timedelta(days=7) - timedelta(seconds=1)).strftime('%Y-%m-%d %H:%M:%S')
+        min_date = dt.date.today().strftime('%Y-%m-%d %H:%M:%S')
+        max_date = dt.datetime.combine (dt.date.today() + dt.timedelta(days=6), dt.time(23, 59, 59))
+        max_date = max_date.strftime('%Y-%m-%d %H:%M:%S')
 
         # return self.template_helper.get_custom_renderer('frontend/plugins/bulk_date_change')\
         #     .admin(course, lessons, current_lesson, self.webterm_link, AccessibleTime, tasks, min_date, max_date)
