@@ -17,8 +17,12 @@
     margin-top: 10px;
 }
 
-.notviewed {
+.notaccessible {
     background: #b9b9b9;
+}
+
+.notviewed {
+    background: #e4e3e3;
 }
 
 .notattempted {

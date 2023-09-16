@@ -132,6 +132,12 @@ class MatrixPage(INGIniousAdminPage):
                                                                  "status": TaskConstants.DEFAULT_STATUS,
                                                                  "grade": 0}) for taskid in order_tasks])
 
+        tasks = course.get_tasks()        
+        for task in tasks:
+            start_date = tasks[task].get_accessible_time().get_start_date()
+            if start_date == datetime.max:
+                ordered_tasks_for_user[task]['status'] = 'notaccessible'
+
         user_tasks = list(self.database.user_tasks.find({"username":  username, "courseid": course_id}))
         user_task_submissions_by_task_id = self._get_user_task_submissions(username, course_id)
 
