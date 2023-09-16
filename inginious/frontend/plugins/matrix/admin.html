@@ -49,23 +49,29 @@
         <thead>
             <tr>
                 <th id="students-cell" class="headcol header-cell">Students</th>
-                {% for x in order_tasks %}
-                {% if x.get_deadline() == "It's too late" or x.get_accessible_time().get_end_date() < now %} 
+                {% for x in future_tasks %}
+                <th class="grades-header future">
+                    <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
+                        {{ x.get_id() }}
+                    </a><br />
+
+                    <div class="btn-group" role="group">
+                        <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
+                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </div>                
+                </th>
+                {% endfor %}
+
+                {% for x in past_tasks %}
                     {% if x.get_id() == first_id %} 
-                    <th class="grades-header-passed first-passed">
+                    <th class="grades-header-passed first-passed">              
                     {% else %}
                     <th class="grades-header-passed">
                     {% endif %}
-                {% else %}
-                    {% if x.get_accessible_time().get_start_date() > now %}
-                    <th class="grades-header future">
-                    <i class="fa fa-clock-o"></i>
-                    {% else %}
-                    <th class="grades-header">
-                    {% endif %}
-                {% endif %}
                         <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
-                            {{ x.get_id() }}
+                            {{ x.get_id() }} {{ first_id }}
                         </a><br />
 
                         <div class="btn-group" role="group">
@@ -74,7 +80,7 @@
                                 <i class="fa fa-edit"></i>
                             </a>
                         </div>                
-                </th>
+                    </th>
                 {% endfor %}
             </tr>
         </thead>

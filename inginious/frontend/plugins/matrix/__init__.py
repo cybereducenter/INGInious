@@ -9,10 +9,9 @@ import logging
 from collections import OrderedDict
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
 from inginious.common.tasks_constants import TaskConstants
-from datetime import datetime
+from datetime import datetime, timedelta
 import pymongo
 import flask
-
 
 class MatrixPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid): # pylint: disable=arguments-differ
@@ -29,61 +28,53 @@ class MatrixPage(INGIniousAdminPage):
                                      "realname": user[1][0] if user[1] is not None else None}) for user in users])
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
-        self._get_ordered_task_raz(course)
-        order_tasks, first_id = self._get_ordered_task(course)
+        future_tasks, first_past_task, past_tasks = self._get_ordered_task_raz(course)
 
         """ Get all user tasks """
         for user in users:
-            data_user = self._calc_user_data(course, order_tasks, users[user])
+            data_user = self._calc_user_data(course, future_tasks + past_tasks, users[user])
             data_users.append(data_user)
 
-        if first_id:
-            first_id = first_id.get_id()
+        if first_past_task is not None:
+            first_id = first_past_task.get_id()
         else:
-            first_id = 0
+            first_id = None
 
         return self.template_helper.render("admin.html", 
                                            template_folder='frontend/plugins/matrix',
                                            course=course, 
                                            data_users=data_users, 
-                                           order_tasks=order_tasks, 
-                                           possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
+                                           past_tasks=past_tasks, 
+                                           future_tasks=future_tasks,
                                            first_id=first_id,
+                                           possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
                                            now=datetime.now())
 
     def _get_ordered_task_raz(self, course):
         now = datetime.now().date()
         tasks = course.get_tasks()        
         
-        # calc next deadline
-        next_deadline_first_ix = 0
-        next_deadline_last_ix = len(tasks)
-        for i, task in enumerate(tasks):
+        # Find first task with end date not in the past
+        for first_future_ix, task in enumerate(tasks):
             end_date = tasks[task].get_accessible_time().get_end_date().date()
-            if  now <= end_date < datetime.max.date():
-                next_deadline_first_ix = i
-                break
-        for i, task in enumerate(tasks):
-            end_date = tasks[task].get_accessible_time().get_end_date().date()
-            if  now <= end_date < datetime.max.date():
-                next_deadline_last_ix = i
+            if end_date >= now:
+                break              
 
-        ordered_task = []
+        future_tasks = []
         for i, task in enumerate(tasks):
-            if i in range(next_deadline_first_ix, next_deadline_last_ix + 1):
-                ordered_task.append(tasks[task])
+            if i >= first_future_ix:
+                future_tasks.append(tasks[task])      
+        
+        first_past_task = None
+        past_tasks = []
         for i, task in enumerate(tasks):
-            if i in range(next_deadline_last_ix + 1, len(tasks)):
-                ordered_task.append(tasks[task])
-        for i, task in enumerate(tasks):
-            if i in range(next_deadline_first_ix):
-                ordered_task.append(tasks[task])
+            if i < first_future_ix:
+                past_tasks.append(tasks[task])
+                if first_past_task is None:
+                    first_past_task = tasks[task]
 
-        self.logger.info(f'first_ix = {next_deadline_first_ix}, last_ix = {next_deadline_last_ix}')
-        for i, task in enumerate(ordered_task):
-            end_date = task.get_accessible_time().get_end_date().date()
-            self.logger.info(f'{i:2} - {end_date} - {task.get_id()}')
-        return 
+        return future_tasks, first_past_task, past_tasks
+    
         
     def _get_ordered_task(self, course):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
