@@ -119,6 +119,12 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
         data, sub_count, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
 
+        for submission in data:
+            grade = submission['grade']
+            color_css_class = self.task_factory.get_relevant_color_class_for_grade(grade)
+            if color_css_class:
+                submission["grade_css_class"] = color_css_class
+
         return self.template_helper.render("course_admin/submissions.html", course=course, users=users,
                                            tutored_users=tutored_users, audiences=audiences,
                                            tutored_audiences=tutored_audiences, tasks=tasks, old_params=params,

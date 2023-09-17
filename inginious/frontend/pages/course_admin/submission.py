@@ -69,13 +69,14 @@ class SubmissionPage(INGIniousAdminPage):
             } for problem in task.get_problems()
         }
 
-        to_display.update({
-            pid: {
-                "id": pid,
-                "name": pid,
-                "defined": False
-            } for pid in (set(submission["input"]) - set(to_display))
-        })
+        # TODO - not clear what this code was meant to do. Temporarily commented out
+        # to_display.update({
+        #     pid: {
+        #         "id": pid,
+        #         "name": pid,
+        #         "defined": False
+        #     } for pid in (set(submission["input"]) - set(to_display))
+        # })
 
         return self.template_helper.render("course_admin/submission.html", course=course, task=task,
                                            submission=submission, to_display=to_display.values(),

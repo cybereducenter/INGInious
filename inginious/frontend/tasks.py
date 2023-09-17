@@ -135,6 +135,12 @@ class Task(object):
         # Category tags
         self._categories = self._data.get("categories", [])
 
+        # support for a few types of tasks. if not specified,
+        # it's scenraio's (checks exit code)
+        # other option is python - different run file
+        self._type = self._data.get("type")
+
+
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 
@@ -243,6 +249,10 @@ class Task(object):
         vals = self._plugin_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
         return ParsableText(vals[0], "rst", translation=self.get_translation_obj(language)) if len(vals) \
             else ParsableText(context, "rst", translation=self.get_translation_obj(language))
+
+    def get_context_auto_dir(self):
+        context = self.get_context()
+        return '<div dir="auto">' + str(context) + '</div>'
 
     def get_authors(self, language):
         """ Return the list of this task's authors """
