@@ -20,6 +20,8 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/libs/Sortable.min.js',
                         '../../inginious/frontend/static/js/libs/jquery.twbsPagination.min.js',
                         '../../inginious/frontend/static/js/libs/selectize.min.js',
+                        '../../inginious/frontend/static/js/libs/side-comments.js',
+                        '../../inginious/frontend/static/js/libs/tmpl.js',
                         '../../inginious/frontend/static/js/codemirror/codemirror.js',
                         '../../inginious/frontend/static/js/codemirror/mode/meta.js',
                         '../../inginious/frontend/static/js/common.js',

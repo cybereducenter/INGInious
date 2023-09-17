@@ -99,7 +99,7 @@
                 <td>
                     {% for user in submission["username"] %}
                         {% if "show_stud_name" in old_params %}
-                            {{ users[user] if user in users else '?' }}<br>
+                        {{ users[user] ~ ' (' ~ user ~ ')' if user in users else '?' }}<br>
                         {% else %}
                             {{ user }}<br>
                         {% endif %}
