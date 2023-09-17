@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+
+{% block title %} {{course.get_name(user_manager.session_language())}} - Matrix
+{% endblock %}
+
+{% block column %}
+{{ template_helper.call('course_admin_menu',course=course,current='matrix') | safe }}
+{% endblock %}
+
+{% block navbar %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a
+                href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a>
+        </li>
+        <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}"
+                title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+        <li class="breadcrumb-item active"><a href="#"><i class="fa fa-graduation-cap"></i> Matrix <span
+                    class="sr-only">(current)</span></a></li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2>Matrix</h2>
+
+<div class="color-index">
+    <div class="row">
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Not Accessible</div>
+
+            <div class="color-box notaccessible"></div>
+        </div>
+
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Not viewed</div>
+
+            <div class="color-box notviewed"></div>
+        </div>
+
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Not attempted</div>
+
+            <div class="color-box notattempted"></div>
+        </div>
+
+
+    </div>
+</div>
+
+
+<div class="grades-table">
+    <table class="table matrix-table">
+        <thead>
+            <tr>
+                <th id="students-cell" class="headcol header-cell">Students</th>
+                {% for x in future_tasks %}
+                <th class="grades-header future">
+                    <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
+                        {{ x.get_id() }}
+                    </a><br />
+
+                    <div class="btn-group" role="group">
+                        <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
+                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </div>                
+                </th>
+                {% endfor %}
+
+                {% for x in past_tasks %}
+                    {% if x.get_id() == first_id %} 
+                    <th class="grades-header-passed first-passed">              
+                    {% else %}
+                    <th class="grades-header-passed">
+                    {% endif %}
+                        <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
+                            {{ x.get_id() }} 
+                        </a><br />
+
+                        <div class="btn-group" role="group">
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
+                                title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </div>                
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody>
+            {% if data_users is defined %}
+            {% for user in data_users %}
+            <tr>
+                <th class="headcol">
+                    <a href="/admin/{{course.get_id()}}/student/{{user['name']['username']}}">
+                        {% if user['name']['realname'] is defined %}
+                        {{user['name']['realname']}}
+                        {% else %}
+                        {{user['name']['username']}}
+                        {% endif %}
+                    </a>
+                </th>
+
+                {% for task in user['tasks'] %}
+                {% set specific_task = user['tasks'][task] %}
+                {% if (specific_task['taskid'].get_id() == first_id) %}
+                <td class="grades-column {{user['tasks'][task]['status']}} first-passed">
+                    {% else %}
+                <td class="grades-column {{user['tasks'][task]['status']}}">
+                {% endif %}
+                    {% if 'grade' in specific_task['status'] %}
+                    {% if specific_task['submissionid'] == 'None' %}
+                    {{ specific_task['grade']|int }}
+                    {% else %}
+                    <div class="graded">
+                        <a target="_blank" href="{{ specific_task['submission_data']['url'] }}">
+                            <span class="graded_icon" id="{{ user['tasks'][task]['submission_data'] }}">
+                                <i class="fa fa-rss fa-rotate-180"></i>
+                            </span>
+                            <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
+                                <b>Last submission:</b> {{user['tasks'][task]['submission_data']['time_passed']}}
+                                <br><br>Click for
+                                submission history</b></p>
+                            </div>
+                        </a>
+                        <a href="/submission/{{ specific_task['submissionid'] }}">{{ specific_task['grade']|int }}</a>
+                    </div>
+                </td>
+                
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+
+            {% else %}
+            <tr>
+                <td>No students</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    MatrixPlugin.onHover("{{data_users}}");
+
+</script>
+{% endblock %}

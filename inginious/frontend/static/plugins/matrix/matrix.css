@@ -1,0 +1,207 @@
+.color-index {
+    margin-bottom: 15px;
+}
+
+.color-title {
+    text-align: center;
+    font-size: 12px;
+}
+
+.color-box {
+    width: 15px;
+    height: 15px;
+    margin: 0 auto;
+}
+
+.color-item {
+    margin-top: 10px;
+}
+
+.notaccessible {
+    background: #b9b9b9;
+}
+
+.notviewed {
+    background: #e4e3e3;
+}
+
+.notattempted {
+    background: #fff361;
+}
+
+.gray {
+    background: #e6e6e6;
+}
+
+.grade_0 {
+    background: #f77777;
+    /* background: #d9534f; */
+}
+
+.grade_20 {
+    background: #f8a69a;
+}
+
+.grade_40 {
+    background: #f8a69a;
+}
+
+.grade_50 {
+    background: #f8a69a;
+}
+
+.grade_60 {
+    background: #ffcbb7;
+}
+
+.grade_70 {
+    background: #ffcbb7;
+}
+
+.grade_80 {
+    background: #ffcbb7;
+}
+
+.grade_90 {
+    background: #cae8d5;
+}
+
+.grade_100 {
+    /* background: #237f00; */
+    background: #99dab0;
+}
+
+
+.graded .a {
+    color: black;
+}
+
+.graded {
+    text-align: center;
+    color: black;
+    text-decoration: underline;
+    display: inline-block;
+    padding-top: 4px;
+}
+
+
+td.grade {
+    text-align: center;
+}
+
+.manual {
+    background: #337ab7;
+}
+
+.grades-table {
+    overflow-x: scroll;
+    overflow-y: visible;
+    margin-left: 4em;
+    color: black;
+}
+
+table {
+    table-layout: fixed;
+}
+
+.grades-header,
+.grades-column {
+    width: 50px;
+    height: 40px;
+    text-align: center;
+    position: relative;
+    background-clip: padding-box;
+    /* padding: 17px !important; */
+}
+
+.grades-header-passed {
+    width: 50px;
+    height: 40px;
+    text-align: center;
+    position: relative;
+    /* background: #eeeeee; */
+    border-top: 3px solid black !important;
+    /* padding: 17px !important; */
+}
+
+.first-passed {
+    border-left: 3px solid black !important;
+}
+
+/*.grades-column:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+	width: 0;
+	height: 0;
+    display: block;
+	border-left: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	border-top: 15px solid #4d4d4d;
+}
+*/
+.headcol {
+    position: absolute;
+    width: 5em;
+    min-height: 38px;
+    left: 0;
+    top: auto;
+    border-top-width: 1px;
+    margin-top: -1px;
+    background: white;
+
+}
+
+.header-cell {
+    margin-top: 24px;
+    z-index: 1;
+}
+
+.grades-table th:first-child {
+    padding: 10px 0;
+
+}
+
+.grades-table tbody tr td:nth-child(2) {
+    border-left: 5px solid black;
+
+}
+
+.grades-table tbody tr td:not(:first-child) {
+    border: 1px solid white;
+}
+
+#students-cell {
+    color: black;
+}
+
+.graded_icon {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #4d4d4d;
+}
+
+.tooltiptext {
+    display: none;
+}
+
+.future {
+    color: black;
+}
+
+td.grade a {
+    text-align: center;
+    color: black;
+    text-decoration: underline;
+}
+
+td.grade {
+    text-align: center;
+}
+
+th a {
+    overflow-wrap: break-word;
+}
