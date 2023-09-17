@@ -139,8 +139,6 @@ body {
   padding: 0;
 }
 #main-container > .col {
-  padding-top: 15px;
-  padding-bottom: 15px;
   overflow: hidden;
 }
 #main-container > .col > .list-group:first-child,
@@ -166,13 +164,14 @@ body {
   max-width: 250px;
   min-width: 250px;
   box-sizing: content-box;
-  padding: 0;
+  padding: 0 15px;
   transition: width 300ms ease-in-out, max-width 300ms ease-in-out, min-width 300ms ease-in-out, padding 300ms ease-in-out, margin 300ms ease-in-out;
 }
 #inginious-sidebar {
   overflow: hidden;
   border-right: 1px solid #D9D9D9;
-  background: #efefef;
+  /* background: #efefef; */
+  padding: 15px;
 }
 #inginious-sidebar #inginious-sidebar-content {
   width: 250px;
@@ -202,7 +201,7 @@ body {
 #inginious-sidebar h4,
 #inginious-sidebar h5,
 #inginious-sidebar h6 {
-  padding-left: 15px;
+  /* padding-left: 15px; */
 }
 #inginious-sidebar .list-group-item {
   border-right: 0;
@@ -224,6 +223,10 @@ body {
 }
 #inginious-sidebar-toggle i {
   transition: transform 300ms ease-in-out;
+}
+#main-content {
+  margin: 15px;
+  padding: 0;
 }
 @media (max-width: 599.98px) {
   body.sidebar-state-0 #inginious-sidebar-toggle i {
@@ -378,8 +381,10 @@ body {
   margin: 0 -15px;
   border: none;
   height: 50px;
-  border-bottom: 1px solid #D9D9D9;
-  color: #333;
+  /* border-bottom: 1px solid #D9D9D9; */
+  color: white;
+  background: black;
+  font-weight: bold;
   border-radius: 0;
   text-transform: none;
   line-height: 25px;
@@ -388,13 +393,13 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 250px;
-  color: #333;
+  /* max-width: 250px; */
+  color: white;
 }
 .breadcrumb .breadcrumb-item:before {
   font: normal normal normal 24px/1 FontAwesome;
   content: "\f105";
-  color: #333;
+  color: white;
   position: absolute;
   font-size: 2em;
   line-height: 23px;
@@ -403,13 +408,13 @@ body {
   padding-left: 1rem;
 }
 .breadcrumb .breadcrumb-item a {
-  color: #333;
+  color: white;
   padding-left: 1rem;
-  font-size: 1.1em;
+  font-size: 1.5em;
 }
 .breadcrumb .breadcrumb-item a:hover {
   text-decoration: none;
-  color: black;
+  color: white;
 }
 .breadcrumb .active {
   max-width: 100%;
