@@ -89,7 +89,7 @@
                                             {% if test.get("link") %}
                                                 <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
                                             {% else %}
-                                                <div>{{test["name"]}}</div>
+                                                <div style="color: #008cba">{{test["name"]}}</div>
                                             {% endif %}
                                         </div>
                                         <div class="row {{test['taskid']}}{{test['name'].replace(' ', '')}}-message" style="display: block; font-style: italic">
@@ -140,6 +140,7 @@
                     onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Submit for student</div></button>
         </div>
     </div>
+    <div></div>
     <div class="page-right-actions">
         <div class="btn-group footer-action-button">
             <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">

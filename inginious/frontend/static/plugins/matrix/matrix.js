@@ -102,6 +102,7 @@ var MatrixPlugin = (function () {
                     }
                     message = "Lesson " + lesson + " was submitted for students: " + students;
                     studio_display_feedback_submit_message(message, "", "success", true);
+                    window.location.reload();
                 },
                 error: function (e) {
                     console.log("error: " + e.statusText)

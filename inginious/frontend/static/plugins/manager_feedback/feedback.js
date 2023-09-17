@@ -113,11 +113,12 @@ var FeedbackPlugin = (function () {
             });
         })
 
-        var href = window.location.href.split("/");
-        href[href.indexOf("manager_feedback")] = "course";
-        var submissionid = href.pop();
-        href = href.join('/');
-        href = href + "?submissionid=" + submissionid + "&questionid=program";
+        var href = window.location.origin + "/admin/" + courseid + "/submissions?download_submission=" + submissionid
+        // var href = window.location.href.split("/");
+        // href[href.indexOf("manager_feedback")] = "course";
+        // var submissionid = href.pop();
+        // href = href.join('/');
+        // href = href + "?submissionid=" + submissionid + "&questionid=program";
         var download_btn = $(".download-btn");
         download_btn.attr('href', href);
 

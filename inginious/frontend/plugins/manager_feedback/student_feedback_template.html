@@ -72,7 +72,7 @@
                                 {% if (o.link) { %}
                                     <div><a href="{%=o.link%}">{%=o.name%}</a></div>
                                 {% } else { %}
-                                    <div>{%=o.name%}</div>
+                                    <div style="color: #008cba">{%=o.name%}</div>
                                 {% } %}
                             </div>
                             <div class="row test-{%=o.taskid%}{%=o.name.replaceAll(' ', '')%}-message" style="display: block; font-style: italic">
