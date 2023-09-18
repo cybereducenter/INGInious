@@ -94,7 +94,7 @@ var FeedbackPlugin = (function () {
                     }
                 },
                 error: function (e) {
-                    console.log("next: " + e)
+                    console.log("next: " + e.toString())
                 },
             });
 
@@ -115,7 +115,7 @@ var FeedbackPlugin = (function () {
                     }
                 },
                 error: function (e) {
-                    console.log("prev: " + e)
+                    console.log("prev: " + e.toString())
                 },
             });
         })
@@ -370,7 +370,7 @@ var FeedbackPlugin = (function () {
                     window.location = href;
                 },
                 error: function (e) {
-                    console.log("update: " + e)
+                    console.log("update: " + e.toString());
                 },
             });
         } else {
@@ -519,7 +519,7 @@ var FeedbackPlugin = (function () {
 
                 },
                 error: function (e) {
-                    console.log("preview: " + e)
+                    console.log("preview: " + e.toString())
                 },
         });
     }

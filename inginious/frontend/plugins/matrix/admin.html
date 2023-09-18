@@ -135,7 +135,7 @@
                             {% for x in user['tasks'] %}
                                 {% if (specific_task['taskid'].get_id() in user['tasks'][x]['taskid'].get_problems_dict().keys()) %}
                                    {% if user['tasks'][x].get('submission_data', {}).get('has_feedback_data') %}
-                                    <a target="_blank" href="/manager_feedback/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
+                                    <a class="feedback_nav" target="_blank" href="/manager_feedback/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
                                         <span class="feedback_link"><li class="fa fa-file-text"></li></span>
                                         <div class="feedbacktext">
                                             <p>Click for adding feedback</p>
