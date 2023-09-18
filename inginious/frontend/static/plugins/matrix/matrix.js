@@ -102,7 +102,6 @@ var MatrixPlugin = (function () {
                     }
                     message = "Lesson " + lesson + " was submitted for students: " + students;
                     studio_display_feedback_submit_message(message, "", "success", true);
-                    window.location.reload();
                 },
                 error: function (e) {
                     console.log("error: " + e.statusText)
@@ -117,6 +116,7 @@ var MatrixPlugin = (function () {
     {
         var code = getAlertCode(title, content, type, dismissible);
         $('#feedback_submit_status').html(code);
+        $('.feedback_nav').css('display', 'none');
         window.scrollTo(0,0);
         if(dismissible)
         {
@@ -126,6 +126,7 @@ var MatrixPlugin = (function () {
                 {
                     $(this).remove();
                 });
+                window.location.reload();
             }, 3000);
         }
     }
