@@ -214,7 +214,7 @@ def validate_submission(logger, submission):
     if submission['result'] == 'crash':
         logger.error("No success submission found.")
         raise APIInvalidArguments()
-    if not submission.get("custom"):
+    if not submission.get("custom", {}).get("feedback_data"):
         logger.error("No available feedback.")
         raise APIInvalidArguments()
 
