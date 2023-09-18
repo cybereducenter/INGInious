@@ -30,6 +30,13 @@ var FeedbackPlugin = (function () {
         }
     }
 
+    function disable_button(btn, value) {
+        var btns = $("." + btn + "_btn")
+        for (i = 0; i < btns.length; i++) {
+            btns[i].disabled = value;
+        }
+    }
+
     function init_manage_feedback_page(feedbacks) {
         categories = feedbacks;
         for (const key in feedbacks) {
@@ -139,7 +146,7 @@ var FeedbackPlugin = (function () {
         }
 
         if (currentStep === 1) {
-            $("#back-btn")[0].disabled = 'true';
+            disable_button("back", "true");
             $(".message").css("display", "none");
             $('#select-btn').val('failed');
             update_filter($('#select-btn')[0]);
@@ -228,8 +235,8 @@ var FeedbackPlugin = (function () {
         } catch (e) {
             console.log("there is nothing in storage");
         }
-        $("#back-btn")[0].disabled = currentStep === 1;
-        $("#next-btn")[0].disabled = currentStep === 3;
+        disable_button("back", currentStep === 1);
+        disable_button("next", currentStep === 3);
         // Toggle buttons
         var _currentStep = currentStep + ""
         $(".step-indicator").css('opacity', '0.3')

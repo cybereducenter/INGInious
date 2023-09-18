@@ -28,12 +28,7 @@
 <h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} </h3>
 <div id="feedback_submit_status"></div>
 <div class="page-actions-container">
-    <div style="display: flex; flex-wrap: nowrap;">
-        <div class="step-indicator" data-step=1 style="opacity: 1">STEP 1</div>
-        <div class="step-indicator" data-step=2 >STEP 2</div>
-        <div class="step-indicator" data-step=3 >STEP 3</div>
-    </div>
-    <div class="top-page-right-actions">
+    <div class="top-page-right-actions" style="margin: 10px 2px">
             <div class="btn-group">
                 <select id="select-btn" class="btn btn-primary btn-info btn-sm" onchange="FeedbackPlugin.update_filter(this)">
                     <option value="failed">Show Failed</option>
@@ -45,6 +40,25 @@
                 <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_draft_feedback_btn" type="button" onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save changes</div></button>
             </div>
     </div>
+    <div class="page-right-actions">
+        <div class="btn-group footer-action-button">
+            <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">
+                <div class="d-none d-sm-inline">Back</div></button>
+        </div>
+        <div class="btn-group footer-action-button">
+            <button id="next-btn" class="btn btn-primary btn-info btn-sm next_btn" type="button" onclick="FeedbackPlugin.update_step(1)">
+                <div class="d-none d-sm-inline">Next</div></button>
+        </div>
+    </div>
+
+</div>
+<div class="page-actions-container">
+    <div style="display: flex; flex-wrap: nowrap;">
+        <div class="step-indicator" data-step=1 style="opacity: 1">STEP 1</div>
+        <div class="step-indicator" data-step=2 >STEP 2</div>
+        <div class="step-indicator" data-step=3 >STEP 3</div>
+    </div>
+
 </div>
 <div id="feedbacks" class="step1-view step2-view step-view test-result-table">
     {%for category_en, category in feedback['categories'].items()%}
