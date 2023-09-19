@@ -197,7 +197,7 @@ def get_request_zip(request_zip):
 
 
 def send_email(app, submission, archive, newsub, user_manager):
-    if submission["result"] == 'success' or submission["result"] == 'failed':
+    if user_manager.session_username() == submission['username'][0] and (submission["result"] == 'success' or submission["result"] == 'failed'):
         logger.debug(f'Gitlab submission done with {submission["result"]} result')
         try:
             email = user_manager.get_user_email(submission['username'][0])
