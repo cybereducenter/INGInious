@@ -196,8 +196,8 @@ def get_request_zip(request_zip):
 
 
 
-def send_email(app, submission, archive, newsub, user_manager):
-    if user_manager.session_username() == submission['username'][0] and (submission["result"] == 'success' or submission["result"] == 'failed'):
+def send_email(app, submission, archive, newsub, user_manager, task):
+    if not task._data.get("feedback") and (submission["result"] == 'success' or submission["result"] == 'failed'):
         logger.debug(f'Gitlab submission done with {submission["result"]} result')
         try:
             email = user_manager.get_user_email(submission['username'][0])
@@ -224,7 +224,7 @@ def init(plugin_manager, _, _2, _3):
 
     app = plugin_manager._flask_app
 
-    def email_hook(submission, archive, newsub, user_manager):
-        return send_email(app, submission, archive, newsub, user_manager)
+    def email_hook(submission, archive, newsub, user_manager, task):
+        return send_email(app, submission, archive, newsub, user_manager, task)
 
     plugin_manager.add_hook('submission_done', email_hook)

@@ -564,7 +564,7 @@ var FeedbackPlugin = (function () {
         if (test['message']) {
             var messages = test['message'].split("\n");
             var extra_text = is_draft ? "test-" : "";
-            var taskid = test['taskid'] ? test['taskid'] : "";
+            var taskid = test['taskid'] ? test['taskid'] : "None";
             messages.forEach(message => {
                 message = message.replaceAll(/\"/g, '\\\"')
                 var line = $('<p style="margin: 0"></p>');

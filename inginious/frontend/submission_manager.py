@@ -102,7 +102,7 @@ class WebAppSubmissionManager:
                 return_document=ReturnDocument.AFTER
             )
 
-        self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub, user_manager=self._user_manager)
+        self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub, user_manager=self._user_manager, task=task)
 
         if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
             for username in submission["username"]:
