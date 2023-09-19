@@ -98,8 +98,8 @@
                                 <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
                                     <div class="pull-left" style="padding-inline: 1.5rem">
                                         <div class="row" style="display: block">
-                                            {% if test.get("taskid") and task._type != 'cpp-test' %}<div style="font-size: larger">{{test["taskid"]}}</div>{% endif %}
-                                            {% if test.get("link") and task._type == 'cpp-test' %}
+                                            {% if test.get("taskid") %}<div style="font-size: larger">{{test["taskid"]}}</div>{% endif %}
+                                            {% if test.get("link") %}
                                                 <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
                                             {% else %}
                                                 <div style="color: #008cba">{{test["name"]}}</div>

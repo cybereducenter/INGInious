@@ -77,9 +77,9 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         passed = 0
         for test in extra_submission_feedback:
             if test["category"] not in submission_feedback['categories']:
-                submission_feedback['categories'][test["category"]] = self.build_feedback_data(test)
+                submission_feedback['categories'][test["category"]] = self.build_feedback_data(test, task)
             else:
-                submission_feedback['categories'][test["category"]]['tests'].append(self.build_test_feedback(test))
+                submission_feedback['categories'][test["category"]]['tests'].append(self.build_test_feedback(test, task))
             total_tests = submission_feedback['categories'][test["category"]]['tests']
             passed_tests = [t for t in total_tests if t['result']['bool']]
             submission_feedback['categories'][test["category"]]['status'] = {
@@ -129,13 +129,13 @@ class ManagerFeedbackPage(INGIniousAdminPage):
         )
         return submission['custom']['feedback_data']
 
-    def build_test_feedback(self, test):
+    def build_test_feedback(self, test, task):
         return {
             "name": test["name"],
-            "taskid": test.get("taskid"),
+            "taskid": test.get("taskid") if task._type != 'cpp-test' else None,
             "category": FEEDBACK_TEST_CATEGORIES.get(test["category"], test["category"]),
             "exit_code": test.get("message_code", 0),
-            "link": test.get("link", ""),
+            "link": test.get("link", "") if task._type == 'cpp-test' else None,
             "cout_file": None if test.get("cout_file", "N/A") == 'N/A' else "Cout/" + test["cout_file"],
             "cout_text": test.get("cout"),
             "message": test["message"],
@@ -146,14 +146,14 @@ class ManagerFeedbackPage(INGIniousAdminPage):
             'selected': False
         }
 
-    def build_feedback_data(self, extra_feedback):
+    def build_feedback_data(self, extra_feedback, task):
         passed = int(extra_feedback['status'] == "passed")
         percent = round(passed * 100 / 1)
         new_category = {
             extra_feedback['category']: {
                 "name": extra_feedback['category'],
                 "status": {"total": 1, "passed": passed, "percent": percent},
-                "tests": [self.build_test_feedback(extra_feedback)],
+                "tests": [self.build_test_feedback(extra_feedback, task)],
                 "feedback": '',
                 'selected': False
             }
