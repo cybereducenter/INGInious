@@ -132,6 +132,7 @@ class ManagerFeedbackPage(INGIniousAdminPage):
     def build_test_feedback(self, test):
         return {
             "name": test["name"],
+            "taskid": test.get("taskid"),
             "category": FEEDBACK_TEST_CATEGORIES.get(test["category"], test["category"]),
             "exit_code": test.get("message_code", 0),
             "link": test.get("link", ""),
