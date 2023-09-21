@@ -179,10 +179,11 @@
     var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
+    var tasktype = '{{ task._type }}';
     var submissionid = '{{submission_id}}';
     var manager_feedback = {{ feedback | tojson }};
     $(document).ready(function () {
-        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student);
+        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype);
         FeedbackPlugin.init_manage_feedback_page(manager_feedback['categories']);
     });
 </script>

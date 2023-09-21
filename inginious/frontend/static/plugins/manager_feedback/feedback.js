@@ -11,6 +11,7 @@ var FeedbackPlugin = (function () {
     var taskid = ""
     var submissionid = ""
     var student = ""
+    var tasktype = ""
     var checkedSections = []
     var displayedSections = []
     var categories = []
@@ -18,11 +19,12 @@ var FeedbackPlugin = (function () {
     var draft_categories = []
     var total_feedback = ""
 
-    function init_variables(input_courseid, input_taskid, input_submissionid, input_student) {
+    function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype) {
         courseid = input_courseid;
         taskid = input_taskid;
         submissionid = input_submissionid;
         student = input_student;
+        tasktype = input_tasktype
         try {
             load_from_storage();
         } catch (e) {
@@ -120,12 +122,16 @@ var FeedbackPlugin = (function () {
             });
         })
 
-        var href = window.location.origin + "/admin/" + courseid + "/submissions?download_submission=" + submissionid
-        // var href = window.location.href.split("/");
-        // href[href.indexOf("manager_feedback")] = "course";
-        // var submissionid = href.pop();
-        // href = href.join('/');
-        // href = href + "?submissionid=" + submissionid + "&questionid=program";
+        var href = ""
+        if (tasktype === "cpp-test") {
+            href = window.location.href.split("/");
+            href[href.indexOf("manager_feedback")] = "course";
+            href.pop();
+            href = href.join('/');
+            href = href + "?submissionid=" + submissionid + "&questionid=program";
+        } else {
+            href = window.location.origin + "/admin/" + courseid + "/submissions?download_submission=" + submissionid
+        }
         var download_btn = $(".download-btn");
         download_btn.attr('href', href);
 
