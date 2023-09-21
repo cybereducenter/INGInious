@@ -28,7 +28,7 @@ class MatrixPage(INGIniousAdminPage):
                                      "realname": user[1][0] if user[1] is not None else None}) for user in users])
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
-        future_tasks, first_past_task, past_tasks = self._get_ordered_task_raz(course)
+        future_tasks, first_past_task, past_tasks = self._get_ordered_task_simplified(course)
 
         """ Get all user tasks """
         for user in users:
@@ -50,9 +50,14 @@ class MatrixPage(INGIniousAdminPage):
                                            possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
                                            now=datetime.now())
 
-    def _get_ordered_task_raz(self, course):
+    def _get_ordered_task_simplified(self, course):
+        '''
+        This function arranges the list of tasks, to be used as column headers for the matrix.
+        It does NOT change the natural (alphabetical) order of the list, only makingh it circular, 
+        where past due tasks are moved to the end of the list.
+        '''
         now = datetime.now().date()
-        tasks = course.get_tasks()        
+        tasks = course.get_tasks(ordered=True)        
         
         # Find first task with end date not in the past
         for first_future_ix, task in enumerate(tasks):
