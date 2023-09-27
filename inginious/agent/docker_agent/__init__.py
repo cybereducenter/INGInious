@@ -920,7 +920,11 @@ class DockerAgent(Agent):
 
             # Remove container
             try:
-                await self._docker.remove_container(container_id)
+                if result == 'crash':
+                    # if container crashed, keep it for later analysis
+                    self._logger.info(f"Run 'docker logs {container_id}' for details")
+                else:
+                    await self._docker.remove_container(container_id)
             except asyncio.CancelledError:
                 raise
             except:
