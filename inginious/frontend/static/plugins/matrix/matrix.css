@@ -29,6 +29,10 @@
     background: #fff361;
 }
 
+.continuous-task {
+    background: beige;
+}
+
 .gray {
     background: #e6e6e6;
 }
@@ -111,7 +115,7 @@ table {
     text-align: center;
     position: relative;
     background-clip: padding-box;
-    /* padding: 17px !important; */
+    /* padding: 0 5px !important; */
 }
 
 .grades-header-passed {

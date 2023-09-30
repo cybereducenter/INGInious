@@ -34,15 +34,21 @@
         </div>
 
         <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Not viewed</div>
+            <div class="color-title">Not Viewed</div>
 
             <div class="color-box notviewed"></div>
         </div>
 
         <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Not attempted</div>
+            <div class="color-title">Not Attempted</div>
 
             <div class="color-box notattempted"></div>
+        </div>
+
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Continuous Task</div>
+
+            <div class="color-box continuous-task"></div>
         </div>
 
 
@@ -56,7 +62,11 @@
             <tr>
                 <th id="students-cell" class="headcol header-cell">Students</th>
                 {% for x in future_tasks %}
+                {% if "continuous" in x.get_categories() %}
+                <th class="grades-header future continuous-task">
+                {% else %}
                 <th class="grades-header future">
+                {% endif %}
                     <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
                         {{ x.get_id() }}
                     </a><br />
@@ -64,7 +74,7 @@
                     <div class="btn-group" role="group">
                         <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
                             title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
-                            <i class="fa fa-edit"></i>
+                            <i class="fa fa-edit"></i> 
                         </a>
                     </div>                
                 </th>
