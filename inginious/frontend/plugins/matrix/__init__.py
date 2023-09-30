@@ -30,6 +30,11 @@ class MatrixPage(INGIniousAdminPage):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         future_tasks, first_past_task, past_tasks = self._get_ordered_task_simplified(course)
 
+        # Special task categories
+        inspected_tasks = len([t for t in future_tasks + past_tasks if "inspected" in t.get_categories()]) > 0
+        bonus_tasks = len([t for t in future_tasks + past_tasks if "bonus" in t.get_categories()]) > 0
+        continuous_tasks = len([t for t in future_tasks + past_tasks if "continuous" in t.get_categories()]) > 0
+
         """ Get all user tasks """
         for user in users:
             data_user = self._calc_user_data(course, future_tasks + past_tasks, users[user])
@@ -46,6 +51,9 @@ class MatrixPage(INGIniousAdminPage):
                                            data_users=data_users, 
                                            past_tasks=past_tasks, 
                                            future_tasks=future_tasks,
+                                           inspected_tasks=inspected_tasks,
+                                           bonus_tasks=bonus_tasks,
+                                           continuous_tasks=continuous_tasks,
                                            first_id=first_id,
                                            possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
                                            now=datetime.now())

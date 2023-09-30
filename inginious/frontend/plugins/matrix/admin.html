@@ -45,23 +45,29 @@
             <div class="color-box notattempted"></div>
         </div>
 
-        <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Continuous Task</div>
-
-            <div class="color-box continuous-task"></div>
-        </div>
-
-        <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Bonus Task</div>
-
-            <div class="color-box bonus-task"></div>
-        </div>
-
+        {% if inspected_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
             <div class="color-title">Inspected Task</div>
 
             <div class="color-box inspected-task"></div>
-        </div>
+        </div>        
+        {% endif %}
+
+        {% if bonus_tasks %}
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Bonus Task</div>
+
+            <div class="color-box bonus-task"></div>
+        </div>       
+        {% endif %}
+
+        {% if continuous_tasks %}
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Continuous Task</div>
+
+            <div class="color-box continuous-task"></div>
+        </div>       
+        {% endif %}
 
     </div>
 </div>
