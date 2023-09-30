@@ -47,7 +47,7 @@
 
         {% if inspected_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Inspected Task</div>
+            <div class="color-title">לבדיקת מדריך</div>
 
             <div class="color-box inspected-task"></div>
         </div>        
@@ -55,7 +55,7 @@
 
         {% if bonus_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Bonus Task</div>
+            <div class="color-title">בונוס</div>
 
             <div class="color-box bonus-task"></div>
         </div>       
@@ -63,7 +63,7 @@
 
         {% if continuous_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
-            <div class="color-title">Continuous Task</div>
+            <div class="color-title">תרגיל מתגלגל</div>
 
             <div class="color-box continuous-task"></div>
         </div>       
@@ -136,11 +136,14 @@
                     </a>
                 </th>
 
+                {% set prev_task_id = namespace(value="") %}
                 {% for task in user['tasks'] %}
                 {% set specific_task = user['tasks'][task] %}
                 {% if (specific_task['taskid'].get_id() == first_id) %}
                 <td class="grades-column {{user['tasks'][task]['status']}} first-passed">
-                    {% else %}
+                {% elif specific_task['taskid'].get_id()[:2] != prev_task_id.value[:2] %}
+                <td class="grades-column {{user['tasks'][task]['status']}} first-in-unit">
+                {% else %}
                 <td class="grades-column {{user['tasks'][task]['status']}}">
                 {% endif %}
                     {% if 'grade' in specific_task['status'] %}
@@ -164,6 +167,7 @@
                 
                 {% endif %}
                 {% endif %}
+                {% set  prev_task_id.value = specific_task['taskid'].get_id() %}
                 {% endfor %}
             </tr>
             {% endfor %}

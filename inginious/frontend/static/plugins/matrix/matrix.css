@@ -34,11 +34,11 @@
 }
 
 .bonus-task {
-    background: #fdd3c0
+    background: #fdd3c0;
 }
 
 .inspected-task {
-    background: lightcyan
+    background: lightcyan;
 }
 
 .gray {
@@ -138,6 +138,10 @@ table {
 
 .first-passed {
     border-left: 3px solid black !important;
+}
+
+.first-in-unit {
+    border-left: 2px solid black !important;
 }
 
 /*.grades-column:after {
