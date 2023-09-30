@@ -51,6 +51,17 @@
             <div class="color-box continuous-task"></div>
         </div>
 
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Bonus Task</div>
+
+            <div class="color-box bonus-task"></div>
+        </div>
+
+        <div class="col-lg-1 col-xs-1 color-item">
+            <div class="color-title">Inspected Task</div>
+
+            <div class="color-box inspected-task"></div>
+        </div>
 
     </div>
 </div>
@@ -62,7 +73,11 @@
             <tr>
                 <th id="students-cell" class="headcol header-cell">Students</th>
                 {% for x in future_tasks %}
-                {% if "continuous" in x.get_categories() %}
+                {% if "inspected" in x.get_categories() %}
+                <th class="grades-header future inspected-task">
+                {% elif "bonus" in x.get_categories() %}
+                <th class="grades-header future bonus-task">
+                {% elif "continuous" in x.get_categories() %}
                 <th class="grades-header future continuous-task">
                 {% else %}
                 <th class="grades-header future">

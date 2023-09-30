@@ -33,6 +33,14 @@
     background: beige;
 }
 
+.bonus-task {
+    background: #fdd3c0
+}
+
+.inspected-task {
+    background: lightcyan
+}
+
 .gray {
     background: #e6e6e6;
 }
