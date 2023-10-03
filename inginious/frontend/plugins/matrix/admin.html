@@ -141,7 +141,7 @@
                 {% set specific_task = user['tasks'][task] %}
                 {% if (specific_task['taskid'].get_id() == first_id) %}
                 <td class="grades-column {{user['tasks'][task]['status']}} first-passed">
-                {% elif specific_task['taskid'].get_id()[:2] != prev_task_id.value[:2] %}
+                {% elif specific_task['taskid'].get_id()[:2] != prev_task_id.value[:2] and prev_task_id.value != '' %}
                 <td class="grades-column {{user['tasks'][task]['status']}} first-in-unit">
                 {% else %}
                 <td class="grades-column {{user['tasks'][task]['status']}}">
