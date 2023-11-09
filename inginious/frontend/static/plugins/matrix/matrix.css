@@ -158,8 +158,8 @@ table {
 }
 */
 .headcol {
-    position: absolute;
-    width: 5em;
+    /* position: absolute; */
+    width: 10em;
     min-height: 38px;
     left: 0;
     top: auto;
