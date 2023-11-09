@@ -175,8 +175,8 @@ table {
 }
 
 .grades-table th:first-child {
-    padding: 10px 0;
-
+    padding: 10px;
+    text-align: right;
 }
 
 .grades-table tbody tr td:nth-child(2) {
