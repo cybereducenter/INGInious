@@ -108,7 +108,7 @@ td.grade {
 .grades-table {
     overflow-x: scroll;
     overflow-y: visible;
-    margin-left: 4em;
+    /* margin-left: 4em; */
     color: black;
 }
 
