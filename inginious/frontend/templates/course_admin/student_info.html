@@ -47,16 +47,10 @@
         </thead>
         <tbody>
         {% for taskid, task in data.items() %}
-            <tr class="
-                {% if not task['visible'] %}
-                    bg-dark text-white
-                {% elif task['status'] == 'notattempted' %}
-                    table-warning
-                {% elif task['status'] == 'succeeded' %}
-                    table-success
-                {% elif task['status'] == 'failed' %}
-                    table-danger
-                {% endif %}">
+            <tr 
+                class="{{task.get('grade_css_class', '')}}"
+                $ css_class='grade' if 'grade_css_class' in task else ''
+            >
                 <td>
                     {% if not task["visible"] %}
                         <i class="fa fa-fw fa-ban"  data-toggle="tooltip" data-placement="top" title=" {{_('Not served by the task dispenser') }}"></i>

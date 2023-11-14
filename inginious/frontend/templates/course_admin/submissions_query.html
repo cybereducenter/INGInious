@@ -19,10 +19,10 @@
 <div class="card mb-3 section">
     <div id="query_header" class="card-header" onclick="dropdown(this)">
         <span class="title"> {{ _("Query submissions") }} </span>
-        <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close"> </span>
+        <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-left close"> </span>
     </div>
 
-    <div class="card-body content">
+    <div class="card-body content" style="display:none">
         <form id="select_form" method="post" action="{{ target }}">
             <!-- Users -->
             {% set show_audiences = not old_params["users"] and old_params["audiences"] %}

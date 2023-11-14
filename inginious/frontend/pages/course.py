@@ -68,6 +68,10 @@ class CoursePage(INGIniousAuthPage):
             last_submissions = []
             for submission in self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": user_task_list}}):
                 submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
+                color_css_class = self.task_factory.get_relevant_color_class_for_grade(submission["grade"])
+                if color_css_class:
+                    submission["grade_css_class"] = color_css_class
+
                 last_submissions.append(submission)
 
             # Compute course/tasks scores
@@ -82,6 +86,9 @@ class CoursePage(INGIniousAuthPage):
             for user_task in user_tasks:
                 tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
                 tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
+                color_css_class = self.task_factory.get_relevant_color_class_for_grade(user_task["grade"])
+                if color_css_class:
+                    tasks_data[user_task["taskid"]]["grade_css_class"] = color_css_class
 
                 weighted_score = user_task["grade"]*tasks[user_task["taskid"]].get_grading_weight()
                 tasks_score[0] += weighted_score

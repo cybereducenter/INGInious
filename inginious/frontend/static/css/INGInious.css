@@ -93,6 +93,9 @@ form#task label {
   font-size: 1.5em;
   font-weight: bold;
 }
+#task_alert .table td {
+  padding: 5px;
+}
 /* Submission history */
 #submissions_restrictsize {
   overflow: auto;
@@ -101,6 +104,11 @@ form#task label {
 }
 .submission {
   cursor: pointer;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 15px;
+  padding-left: 15px;
+  color:#222222
 }
 /* Codemirror */
 .cm-s-default {
@@ -126,6 +134,7 @@ form#task label {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=);
   background-position: right;
   background-repeat: no-repeat;
+  visibility: hidden;
 }
 body {
   display: flex;
@@ -393,7 +402,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* max-width: 250px; */
+  max-width: 250px;
   color: white;
 }
 .breadcrumb .breadcrumb-item:before {
@@ -491,4 +500,11 @@ ul.checked-list-box input[type="checkbox"] {
 .card-trunc {
   overflow: hidden;
   max-height: 200px;
+}
+#reset-get-back {
+  color: red;
+}
+
+.btn-ignore-click {
+  background-color: gainsboro;
 }
