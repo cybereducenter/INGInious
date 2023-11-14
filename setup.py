@@ -56,7 +56,9 @@ else:
 # Setup
 setup(
     name="INGInious",
-    use_scm_version=True,
+    use_scm_version={
+        'version_scheme': 'no-guess-dev'
+    },
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
     setup_requires=['setuptools_scm'],

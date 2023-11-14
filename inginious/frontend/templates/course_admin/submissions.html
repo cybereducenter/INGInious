@@ -90,15 +90,8 @@
         <tbody>
         {% for submission in data %}
             {% set succeeded = "result" in submission and submission["result"] == "success" %}
-            <tr class="
-            {% if succeeded %}
-                table-success
-            {% elif submission['status'] == 'waiting' %}
-                table-warning
-            {%else %}
-                table-danger
-            {%endif %}">
-                <td>
+            <tr class="{{submission['grade_css_class']}}">
+            <td>
                     {% if "best" in submission and submission["best"] %}
                         <i class="fa fa-star" title="{{ submission['_id'] }}" data-toggle="tooltip" data-placement="bottom"></i>
                     {% endif %}
