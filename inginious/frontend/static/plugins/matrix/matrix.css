@@ -1,0 +1,223 @@
+.color-index {
+    margin-bottom: 15px;
+}
+
+.color-title {
+    text-align: center;
+    font-size: 12px;
+}
+
+.color-box {
+    width: 15px;
+    height: 15px;
+    margin: 0 auto;
+}
+
+.color-item {
+    margin-top: 10px;
+}
+
+.notaccessible {
+    background: #b9b9b9;
+}
+
+.notviewed {
+    background: #e4e3e3;
+}
+
+.notattempted {
+    background: rgba(0, 255, 255, 0.2);
+}
+
+.continuous-task {
+    background: beige;
+}
+
+.bonus-task {
+    background: #fdd3c0;
+}
+
+.inspected-task {
+    background: rgba(176, 176, 222, 0.5);
+}
+
+.gray {
+    background: #e6e6e6;
+}
+
+.grade_0 {
+    background: rgba(255, 0, 0, 0.5);
+    /* background: #d9534f; */
+}
+
+.grade_20 {
+    background: rgba(255, 0, 0, 0.5);
+}
+
+.grade_40 {
+    background: rgba(255, 166, 0, 0.5);
+}
+
+.grade_50 {
+    background: rgba(255, 166, 0, 0.5);
+}
+
+.grade_60 {
+    background: rgba(255, 255, 0, 0.5);
+}
+
+.grade_70 {
+    background: rgba(255, 255, 0, 0.5);
+}
+
+.grade_80 {
+    background: rgba(255, 255, 0, 0.5);
+}
+
+.grade_90 {
+    background: rgba(0, 255, 0, 0.5);
+}
+
+.grade_100 {
+    /* background: #237f00; */
+    background: rgba(0, 255, 0, 0.5);
+}
+
+
+.graded .a {
+    color: black;
+}
+
+.graded {
+    text-align: center;
+    color: black;
+    text-decoration: underline;
+    display: inline-block;
+    padding-top: 4px;
+}
+
+
+td.grade {
+    text-align: center;
+}
+
+.manual {
+    background: #337ab7;
+}
+
+.grades-table {
+    overflow-x: scroll;
+    overflow-y: visible;
+    margin-left: 9em;
+    color: black;
+}
+
+table {
+    table-layout: fixed;
+}
+
+.grades-header,
+.grades-column {
+    width: 50px;
+    height: 40px;
+    text-align: center;
+    position: relative;
+    background-clip: padding-box;
+    /* padding: 0 5px !important; */
+}
+
+.grades-header-passed {
+    width: 50px;
+    height: 40px;
+    text-align: center;
+    position: relative;
+    /* background: #eeeeee; */
+    border-top: 3px solid black !important;
+    /* padding: 17px !important; */
+}
+
+.first-passed {
+    border-left: 3px solid black !important;
+}
+
+.first-in-unit {
+    border-left: 2px solid black !important;
+}
+
+/*.grades-column:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+	width: 0;
+	height: 0;
+    display: block;
+	border-left: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	border-top: 15px solid #4d4d4d;
+}
+*/
+.headcol {
+    position: absolute;
+    width: 10em;
+    min-height: 38px;
+    left: 0;
+    top: auto;
+    border-top-width: 1px;
+    margin-top: -1px;
+    background: white;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.header-cell {
+    margin-top: 24px;
+    z-index: 1;
+}
+
+.grades-table th:first-child {
+    padding: 15px 5px;
+    text-align: right;
+}
+
+.grades-table tbody tr td:nth-child(2) {
+    border-left: 5px solid black;
+
+}
+
+.grades-table tbody tr td:not(:first-child) {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#students-cell {
+    color: black;
+}
+
+.graded_icon {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #4d4d4d;
+}
+
+.tooltiptext {
+    display: none;
+}
+
+.future {
+    color: black;
+}
+
+td.grade a {
+    text-align: center;
+    color: black;
+    text-decoration: underline;
+}
+
+td.grade {
+    text-align: center;
+}
+
+th a {
+    overflow-wrap: break-word;
+}
