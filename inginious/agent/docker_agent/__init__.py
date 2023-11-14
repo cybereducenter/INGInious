@@ -384,6 +384,9 @@ class DockerAgent(Agent):
                                                               course_common_student_path,
                                                               self.__get_fd_limit(), runtime,
                                                               ports)
+            self._logger.info("Starting new grader container %s... %s/%s %s %s %s", 
+                              container_id, environment_type, environment_name, mem_limit, time_limit, hard_time_limit)
+
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
             shutil.rmtree(container_path)
@@ -450,9 +453,6 @@ class DockerAgent(Agent):
         """
         try:
             environment_type = parent_info.environment_type
-            self._logger.debug("Starting new student container... %s/%s %s %s %s", environment_type, environment_name,
-                               memory_limit, time_limit, hard_time_limit)
-
             if environment_type not in self._containers or environment_name not in self._containers[environment_type]:
                 self._logger.warning("Student container asked for an unknown environment %s/%s",
                                      environment_type, environment_name)
@@ -494,6 +494,9 @@ class DockerAgent(Agent):
                                                                            self.__get_fd_limit(),
                                                                            parent_info.container_id if share_network else None,
                                                                            ports)
+                self._logger.info("Starting new student container %s... %s/%s %s %s %s", 
+                                  container_id, environment_type, environment_name, memory_limit, time_limit, hard_time_limit)
+
             except Exception as e:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254,
@@ -920,7 +923,11 @@ class DockerAgent(Agent):
 
             # Remove container
             try:
-                await self._docker.remove_container(container_id)
+                if result == 'crash':
+                    # if container crashed, keep it for later analysis
+                    self._logger.info(f"Run 'docker logs {container_id}' for details")
+                else:
+                    await self._docker.remove_container(container_id)
             except asyncio.CancelledError:
                 raise
             except:

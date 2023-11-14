@@ -152,6 +152,9 @@ class INGIniousMainRunner:
         msg = msgpack.dumps(o, use_bin_type=True)
         self.stdout.write(struct.pack('!I', len(msg)))
         self.stdout.write(msg)
+        # This debug print helps prevent occasional crashes of containers
+        self._logger.info(f'write_stdout msg = {msg}')
+        # =============== Raz Nitzan ====================================
         await self.stdout.drain()
 
     async def handle_stdin_message(self, message):
