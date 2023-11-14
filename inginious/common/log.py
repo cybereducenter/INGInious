@@ -5,29 +5,34 @@
 
 """ Some common functions for logging """
 import logging
+import os
+from logging.handlers import RotatingFileHandler
 
-def init_logging(log_level=logging.DEBUG):
+def init_logging(log_dir, log_level=logging.DEBUG):
     """
     Init logging
     :param log_level: An integer representing the log level or a string representing one
     """
-    logging.root.handlers = []  # remove possible side-effects from other libs
+    ##TODO before deploying this to your production!!!!!
+    ## make sure write permissions
+    ## cd inginious install dir - for example cd /var/www/inginious/
+    ## sudo mkdir log
+    ## sudo chmod -R 777 log/
+    log_file_path = os.path.join(log_dir, 'inginious.log')
+    
+    fmt = "%(asctime)s - P%(process)s/T%(thread)d - %(name)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
+    ten_mb_in_bytes = 100 * 1000 * 1000    # some how 10Milion is 1
+    rotating_file_handler = RotatingFileHandler(log_file_path, encoding='utf-8', maxBytes=ten_mb_in_bytes, backupCount=10)
+    logging.basicConfig(format= fmt, handlers=[rotating_file_handler], level=logging.INFO)
 
-    # Log format
+
+    logger = logging.getLogger("inginious")
+    logger.setLevel(log_level)
     ch = logging.StreamHandler()
     ch.setLevel(log_level)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
-
-    # Base INGInious logger
-    inginious_log = logging.getLogger("inginious")
-    inginious_log.setLevel(log_level)
-    inginious_log.addHandler(ch)
-
-    # Allow oauthlib debug if needed to debug LTI
-    oauthlib_log = logging.getLogger("oauthlib")
-    oauthlib_log.setLevel(log_level)
-    oauthlib_log.addHandler(ch)
+    logger.addHandler(ch)
 
 def get_course_logger(coursename):
     """
@@ -41,9 +46,12 @@ class CustomLogMiddleware:
     """ WSGI middleware for logging the status in webpy"""
 
     def __init__(self, app, logger):
+        import web
+        self.debug_web = web.debug
         self.app = app
         self.logger = logger
         self.format = '%s - - [%s] "%s %s %s" - %s'
+        self._web_debug = web.debug
 
     def __call__(self, environ, start_response):
         def xstart_response(status, response_headers, *args):
