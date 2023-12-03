@@ -57,7 +57,12 @@
 	{%if open_courses %}
         {% set username = user_manager.session_username() %}
         {% for courseid, course in open_courses.items() %}
-            <a href="{{ get_homepath() }}/course/{{ courseid }}" class="list-group-item list-group-item-action
+        {% if user_manager.has_staff_rights_on_course(course) %}
+            {% set url = get_homepath()+'/admin/'+courseid+'/matrix' %}
+        {% else %}
+            {% set url = get_homepath()+'/course/'+courseid %}
+        {% endif %}
+            <a href={{ url }} class="list-group-item list-group-item-action
                 {% if course.is_lti() %}
                     list-group-item-info
                 {% elif not course.is_open_to_non_staff() %}
