@@ -102,11 +102,32 @@
                 {% endfor %}
 
                 {% for x in past_tasks %}
-                    {% if x.get_id() == first_id %} 
-                    <th class="grades-header-passed first-passed">              
+                    {% if "inspected" in x.get_categories() %}
+                        {% if x.get_id() == first_id %} 
+                        <th class="grades-header-passed first-passed inspected-task">
+                        {% else %}
+                        <th class="grades-header-passed inspected-task">
+                        {% endif %}
+                    {% elif "bonus" in x.get_categories() %}
+                        {% if x.get_id() == first_id %} 
+                        <th class="grades-header-passed first-passed bonus-task">
+                        {% else %}
+                        <th class="grades-header-passed bonus-task">
+                        {% endif %}
+                    {% elif "continuous" in x.get_categories() %}
+                        {% if x.get_id() == first_id %} 
+                        <th class="grades-header-passed first-passed continuous-task">
+                        {% else %}
+                        <th class="grades-header-passed continuous-task">
+                        {% endif %}
                     {% else %}
-                    <th class="grades-header-passed">
+                        {% if x.get_id() == first_id %} 
+                        <th class="grades-header-passed first-passed">
+                        {% else %}
+                        <th class="grades-header-passed">
+                        {% endif %}
                     {% endif %}
+                   
                         <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
                             {{ x.get_id() }} 
                         </a><br />
