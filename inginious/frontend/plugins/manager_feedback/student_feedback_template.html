@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+
+    <!-- Basic Page Needs ––––––––––––––––––––––––––––––––––––––––––––––––––-->
+    <meta charset="utf-8">
+    <title>Scenario Feedback</title>
+    <meta name="description" content="scenario feedback">
+    <meta name="author" content="">
+
+    <!-- Mobile Specific Metas
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="https://fonts.googleapis.com/css?family=Arimo" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+    <!-- Primary Page Layout
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div id="scenarios-table" class="table table-condensed feedback test-result-table" style="background-color: rgb(0 0 0 / 0%)">
+    </div>
+
+
+    <!-- End Document
+
+        –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <script type="text/x-tmpl" id="tmpl-category">
+        <div data-status={%=o.status.percent%} id="feedback-{%=o.category%}"
+             class="displayed_feedback section category card mb-4"
+             style="background-color: rgb(0 0 0 / 0%)">
+             <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
+                 style="display: flex; margin: 5px; background-color: #5bc0de;">
+                        <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
+                            <div>{%=o.name%}</div>
+                            <div id="feedback-{%=o.category%}-info" >&nbsp;</div>
+                        </span>
+                        <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
+                              class="dropdown_button fa fa-caret-left"></span>
+            </div>
+            <div >
+                {% if (o.feedback) { %}
+                    <div class="message-feedback-{%=o.category%} message">
+                        <span style="font-weight: bold">{%=o.feedback%}</span>
+                    </div>
+                {% } %}
+            </div>
+            <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" style="display: none">
+
+                <div class="test-container" style=" margin: 1.5rem">
+
+                </div>
+            </div>
+
+        </div>
+    </script>
+    <script type="text/x-tmpl" id="tmpl-test">
+        <div>
+           <div id="{%=o.name%}" cout-name="{%=o.cout_file%}" class="test-data displayed_test_feedback" data-result={%=o.result.text%}
+                style="border-color:{%=o.border_color%}">
+                <div class="test-section">
+                    <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
+                        <div class="pull-left" style="padding-inline: 1.5rem">
+                            <div class="row" style="display: block">
+                                {% if (o.taskid) { %}<div style="font-size: larger">{%=o.taskid%}</div>{% } %}
+                                {% if (o.link) { %}
+                                    <div><a href="{%=o.link%}">{%=o.name%}</a></div>
+                                {% } else { %}
+                                    <div style="color: #008cba">{%=o.name%}</div>
+                                {% } %}
+                            </div>
+                            <div class="row test-{%=o.taskid%}{%=o.name.replaceAll(' ', '')%}-message" style="display: block; font-style: italic">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
+                        <div class="{%=o.name.replaceAll(' ', '')%}-popup" style="display: none">
+                            <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
+                                    type="button" onclick="FeedbackPlugin.open_popup(this)">
+                                <div class="d-none d-sm-inline">פרטים נוספים</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+           </div>
+        </div>
+    </script>
+    <script type="text/x-tmpl" id="tmpl-total-feedback" >
+        <div class="message" style="margin: 20px 0; font-weight: bold">
+           <span>{%=o%}</span>
+        </div>
+    </script>
+    <script type="text/x-tmpl" id="tmpl-popup" >
+        <div id="popup" class="cout-popup">
+            <div class="cout-shell scrollable-container">
+            <button type="button" class="close close-feedback-modal close-btn" style="top: 0" onclick="FeedbackPlugin.close_popup(this)">&times;</button>
+            <ul id="popup-text" class="shell-body cout-shell-body" ></ul>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var feedbackData = feedback_json;
+        var courseid = 'course_id';
+        var taskid = 'task_id';
+        var submissionid = 'submission_id'
+        FeedbackPlugin.render_student_feedback(feedbackData, courseid, taskid, submissionid);
+    </script>
+
+</body>
+
+<script type="application/javascript">
+
+
+
+</script>
+
+</html>

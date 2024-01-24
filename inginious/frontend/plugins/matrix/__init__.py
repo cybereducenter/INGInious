@@ -4,28 +4,37 @@
 # more information about the licensing of this file.
 
 """ Matrix plugin - show course overview of student grades """
-import logging
-
+import json
 from collections import OrderedDict
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
-from inginious.common.tasks_constants import TaskConstants
-from datetime import datetime, timedelta
-import pymongo
+from datetime import datetime
+
+import bson
 import flask
+import pymongo
+from flask import Flask
+
+from inginious.common.tasks_constants import TaskConstants
+from inginious.frontend.matrix_service import get_course_students
+from inginious.frontend.pages.api._api_page import APIInvalidArguments, APIError
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, calculate_time_passed_since
+from inginious.frontend.submission_manager import AddJobStrategy
 
 class MatrixPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid): # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course_and_check_rights(courseid, allow_all_staff=True)[0]
+        course_type = list(course.get_tasks().values())[0]._type
         data_users = []
 
         """ Get all information about the users """
-        users = sorted(list(
-            self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
-                       key=lambda k: k[1][0] if k[1] is not None else "")
+        users = get_course_students(course, self.user_manager)
 
-        users = OrderedDict([(user[0], {"username": user[0],
-                                     "realname": user[1][0] if user[1] is not None else None}) for user in users])
+        # users = sorted(list(
+        #     self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
+        #                key=lambda k: k[1][0] if k[1] is not None else "")
+
+        # users = OrderedDict([(user[0], {"username": user[0],
+        #                              "realname": user[1][0] if user[1] is not None else None}) for user in users])
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         future_tasks, first_past_task, past_tasks = self._get_ordered_task_simplified(course)
@@ -48,6 +57,7 @@ class MatrixPage(INGIniousAdminPage):
         return self.template_helper.render("admin.html", 
                                            template_folder='frontend/plugins/matrix',
                                            course=course, 
+                                           course_type=course_type,
                                            data_users=data_users, 
                                            past_tasks=past_tasks, 
                                            future_tasks=future_tasks,
@@ -184,7 +194,11 @@ class MatrixPage(INGIniousAdminPage):
                     # link to the all submissions page, for example /admin/tutorial/student/ohad/03_tasks
                     href_to_submissions = self._build_student_submissions_url(course_name, student_name, task_id)
                     time_passed = calculate_time_passed_since(user_task_latest_submission["submitted_on"])
-                    task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed':  time_passed}
+                    has_feedback_data = (bool(user_task_latest_submission.get('custom'))
+                                         and bool(user_task_latest_submission['custom'].get("feedback_data")
+                                                  or user_task_latest_submission['custom'].get("extra_feedback_data")))
+                    task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed':  time_passed,
+                                                        'has_feedback_data': has_feedback_data}
 
         return ordered_tasks_for_user
 
@@ -227,6 +241,7 @@ def add_course_menu(course, template_helper):
     '''
     return html
 
+
 def add_css_file():
     """ Add matrix css file to the admin page """
     return ('/static/plugins/matrix/matrix.css') ### TODO - change ###
@@ -236,13 +251,102 @@ def add_js_file():
     """ Add matrix js file to the admin page """
     return '/static/plugins/matrix/matrix.js'
 
+
 def add_qTip_css_file():
     """ Add matrix css file to the admin page """
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.css'
 
+
 def add_qTip_js_file():
     """ Add matrix js file to the admin page """
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.js'
+
+class MergeFeedbackPage(INGIniousAdminPage):
+    def POST_AUTH(self, courseid, taskid):
+        course, task = self.get_course_and_check_rights(courseid, taskid=taskid, allow_all_staff=True)
+        if not task._data.get('feedback'):
+            self.logger.error(f'Task {taskid} is not feedback task!')
+            raise APIInvalidArguments()
+        selected_students = flask.request.json.get('student', [])
+        all_students = self.get_course_users(course)
+        students_to_merge = {}
+        if selected_students:
+            for username in selected_students:
+                if username not in all_students.keys():
+                    self.logger.error(f'Student {username} not in course {courseid}!')
+                    raise APIInvalidArguments()
+                students_to_merge[username] = all_students[username]
+        else:
+            students_to_merge = all_students
+
+        submission_ids = {}
+        for username, student in students_to_merge.items():
+            user_task_submissions_by_task_id = self._get_user_task_submissions(username, courseid)
+
+            user_input = {'@action': 'submit'}
+            feedback_data = {}
+            for problem in task.get_problems():
+                source_task_id = problem.get_id()  # pid = task_id
+                user_task_latest_submission = user_task_submissions_by_task_id.get(source_task_id)
+                if user_task_latest_submission:
+                    user_input[source_task_id] = self.submission_manager.get_input_from_submission(user_task_latest_submission)['input']['program']
+                    latest_submission_feedback = user_task_latest_submission['custom'].get('feedback_data', {})
+                    if latest_submission_feedback and not feedback_data:
+                        feedback_data = latest_submission_feedback
+                    elif latest_submission_feedback:
+                        feedback_categories = feedback_data['categories']
+                        for category, data in latest_submission_feedback['categories'].items():
+                            if category not in feedback_categories:
+                                feedback_categories[category] = data
+                            else:
+                                feedback_categories[category]['tests'].extend(data['tests'])
+                            feedback_categories[category]['status']['total'] = len(feedback_categories[category]['tests'])
+                            feedback_categories[category]['status']['passed'] = len([t for t in feedback_categories[category]['tests'] if t['result']['bool']])
+                            feedback_categories[category]['status']['percent'] = int(
+                                    100 * feedback_categories[category]['status']['passed'] / feedback_categories[category]['status']['total']
+                                ) if feedback_categories[category]['status']['total'] else 0
+
+            # user_input = task.adapt_input_for_backend(user_input)
+            # if not task.input_is_consistent(user_input, self.default_allowed_file_extensions, self.default_max_file_size):
+            #     raise APIInvalidArguments()
+            self.user_manager.user_saw_task(username, courseid, task.get_id())
+
+            try:
+                submission_id, _ = self.submission_manager.add_job(task, user_input, True,
+                                                                   ExtraStrategy(username=username,
+                                                                                 email=student.email,
+                                                                                 feedback=feedback_data))
+                submission_ids[username] = str(submission_id)
+            except Exception as ex:
+                self.logger.error(f'Failed to create submission job for user {username}, error: {ex}')
+                raise APIError(500, str(ex))
+            # submission = self.submission_manager.get_submission(submission_id, user_check=False)
+        return submission_ids
+
+    def get_course_users(self, course):
+        students = list(
+            self.user_manager.get_users_info(
+                self.user_manager.get_course_registered_users(course, False)
+            ).items()
+        )
+        return dict(students)
+
+
+class ExtraStrategy(AddJobStrategy):
+    def __init__(self, username, email, feedback):
+        self.username = username
+        self.email = email
+        self.feedback_data = feedback
+
+    def get_username(self):
+        return self.username
+
+    def get_email(self):
+        return self.email
+
+    def add_feedback_data(self):
+        return self.feedback_data
+
 
 def init(plugin_manager, _, _2, _3):
     """ Init the matrix plugin """
@@ -253,3 +357,4 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qTip_js_file)
     plugin_manager.add_page("/admin/<courseid>/matrix", MatrixPage.as_view('matrtix'))
+    plugin_manager.add_page("/admin/<courseid>/<taskid>/merge_feedback", MergeFeedbackPage.as_view('merge_feedback'))

@@ -1,0 +1,190 @@
+{% extends "layout.html" %}
+
+{% block column %}
+    <h3>{{student}}</h3>
+    <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
+        <button class="btn btn-primary btn-info btn-sm previous-student-btn nav-btn">Previous Student</button>
+        <button class="btn btn-primary btn-info btn-sm next-student-btn nav-btn">Next Student</button>
+        <a class="btn btn-primary btn-info btn-sm download-btn nav-btn">Download submission files</a>
+    </div>
+{% endblock %}
+
+{% block navbar %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a
+                href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a>
+        </li>
+        <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}"
+                                       title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="breadcrumb-item active"><a href="#"><i class="fa fa-clipboard"></i> Manager Feedback <span
+                class="sr-only">(current)</span></a></li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} </h3>
+<div id="feedback_submit_status"></div>
+<div class="page-actions-container">
+    <div class="top-page-right-actions" style="margin: 10px 2px">
+            <div class="btn-group">
+                <select id="select-btn" class="btn btn-primary btn-info btn-sm" onchange="FeedbackPlugin.update_filter(this)">
+                    <option value="failed">Show Failed</option>
+                    <option value="passed">Show Succeeded</option>
+                    <option value="all">Show All</option>
+                </select>
+            </div>
+            <div class="btn-group">
+                <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_draft_feedback_btn" type="button" onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save changes</div></button>
+            </div>
+    </div>
+    <div class="page-right-actions">
+        <div class="btn-group footer-action-button">
+            <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">
+                <div class="d-none d-sm-inline">Back</div></button>
+        </div>
+        <div class="btn-group footer-action-button">
+            <button id="next-btn" class="btn btn-primary btn-info btn-sm next_btn" type="button" onclick="FeedbackPlugin.update_step(1)">
+                <div class="d-none d-sm-inline">Next</div></button>
+        </div>
+    </div>
+
+</div>
+<div class="page-actions-container">
+    <div style="display: flex; flex-wrap: nowrap;">
+        <div class="step-indicator" data-step=1 style="opacity: 1">STEP 1</div>
+        <div class="step-indicator" data-step=2 >STEP 2</div>
+        <div class="step-indicator" data-step=3 >STEP 3</div>
+    </div>
+
+</div>
+<div id="feedbacks" class="step1-view step2-view step-view test-result-table">
+    {%for category_en, category in feedback['categories'].items()%}
+    {%if category['tests']%}
+        <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
+            <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
+                 style="display: flex; margin: 5px;
+                 {% if category['status']['percent'] == 100 %} background-color: #318331;
+                 {% elif category['status']['percent'] > 80 %} background-color: #e4e729;
+                 {% elif category['status']['percent'] > 50 %} background-color: #ffbc40;
+                 {% else %} background-color: #fd4242; {% endif %}">
+                        <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
+                            <div>{{category["name"]}}</div>
+                            <div>&nbsp;- {{category['status']['passed']}}/{{category['status']['total']}}  {{category['status']['percent']}}%</div>
+                        </span>
+                        <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
+                              class="dropdown_button fa fa-caret-left"></span>
+                        <input type="checkbox" id="checkBoxSelect-feedback-{{category_en}}"
+                               style="padding-inline: 1.5rem" value="feedback-{{category_en}}"
+                               onchange="FeedbackPlugin.select_category_or_test(this)">
+
+            </div>
+            <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none; ">
+                <div >
+                        <div class="message-section message-feedback-{{category_en}} message"
+                             style="width: 100%;">
+                            <textarea id="message-feedback-{{category_en}}" rows="4" maxlength="500" placeholder="הערות מדריך"></textarea>
+                        </div>
+                </div>
+                <div class="test-container" style="margin: 1.5rem">
+                    {%for test in category["tests"]%}
+                    <div>
+                        <div id="{{test['name']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
+                             style="display:{% if test['result']['text'] == filterValue %} none {% else %} flex {% endif %};
+                             border-color:{% if test['result']['text'] == 'passed' %} green {% elif test['result']['text'] == 'failed' %} red {% else %} black {% endif %}">
+                            <div class="test-section">
+                                <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
+                                    <div class="pull-left" style="padding-inline: 1.5rem">
+                                        <div class="row" style="display: block">
+                                            {% if test.get("taskid") %}<div style="font-size: larger">{{test["taskid"]}}</div>{% endif %}
+                                            {% if test.get("link") %}
+                                                <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
+                                            {% else %}
+                                                <div style="color: #008cba">{{test["name"]}}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="row {{test['taskid']}}{{test['name'].replace(' ', '')}}-message" style="display: block; font-style: italic">
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
+                                    <div class="{{test['name'].replace(' ', '')}}-popup" style="display: none">
+                                        <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left" type="button" onclick="FeedbackPlugin.open_popup(this)">
+                                            <div class="d-none d-sm-inline">פרטים נוספים</div>
+                                        </button>
+                                    </div>
+                                    <input type="checkbox" id="checkBoxSelect-{{test['name']}}" class="col-md-3 col-xs-3 pull-right"
+                                           style="padding-inline: 1.5rem; vertical-align: middle; margin-top: 8px"
+                                           value="{{test['name']}}"
+                                           onchange="FeedbackPlugin.select_category_or_test(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {%endfor%}
+                </div>
+            </div>
+        </div>
+    {%endif%}
+    {%endfor%}
+    <div class="total-feedback message">
+        <label for="total-feedback" class="feedback_label">משוב מסכם</label>
+        <textarea id="total-feedback" rows="8" maxlength="1000">{{feedback['total_feedback']}}</textarea>
+    </div>
+</div>
+<div id="" class="step3-view step-view" style="display: none">
+    <div id="draft">
+
+
+
+    </div>
+</div>
+
+<div class="page-actions-container">
+    <div id="submit-buttons" style="display: none; flex-wrap: nowrap;">
+        <div class="btn-group submit-buttons" >
+            <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
+                    onclick="FeedbackPlugin.save_draft()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Save as draft</div></button>
+            <button id="submit_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
+                    onclick="FeedbackPlugin.submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">Submit for student</div></button>
+        </div>
+    </div>
+    <div></div>
+    <div class="page-right-actions">
+        <div class="btn-group footer-action-button">
+            <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">
+                <div class="d-none d-sm-inline">Back</div></button>
+        </div>
+        <div class="btn-group footer-action-button">
+            <button id="next-btn" class="btn btn-primary btn-info btn-sm next_btn" type="button" onclick="FeedbackPlugin.update_step(1)">
+                <div class="d-none d-sm-inline">Next</div></button>
+        </div>
+    </div>
+</div>
+
+<div id="popup" class="cout-popup">
+    <div class="cout-shell scrollable-container">
+    <button type="button" class="close close-feedback-modal close-btn" onclick="FeedbackPlugin.close_popup(this)">&times;</button>
+    <ul id="popup-text" class="shell-body cout-shell-body" ></ul>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    var student = '{{ student }}';
+    var courseid = '{{ course.get_id() }}';
+    var taskid = '{{ task.get_id() }}';
+    var tasktype = '{{ task._type }}';
+    var submissionid = '{{submission_id}}';
+    var manager_feedback = {{ feedback | tojson }};
+    $(document).ready(function () {
+        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype);
+        FeedbackPlugin.init_manage_feedback_page(manager_feedback['categories']);
+    });
+</script>
+{% endblock %}
