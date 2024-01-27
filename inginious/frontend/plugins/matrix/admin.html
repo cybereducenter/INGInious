@@ -16,7 +16,7 @@
         <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}"
                 title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-        <li class="breadcrumb-item active"><a href="#"><i class="fa fa-graduation-cap"></i> Matrix <span
+        <li class="breadcrumb-item active"><a shref="#"><i class="fa fa-graduation-cap"></i> Matrix <span
                     class="sr-only">(current)</span></a></li>
     </ol>
 </nav>
@@ -26,28 +26,28 @@
 <div id="feedback_submit_status"></div>
 <h2>Matrix</h2>
 
-{% if course_type != 'cpp-test' %}
+    {% if course_type != 'cpp-test' %}
     <div id="final_submission">
 
         <select id="select_lesson" class="btn btn-default select_feedback">
-            {% for task in order_tasks %}
-                {% if task._data.get("feedback") %}
+        {% for task in order_tasks %}
+            {% if task._data.get("feedback") %}
                     <option>{{task.get_id()}}</option>
-                {% endif %}
-            {% endfor %}
+            {% endif %}
+        {% endfor %}
         </select>
         <select id="select_students" class=" btn btn-default select_feedback" multiple="multiple" data-style="bg-white rounded-pill px-4 py-3 shadow-sm ">
-            {% for user in data_users %}
-                {% if user['name']['realname'] is defined %}
+        {% for user in data_users %}
+            {% if user['name']['realname'] is defined %}
                     <option value="{{user['name']['username']}}" selected>{{user['name']['realname']}}</option>
-                {% else %}
+            {% else %}
                     <option value="{{user['name']['username']}}" selected>{{user['name']['username']}}</option>
-                {% endif %}
-            {% endfor %}
+            {% endif %}
+        {% endfor %}
         </select>
         <button class="btn btn-default btn-success" value="{{data_users | length}}" onclick="MatrixPlugin.final_submission(this)">Final Submission</button>
     </div>
-{% endif %}
+    {% endif %}
 
 <div class="color-index">
     <div class="row">
@@ -69,29 +69,29 @@
             <div class="color-box notattempted"></div>
         </div>
 
-        {% if inspected_tasks %}
+    {% if inspected_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
             <div class="color-title">לבדיקת מדריך</div>
 
             <div class="color-box inspected-task"></div>
         </div>        
-        {% endif %}
+    {% endif %}
 
-        {% if bonus_tasks %}
+    {% if bonus_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
             <div class="color-title">בונוס</div>
 
             <div class="color-box bonus-task"></div>
         </div>       
-        {% endif %}
+    {% endif %}
 
-        {% if continuous_tasks %}
+    {% if continuous_tasks %}
         <div class="col-lg-1 col-xs-1 color-item">
             <div class="color-title">תרגיל מתגלגל</div>
 
             <div class="color-box continuous-task"></div>
         </div>       
-        {% endif %}
+    {% endif %}
 
     </div>
 </div>
@@ -102,58 +102,58 @@
         <thead>
             <tr>
                 <th id="students-cell" class="headcol header-cell">חניכים</th>
-                {% for x in future_tasks %}
-                {% if not x._data.get("feedback") %}
-                {% if "inspected" in x.get_categories() %}
-                <th class="grades-header future inspected-task">
-                {% elif "bonus" in x.get_categories() %}
-                <th class="grades-header future bonus-task">
-                {% elif "continuous" in x.get_categories() %}
-                <th class="grades-header future continuous-task">
+    {% for x in future_tasks %}
+        {% if not x._data.get("feedback") %}
+            {% if "inspected" in x.get_categories() %}
+                    <th class="grades-header future inspected-task">
+            {% elif "bonus" in x.get_categories() %}
+                    <th class="grades-header future bonus-task">
+            {% elif "continuous" in x.get_categories() %}
+                    <th class="grades-header future continuous-task">
+            {% else %}
+                    <th class="grades-header future">
+            {% endif %}
+                        <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
+                            {{ x.get_id() }}
+                        </a><br />
+
+                        <div class="btn-group" role="group">
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
+                                title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                                <i class="fa fa-edit"></i> 
+                            </a>
+                        </div>                
+                    </th>
+        {% endif %}
+    {% endfor %}
+
+    {% for x in past_tasks %}
+        {% if not x._data.get("feedback") %}
+            {% if "inspected" in x.get_categories() %}
+                {% if x.get_id() == first_id %} 
+                            <th class="grades-header-passed first-passed inspected-task">
                 {% else %}
-                <th class="grades-header future">
+                            <th class="grades-header-passed inspected-task">
                 {% endif %}
-                    <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
-                        {{ x.get_id() }}
-                    </a><br />
-
-                    <div class="btn-group" role="group">
-                        <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
-                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
-                            <i class="fa fa-edit"></i> 
-                        </a>
-                    </div>                
-                </th>
+            {% elif "bonus" in x.get_categories() %}
+                {% if x.get_id() == first_id %} 
+                            <th class="grades-header-passed first-passed bonus-task">
+                {% else %}
+                            <th class="grades-header-passed bonus-task">
                 {% endif %}
-                {% endfor %}
-
-                {% for x in past_tasks %}
-                {% for x in future_tasks %}
-                    {% if "inspected" in x.get_categories() %}
-                        {% if x.get_id() == first_id %} 
-                        <th class="grades-header-passed first-passed inspected-task">
-                        {% else %}
-                        <th class="grades-header-passed inspected-task">
-                        {% endif %}
-                    {% elif "bonus" in x.get_categories() %}
-                        {% if x.get_id() == first_id %} 
-                        <th class="grades-header-passed first-passed bonus-task">
-                        {% else %}
-                        <th class="grades-header-passed bonus-task">
-                        {% endif %}
-                    {% elif "continuous" in x.get_categories() %}
-                        {% if x.get_id() == first_id %} 
-                        <th class="grades-header-passed first-passed continuous-task">
-                        {% else %}
-                        <th class="grades-header-passed continuous-task">
-                        {% endif %}
-                    {% else %}
-                        {% if x.get_id() == first_id %} 
-                        <th class="grades-header-passed first-passed">
-                        {% else %}
-                        <th class="grades-header-passed">
-                        {% endif %}
-                    {% endif %}
+            {% elif "continuous" in x.get_categories() %}
+                {% if x.get_id() == first_id %} 
+                            <th class="grades-header-passed first-passed continuous-task">
+                {% else %}
+                            <th class="grades-header-passed continuous-task">
+                {% endif %}
+            {% else %}
+                {% if x.get_id() == first_id %} 
+                            <th class="grades-header-passed first-passed">
+                {% else %}
+                            <th class="grades-header-passed">
+                {% endif %}
+            {% endif %}
                    
                         <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
                             {{ x.get_id() }} 
@@ -166,27 +166,27 @@
                             </a>
                         </div>                
                     </th>
-                {% endif %}
-                {% endfor %}
+        {% endif %}
+    {% endfor %}
             </tr>
         </thead>
 
         <tbody>
-            {% if data_users is defined %}
-            {% for user in data_users %}
+    {% if data_users is defined %}
+        {% for user in data_users %}
             <tr>
                 <th class="headcol">
                     <a href="/admin/{{course.get_id()}}/student/{{user['name']['username']}}">
-                        {% if user['name']['realname'] is defined %}
+            {% if user['name']['realname'] is defined %}
                         {{user['name']['realname']}}
-                        {% else %}
+            {% else %}
                         {{user['name']['username']}}
-                        {% endif %}
+            {% endif %}
                     </a>
                 </th>
 
-                {% set prev_task_id = namespace(value="") %}
-                {% for task in user['tasks'] %}
+            {% set prev_task_id = namespace(value="") %}
+            {% for task in user['tasks'] %}
                 {% set specific_task = user['tasks'][task] %}
                 {% if (specific_task['taskid'].get_id() == first_id) %}
                 <td class="grades-column {{user['tasks'][task]['status']}} first-passed">
@@ -195,35 +195,35 @@
                 {% else %}
                 <td class="grades-column {{user['tasks'][task]['status']}}">
                 {% endif %}
-                    {% if 'grade' in specific_task['status'] %}
+                {% if 'grade' in specific_task['status'] %}
                     {% if specific_task['submissionid'] == 'None' %}
                     {{ specific_task['grade']|int }}
                     {% else %}
                     <div class="graded">
                         {% if specific_task['taskid']._type != 'cpp-test' %}
-                        {% for x in user['tasks'] %}
-                            {% if (specific_task['taskid'].get_id() in user['tasks'][x]['taskid'].get_problems_dict().keys()) %}
-                               {% if user['tasks'][x].get('submission_data', {}).get('has_feedback_data') %}
-                               <a class="feedback_nav" target="_blank" href="/manager_feedback/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
-                                    <span class="feedback_link"><li class="fa fa-file-text"></li></span>
-                                            <div class="feedbacktext">
-                                                <p>Click for adding feedback</p>
-                                            </div>
-                                        </a>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                {% if specific_task['submission_data']['has_feedback_data'] %}
-                                    <a target="_blank"
-                                    href="/manager_feedback/{{course.get_id()}}/{{specific_task['taskid'].get_id()}}/{{ specific_task['submissionid'] }}">
+                            {% for x in user['tasks'] %}
+                                {% if (specific_task['taskid'].get_id() in user['tasks'][x]['taskid'].get_problems_dict().keys()) %}
+                                   {% if user['tasks'][x].get('submission_data', {}).get('has_feedback_data') %}
+                                    <a class="feedback_nav" target="_blank" href="/manager_feedback/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
                                         <span class="feedback_link"><li class="fa fa-file-text"></li></span>
-                                        <div class="feedbacktext"> <!-- This class should hide the element, change it if needed -->
+                                        <div class="feedbacktext">
                                             <p>Click for adding feedback</p>
                                         </div>
                                     </a>
+                                    {% endif %}
                                 {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% if specific_task['submission_data']['has_feedback_data'] %}
+                            <a target="_blank"
+                               href="/manager_feedback/{{course.get_id()}}/{{specific_task['taskid'].get_id()}}/{{ specific_task['submissionid'] }}">
+                                <span class="feedback_link"><li class="fa fa-file-text"></li></span>
+                                <div class="feedbacktext"> <!-- This class should hide the element, change it if needed -->
+                                    <p>Click for adding feedback</p>
+                                </div>
+                            </a>
                             {% endif %}
+                        {% endif %}
                         <a target="_blank" href="{{ specific_task['submission_data']['url'] }}">
                             <span class="graded_icon" id="{{ user['tasks'][task]['submission_data'] }}">
                                 <i class="fa fa-rss fa-rotate-180"></i>
@@ -238,18 +238,18 @@
                     </div>
                 </td>
                 
-                {% endif %}
+                    {% endif %}
                 {% endif %}
                 {% set  prev_task_id.value = specific_task['taskid'].get_id() %}
-                {% endfor %}
-            </tr>
             {% endfor %}
+            </tr>
+        {% endfor %}
 
-            {% else %}
+    {% else %}
             <tr>
                 <td>No students</td>
             </tr>
-            {% endif %}
+    {% endif %}
         </tbody>
     </table>
 </div>
