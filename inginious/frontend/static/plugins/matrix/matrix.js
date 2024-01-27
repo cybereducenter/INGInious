@@ -37,6 +37,17 @@ var MatrixPlugin = (function () {
                 }
             })
         })
+        $('.feedback_link').each(function () {
+            $(this).qtip({
+                content: {
+                    text: $(this).next('.feedbacktext')
+                },
+                style: {
+                    classes: 'qtip-bootstrap',
+                    width: 250
+                }
+            })
+        })
     }
 
     //function onHover(data_users) {
@@ -61,10 +72,68 @@ var MatrixPlugin = (function () {
         return (newJson["time_passed"]);
     }
 
+    function final_submission(event) {
+        const user_len = parseInt(event.value);
+        const lesson = $('#select_lesson')[0].value;
+        var students = [];
+        const selectElement = $('#select_students')[0];
+        for (var i = 0; i < selectElement.options.length; i++) {
+            if (selectElement.options[i].selected) {
+                students.push(selectElement.options[i].value);
+            }
+        }
 
+        var href = window.location.href.split("/");
+        href[href.length - 1] = lesson;
+        href = href.join('/');
 
+        var message = "";
+        $.ajax({
+            type: "POST",
+            url: href + "/merge_feedback",
+            contentType: 'application/json',
+            data: JSON.stringify(students.length !== user_len ? {
+                "student": students,
+            } : {}),
+            success: function(response) {
+                console.log("success");
+                if (response) {
+                    console.log(response)
+                }
+                message = "Done";
+                studio_display_feedback_submit_message(message, "", "success", true);
+            },
+            error: function (e) {
+                console.log("error: " + e.statusText)
+                message = "An internal error occurred";
+                studio_display_feedback_submit_message("Some error(s) occurred during submission: " + message, "", "danger", true);
+            },
+        });
+
+    }
+
+    function studio_display_feedback_submit_message(title, content, type, dismissible)
+    {
+        var code = getAlertCode(title, content, type, dismissible);
+        $('#feedback_submit_status').html(code);
+        $('.feedback_nav').css('display', 'none');
+        window.scrollTo(0,0);
+        if(dismissible)
+        {
+            window.setTimeout(function()
+            {
+                $("#feedback_submit_status").children().fadeTo(1000, 0).slideUp(1000, function()
+                {
+                    $(this).remove();
+                });
+                window.location.reload();
+            }, 3000);
+        }
+    }
+    
     return {
         onHover: onHover,
+        final_submission: final_submission,
     }
 })(jQuery);
 

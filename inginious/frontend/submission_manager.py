@@ -45,12 +45,19 @@ class WebAppSubmissionManager:
         self._lti_outcome_manager = lti_outcome_manager
 
     def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, state, archive, stdout,
-                           stderr, newsub=True):
+                           stderr, newsub=True, scenario=None):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
 
         submission = self.get_input_from_submission(submission)
+
+        presaved_feedback = scenario.add_feedback_data()
+        if presaved_feedback:
+            if not custom:
+                custom = {"feedback_data": presaved_feedback}
+            else:
+                custom.update({"feedback_data": presaved_feedback})
 
         data = {
             "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
@@ -95,7 +102,8 @@ class WebAppSubmissionManager:
                 return_document=ReturnDocument.AFTER
             )
 
-        self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
+        self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub, user_manager=self._user_manager, task=task)
+
 
         if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
             for username in submission["username"]:
@@ -250,7 +258,7 @@ class WebAppSubmissionManager:
                 return None
         return sub
 
-    def add_job(self, task, inputdata, debug=False):
+    def add_job(self, task, inputdata, debug=False, scenario=None):        
         """
         Add a job in the queue and returns a submission id.
         :param task:  Task instance
@@ -261,10 +269,13 @@ class WebAppSubmissionManager:
         :type debug: bool or string
         :returns: the new submission id and the removed submission id
         """
+        if not scenario:
+            scenario = DefaultStrategy(user_manager=self._user_manager, database=self._database, logger=self._logger)
+
         if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to submit an object")
 
-        username = self._user_manager.session_username()
+        username = scenario.get_username()
 
         # Prevent student from submitting several submissions together
         waiting_submission = self._database.submissions.find_one({
@@ -289,7 +300,7 @@ class WebAppSubmissionManager:
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
         # new_submission hook
         inputdata["@username"] = username
-        inputdata["@email"] = self._user_manager.session_email()
+        inputdata["@email"] = scenario.get_email()
         inputdata["@lang"] = self._user_manager.session_language()
         inputdata["@time"] = str(obj["submitted_on"])
         inputdata["@taskid"] = task.get_id()
@@ -317,7 +328,7 @@ class WebAppSubmissionManager:
 
         self._plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
 
-        self._before_submission_insertion(task, inputdata, debug, obj)
+        scenario.before_submission_insertion(task, inputdata, debug, obj)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
         submissionid = self._database.submissions.insert_one(obj).inserted_id
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
@@ -327,7 +338,7 @@ class WebAppSubmissionManager:
         jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests,
-                                                              custom, state, archive, stdout, stderr, True)),
+                                                              custom, state, archive, stdout, stderr, True, scenario)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update_one(
@@ -335,8 +346,8 @@ class WebAppSubmissionManager:
             {"$set": {"jobid": jobid}}
         )
 
-        self._logger.info("New submission from %s - %s - %s/%s - %s", self._user_manager.session_username(),
-                          self._user_manager.session_email(), task.get_course_id(), task.get_id(),
+        self._logger.info("New submission from %s - %s - %s/%s - %s", scenario.get_username(),
+                          scenario.get_email(), task.get_course_id(), task.get_id(),
                           flask.request.remote_addr)
 
         return submissionid, to_remove
@@ -749,3 +760,72 @@ def update_pending_jobs(database):
     database.submissions.update_many({'status': 'waiting'},
                                 {"$unset": {'jobid': ""},
                                  "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}})
+
+
+class AddJobStrategy(object):
+    def get_username(self):
+        return None
+
+    def get_email(self):
+        return None
+
+    def before_submission_insertion(self, task=None, inputdata=None, debug=False, obj=None):
+        pass
+
+    def add_feedback_data(self):
+        return None
+    
+class DefaultStrategy(AddJobStrategy):
+    def __init__(self, user_manager, database, logger):
+        self._user_manager = user_manager
+        self._database = database
+        self._logger = logger
+
+    def get_username(self):
+        return self._user_manager.session_username()
+
+    def get_email(self):
+        return self._user_manager.session_email()
+
+    def before_submission_insertion(self, task=None, inputdata=None, debug=False, obj=None):
+            """
+            Called before any new submission is inserted into the database. Allows you to modify obj, the new document that will be inserted into the
+            database. Should be overridden in subclasses.
+
+            :param task: Task related to the submission
+            :param inputdata: input of the student
+            :param debug: True, False or "ssh". See add_job.
+            :param obj: the new document that will be inserted
+            """
+            username = self._user_manager.session_username()
+
+            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
+                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+                obj.update({"username": group["students"]})
+            else:
+                obj.update({"username": [username]})
+
+            lti_info = self._user_manager.session_lti_info()
+            if lti_info is not None and task.get_course().lti_send_back_grade():
+                outcome_service_url = lti_info["outcome_service_url"]
+                outcome_result_id = lti_info["outcome_result_id"]
+                outcome_consumer_key = lti_info["consumer_key"]
+
+                # safety check
+                if outcome_result_id is None or outcome_service_url is None:
+                    self._logger.error(
+                        "outcome_result_id or outcome_service_url is None, but grade needs to be sent back to TC! Ignoring.")
+                    return
+
+                obj.update({"outcome_service_url": outcome_service_url,
+                            "outcome_result_id": outcome_result_id,
+                            "outcome_consumer_key": outcome_consumer_key})
+
+            # If we are submitting for a group, send the group (user list joined with ",") as username
+            if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+                username = self._user_manager.session_username()
+                if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(),
+                                                                                              username):
+                    group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+                    users = self._database.users.find({"username": {"$in": group["students"]}})
+                    inputdata["@username"] = ','.join(group["students"])

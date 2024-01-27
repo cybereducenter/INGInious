@@ -196,7 +196,7 @@ table {
     display: inline-block;
     position: absolute;
     top: 0;
-    right: 0;
+    right: 1px;
     color: #4d4d4d;
 }
 
@@ -220,4 +220,16 @@ td.grade {
 
 th a {
     overflow-wrap: break-word;
+}
+
+.feedback_link {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 1px;
+    color: #4d4d4d;
+}
+
+.feedbacktext {
+    display: none;
 }
