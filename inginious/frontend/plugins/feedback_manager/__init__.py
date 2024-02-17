@@ -59,7 +59,7 @@ class FeedbackCoutPage(INGIniousAuthPage):
         return cout_text
 
 
-class ManagerFeedbackPage(INGIniousAdminPage):
+class FeedbackManagerPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
 
         manager_userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
@@ -234,12 +234,12 @@ def inject_html(courseid, task_id, submissionid, feedback_json):
 
 def add_css_file():
     """ Add manage_feedback css file to the admin page """
-    return '/static/plugins/manager_feedback/feedback.css'
+    return '/static/plugins/feedback_manager/feedback_manager.css'
 
 
 def add_js_file():
     """ Add manage_feedback js file to the admin page """
-    return '/static/plugins/manager_feedback/feedback.js'
+    return '/static/plugins/feedback_manager/feedback_manager.js'
 
 
 def add_qtip_css_file():
@@ -253,18 +253,18 @@ def add_qtip_js_file():
 
 
 def init(plugin_manager, _, _2, _3):
-    """ Init the cpp feedback plugin """
+    """ Init the feedback manager plugin """
     plugin_manager.add_hook('css', add_css_file)
     plugin_manager.add_hook('css', add_qtip_css_file)
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qtip_js_file)
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>",
-                            ManagerFeedbackPage.as_view('manager_feedback'))
+    plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>",
+                            FeedbackManagerPage.as_view('feedback_manager'))
     plugin_manager.add_page("/feedback/<courseid>/<taskid>/<submission_id>/cout",
                             FeedbackCoutPage.as_view('feedback_cout'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/preview",
+    plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>/preview",
                             PreviewPage.as_view('preview'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/prev",
+    plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>/prev",
                             ManagerFeedbackPrevPage.as_view('manager_feedback_prev'))
-    plugin_manager.add_page("/manager_feedback/<courseid>/<taskid>/<submission_id>/next",
+    plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>/next",
                             ManagerFeedbackNextPage.as_view('manager_feedback_next'))
