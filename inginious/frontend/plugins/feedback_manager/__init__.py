@@ -94,7 +94,7 @@ class FeedbackManagerPage(INGIniousAdminPage):
                                              {"$set": {"custom": {"feedback_data": submission_feedback},
                                                        "grade": int(100 * passed / total)}})
 
-        return self.template_helper.render("manage_feedback.html",
+        return self.template_helper.render("feedback_manager.html",
                                            template_folder='frontend/plugins/feedback_manager',
                                            course=course,
                                            task=task,
