@@ -181,10 +181,10 @@
     var taskid = '{{ task.get_id() }}';
     var tasktype = '{{ task._type }}';
     var submissionid = '{{submission_id}}';
-    var manager_feedback = {{ feedback | tojson }};
+    var feedback_manager = {{ feedback | tojson }};
     $(document).ready(function () {
         FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype);
-        FeedbackPlugin.init_manage_feedback_page(manager_feedback['categories']);
+        FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);
     });
 </script>
 {% endblock %}

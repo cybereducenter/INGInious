@@ -95,7 +95,7 @@ class FeedbackManagerPage(INGIniousAdminPage):
                                                        "grade": int(100 * passed / total)}})
 
         return self.template_helper.render("manage_feedback.html",
-                                           template_folder='frontend/plugins/manager_feedback',
+                                           template_folder='frontend/plugins/feedback_manager',
                                            course=course,
                                            task=task,
                                            student=student_userdata['realname'],
@@ -221,7 +221,7 @@ def validate_submission(logger, submission):
 
 
 def inject_html(courseid, task_id, submissionid, feedback_json):
-    file_path = inginious.get_root_path() + '/frontend/plugins/manager_feedback/student_feedback_template.html'
+    file_path = inginious.get_root_path() + '/frontend/plugins/feedback_manager/student_feedback_template.html'
     with codecs.open(file_path, 'r', encoding='utf8') as f:
         feedback_html = f.read()
     injected = feedback_html.replace('task_id', task_id)
@@ -265,6 +265,6 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>/preview",
                             PreviewPage.as_view('preview'))
     plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>/prev",
-                            ManagerFeedbackPrevPage.as_view('manager_feedback_prev'))
+                            ManagerFeedbackPrevPage.as_view('feedback_manager_prev'))
     plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>/next",
-                            ManagerFeedbackNextPage.as_view('manager_feedback_next'))
+                            ManagerFeedbackNextPage.as_view('feedback_manager_next'))

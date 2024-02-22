@@ -38,11 +38,12 @@ class MatrixPage(INGIniousAdminPage):
 
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         future_tasks, first_past_task, past_tasks = self._get_ordered_task_simplified(course)
+        order_tasks = future_tasks + past_tasks
 
-        # Special task categories
-        inspected_tasks = len([t for t in future_tasks + past_tasks if "inspected" in t.get_categories()]) > 0
-        bonus_tasks = len([t for t in future_tasks + past_tasks if "bonus" in t.get_categories()]) > 0
-        continuous_tasks = len([t for t in future_tasks + past_tasks if "continuous" in t.get_categories()]) > 0
+        # Special task categories, to be highlighted on the column header row
+        inspected_tasks = len([t for t in order_tasks if "inspected" in t.get_categories()]) > 0
+        bonus_tasks = len([t for t in order_tasks if "bonus" in t.get_categories()]) > 0
+        continuous_tasks = len([t for t in order_tasks if "continuous" in t.get_categories()]) > 0
 
         """ Get all user tasks """
         for user in users:
@@ -59,13 +60,14 @@ class MatrixPage(INGIniousAdminPage):
                                            course=course, 
                                            course_type=course_type,
                                            data_users=data_users, 
+                                           order_tasks=order_tasks,
                                            past_tasks=past_tasks, 
                                            future_tasks=future_tasks,
                                            inspected_tasks=inspected_tasks,
                                            bonus_tasks=bonus_tasks,
                                            continuous_tasks=continuous_tasks,
-                                           first_id=first_id,
                                            possible_grades=TaskConstants.ORDERED_GRADE_COLORS_RANGE,
+                                           first_id=first_id,                                           
                                            now=datetime.now())
 
     def _get_ordered_task_simplified(self, course):
@@ -99,51 +101,51 @@ class MatrixPage(INGIniousAdminPage):
         return future_tasks, first_past_task, past_tasks
     
         
-    def _get_ordered_task(self, course):
-        """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
-        tasks = course.get_tasks()
-        past_future_tasks = []
-        past_tasks = []
-        future_tasks = []
-        always_tasks = []
-        never_tasks = []
-        for task in tasks:
-            # todo, extract strings to constants
-            if tasks[task].get_deadline() == 'No deadline':
-                """ Tasks with no deadline, that will always show in tasks """
-                always_tasks.append(tasks[task])
-            elif tasks[task].get_deadline() == "It's too late":
-                """ Tasks that will never show in tasks """
-                never_tasks.append(tasks[task])
-            else:
-                now = datetime.now()
+    # def _get_ordered_task(self, course):
+    #     """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
+    #     tasks = course.get_tasks()
+    #     past_future_tasks = []
+    #     past_tasks = []
+    #     future_tasks = []
+    #     always_tasks = []
+    #     never_tasks = []
+    #     for task in tasks:
+    #         # todo, extract strings to constants
+    #         if tasks[task].get_deadline() == 'No deadline':
+    #             """ Tasks with no deadline, that will always show in tasks """
+    #             always_tasks.append(tasks[task])
+    #         elif tasks[task].get_deadline() == "It's too late":
+    #             """ Tasks that will never show in tasks """
+    #             never_tasks.append(tasks[task])
+    #         else:
+    #             now = datetime.now()
 
-                if tasks[task].get_accessible_time().get_start_date() < now:
-                    if tasks[task].get_accessible_time().get_end_date() < now:
-                        """ Past tasks that will show in the beginning """
-                        past_tasks.append(tasks[task])
-                    else:
-                        """ Past future tasks that will show at the end """
-                        past_future_tasks.append(tasks[task])
-                elif tasks[task].get_accessible_time().get_start_date() > now \
-                        and tasks[task].get_accessible_time().get_end_date() > now:
-                    """ Future tasks that will not show in tasks """
-                    future_tasks.append(tasks[task])
+    #             if tasks[task].get_accessible_time().get_start_date() < now:
+    #                 if tasks[task].get_accessible_time().get_end_date() < now:
+    #                     """ Past tasks that will show in the beginning """
+    #                     past_tasks.append(tasks[task])
+    #                 else:
+    #                     """ Past future tasks that will show at the end """
+    #                     past_future_tasks.append(tasks[task])
+    #             elif tasks[task].get_accessible_time().get_start_date() > now \
+    #                     and tasks[task].get_accessible_time().get_end_date() > now:
+    #                 """ Future tasks that will not show in tasks """
+    #                 future_tasks.append(tasks[task])
 
-        tasks_with_future_deadline = past_future_tasks + future_tasks
+    #     tasks_with_future_deadline = past_future_tasks + future_tasks
 
-        """ Sort By Deadline """
-        tasks_with_future_deadline = sorted(tasks_with_future_deadline, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
-        past_tasks = sorted(past_tasks, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+    #     """ Sort By Deadline """
+    #     tasks_with_future_deadline = sorted(tasks_with_future_deadline, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
+    #     past_tasks = sorted(past_tasks, key=lambda x: x.get_accessible_time().get_end_date(), reverse=True)
 
-        order_tasks = tasks_with_future_deadline + always_tasks + past_tasks + never_tasks
+    #     order_tasks = tasks_with_future_deadline + always_tasks + past_tasks + never_tasks
         
-        if past_tasks:
-            return order_tasks, past_tasks[0]
-        elif never_tasks:
-            return order_tasks, never_tasks[0]
-        else:
-            return order_tasks, None
+    #     if past_tasks:
+    #         return order_tasks, past_tasks[0]
+    #     elif never_tasks:
+    #         return order_tasks, never_tasks[0]
+    #     else:
+    #         return order_tasks, None
 
     def _calc_user_data(self, course, order_tasks, user_data):
         username = user_data['username']
@@ -155,15 +157,15 @@ class MatrixPage(INGIniousAdminPage):
                                                                  "status": TaskConstants.DEFAULT_STATUS,
                                                                  "grade": 0}) for taskid in order_tasks])
 
-        tasks = course.get_tasks()        
-        for task in tasks:
-            start_date = tasks[task].get_accessible_time().get_start_date()
-            if start_date == datetime.max:
-                ordered_tasks_for_user[task]['status'] = 'notaccessible'
+        user_tasks = list(self.database.user_tasks.find({"username": username, "courseid": course_id}))
+        user_task_submissions_by_task_id = _get_user_task_submissions(self, username, course_id)
 
-        user_tasks = list(self.database.user_tasks.find({"username":  username, "courseid": course_id}))
-        user_task_submissions_by_task_id = self._get_user_task_submissions(username, course_id)
-
+        # tasks = course.get_tasks()        
+        # for task in tasks:
+        #     start_date = tasks[task].get_accessible_time().get_start_date()
+        #     if start_date == datetime.max:
+        #         ordered_tasks_for_user[task]['status'] = 'notaccessible'
+        
         ordered_tasks_for_user = self._calculate_user_tasks(
                                     user_tasks, ordered_tasks_for_user,
                                     user_task_submissions_by_task_id, course_id, username)
@@ -172,7 +174,7 @@ class MatrixPage(INGIniousAdminPage):
         return data_user
 
     def _calculate_user_tasks(self, user_tasks, ordered_tasks_for_user,
-                             user_task_submissions_by_task_id, course_name, student_name):
+                              user_task_submissions_by_task_id, course_name, student_name):
         for user_task in user_tasks:
             task_id = user_task["taskid"]
 
@@ -206,23 +208,23 @@ class MatrixPage(INGIniousAdminPage):
           return '/admin/'+ course_name + '/submissions?tasks=' + task_name + '&users=' + student_name
 
 
-    def _get_user_task_submissions(self, username, course_id):
-        '''
-        get all the relevant submissions - the last ones and not the ones with the highest score
-        group by taskid and select the latest one,
-        since we are sorting by date, the first we'll encounter
-        will be the latest one
-        '''
-        user_task_submissions = list(self.database.submissions.find({"username":  username, "courseid": course_id})
-                                     .sort([("submitted_on", pymongo.DESCENDING)]))
+def _get_user_task_submissions(self, username, course_id):
+    '''
+    get all the relevant submissions - the last ones and not the ones with the highest score
+    group by taskid and select the latest one,
+    since we are sorting by date, the first we'll encounter
+    will be the latest one
+    '''
+    user_task_submissions = list(self.database.submissions.find({"username":  username, "courseid": course_id})
+                                    .sort([("submitted_on", pymongo.DESCENDING)]))
 
-        user_task_submissions_by_task_id = {}
-        for user_task_submission in user_task_submissions:
-            task_id = user_task_submission['taskid']
-            if not user_task_submissions_by_task_id.get(task_id):
-                user_task_submissions_by_task_id[task_id] = user_task_submission
+    user_task_submissions_by_task_id = {}
+    for user_task_submission in user_task_submissions:
+        task_id = user_task_submission['taskid']
+        if not user_task_submissions_by_task_id.get(task_id):
+            user_task_submissions_by_task_id[task_id] = user_task_submission
 
-        return user_task_submissions_by_task_id
+    return user_task_submissions_by_task_id
 
 
 def add_admin_menu(course):
@@ -281,7 +283,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
 
         submission_ids = {}
         for username, student in students_to_merge.items():
-            user_task_submissions_by_task_id = self._get_user_task_submissions(username, courseid)
+            user_task_submissions_by_task_id = _get_user_task_submissions(self, username, courseid)
 
             user_input = {'@action': 'submit'}
             feedback_data = {}
@@ -322,6 +324,7 @@ class MergeFeedbackPage(INGIniousAdminPage):
                 raise APIError(500, str(ex))
             # submission = self.submission_manager.get_submission(submission_id, user_check=False)
         return submission_ids
+
 
     def get_course_users(self, course):
         students = list(

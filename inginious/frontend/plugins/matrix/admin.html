@@ -188,6 +188,7 @@
             {% set prev_task_id = namespace(value="") %}
             {% for task in user['tasks'] %}
                 {% set specific_task = user['tasks'][task] %}
+                {% if not specific_task['taskid'].is_feedback_task() %}
                 {% if (specific_task['taskid'].get_id() == first_id) %}
                 <td class="grades-column {{user['tasks'][task]['status']}} first-passed">
                 {% elif specific_task['taskid'].get_id()[:2] != prev_task_id.value[:2] and prev_task_id.value != '' %}
@@ -204,7 +205,7 @@
                             {% for x in user['tasks'] %}
                                 {% if (specific_task['taskid'].get_id() in user['tasks'][x]['taskid'].get_problems_dict().keys()) %}
                                    {% if user['tasks'][x].get('submission_data', {}).get('has_feedback_data') %}
-                                    <a class="feedback_nav" target="_blank" href="/manager_feedback/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
+                                    <a class="feedback_nav" target="_blank" href="/feedback_manager/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
                                         <span class="feedback_link"><li class="fa fa-file-text"></li></span>
                                         <div class="feedbacktext">
                                             <p>Click for adding feedback</p>
@@ -216,7 +217,7 @@
                         {% else %}
                             {% if specific_task['submission_data']['has_feedback_data'] %}
                             <a target="_blank"
-                               href="/manager_feedback/{{course.get_id()}}/{{specific_task['taskid'].get_id()}}/{{ specific_task['submissionid'] }}">
+                               href="/feedback_manager/{{course.get_id()}}/{{specific_task['taskid'].get_id()}}/{{ specific_task['submissionid'] }}">
                                 <span class="feedback_link"><li class="fa fa-file-text"></li></span>
                                 <div class="feedbacktext"> <!-- This class should hide the element, change it if needed -->
                                     <p>Click for adding feedback</p>
@@ -241,6 +242,7 @@
                     {% endif %}
                 {% endif %}
                 {% set  prev_task_id.value = specific_task['taskid'].get_id() %}
+                {% endif %}
             {% endfor %}
             </tr>
         {% endfor %}

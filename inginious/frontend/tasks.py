@@ -140,6 +140,8 @@ class Task(object):
         # other option is python - different run file
         self._type = self._data.get("type")
 
+        self._is_feedback_task = self._data.get("feedback", False)
+
 
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
@@ -287,3 +289,6 @@ class Task(object):
     def regenerate_input_random(self):
         """ Indicates if random inputs should be regenerated """
         return self._regenerate_input_random
+
+    def is_feedback_task(self):
+        return self._is_feedback_task

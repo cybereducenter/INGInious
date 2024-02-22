@@ -125,7 +125,7 @@ var FeedbackPlugin = (function () {
         var href = ""
         if (tasktype === "cpp-test") {
             href = window.location.href.split("/");
-            href[href.indexOf("manager_feedback")] = "course";
+            href[href.indexOf("feedback_manager")] = "course";
             href.pop();
             href = href.join('/');
             href = href + "?submissionid=" + submissionid + "&questionid=program";
