@@ -154,7 +154,7 @@ var FeedbackPlugin = (function () {
         if (currentStep === 1) {
             disable_button("back", "true");
             $(".message").css("display", "none");
-            $('#select-btn').val('failed');
+            $('#select-btn').val('all');
             update_filter($('#select-btn')[0]);
         } else {
             console.log("render page - update_page", currentStep)

@@ -39,9 +39,9 @@
         <select id="select_students" class=" btn btn-default select_feedback" multiple="multiple" data-style="bg-white rounded-pill px-4 py-3 shadow-sm ">
         {% for user in data_users %}
             {% if user['name']['realname'] is defined %}
-                    <option value="{{user['name']['username']}}" selected>{{user['name']['realname']}}</option>
+                    <option value="{{user['name']['username']}}">{{user['name']['realname']}}</option>
             {% else %}
-                    <option value="{{user['name']['username']}}" selected>{{user['name']['username']}}</option>
+                    <option value="{{user['name']['username']}}">{{user['name']['username']}}</option>
             {% endif %}
         {% endfor %}
         </select>
