@@ -77,7 +77,9 @@ class FeedbackManagerPage(INGIniousAdminPage):
         passed = 0
         for test in extra_submission_feedback:
             if test["category"] not in submission_feedback['categories']:
-                submission_feedback['categories'][test["category"]] = self.build_feedback_data(test, task)
+                new_test_category = self.build_feedback_data(test, task)
+                existing_test_categories = submission_feedback['categories']
+                submission_feedback['categories'] = {**existing_test_categories, **new_test_category}
             else:
                 submission_feedback['categories'][test["category"]]['tests'].append(self.build_test_feedback(test, task))
             total_tests = submission_feedback['categories'][test["category"]]['tests']
