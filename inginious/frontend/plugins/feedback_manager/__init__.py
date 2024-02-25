@@ -139,7 +139,7 @@ class FeedbackManagerPage(INGIniousAdminPage):
             "exit_code": test.get("message_code", 0),
             "link": test.get("link", "") if task._type == 'cpp-test' else None,
             "cout_file": None if test.get("cout_file", "N/A") == 'N/A' else "Cout/" + test["cout_file"],
-            "cout_text": test.get("cout"),
+            "cout_text": test.get("cout_text"),
             "message": test["message"],
             "result": {
                 "bool": test["status"] == "passed",
