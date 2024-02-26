@@ -63,16 +63,25 @@
 <div id="feedbacks" class="step1-view step2-view step-view test-result-table">
     {%for category_en, category in feedback['categories'].items()%}
     {%if category['tests']%}
-        <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
+        <!-- temp hack (Raz) -->
+        {% if category['name'] == 'פונקציונליות' %}
+            <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
+        {% else %}
+            <div id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
+        {% endif %}
             <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
                  style="display: flex; margin: 5px;
-                 {% if category['status']['percent'] == 100 %} background-color: #318331;
+                 {% if category["name"] != "פונקציונליות" %} background-color: #5bc0de; 
+                 {% elif category['status']['percent'] == 100 %} background-color: #318331;
                  {% elif category['status']['percent'] > 80 %} background-color: #e4e729;
                  {% elif category['status']['percent'] > 50 %} background-color: #ffbc40;
                  {% else %} background-color: #fd4242; {% endif %}">
                         <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
                             <div>{{category["name"]}}</div>
+                            <!-- temp hack (Raz) -->
+                            {% if category["name"] == "פונקציונליות" %}
                             <div>&nbsp;- {{category['status']['passed']}}/{{category['status']['total']}}  {{category['status']['percent']}}%</div>
+                            {% endif %}
                         </span>
                         <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
                               class="dropdown_button fa fa-caret-left"></span>
