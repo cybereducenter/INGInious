@@ -233,3 +233,7 @@ th a {
 .feedbacktext {
     display: none;
 }
+
+.code-task {
+    border: 1px solid black;
+}

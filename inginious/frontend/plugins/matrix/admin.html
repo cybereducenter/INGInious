@@ -118,10 +118,18 @@
                         </a><br />
 
                         <div class="btn-group" role="group">
-                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
-                                title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
-                                <i class="fa fa-edit"></i> 
+                            {% if x._data.get("context").startswith("Paste") %}
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs code-task"
+                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                            <i class="fa fa-edit"></i> 
                             </a>
+                            {% else %}
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs non-code-task"
+                            title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                            <i class="fa fa-edit"></i> 
+                            </a>
+                            {% endif %}
+       
                         </div>                
                     </th>
         {% endif %}
@@ -158,13 +166,21 @@
                         <a href="/course/{{course.get_id()}}/{{x.get_id()}}">
                             {{ x.get_id() }} 
                         </a><br />
-
+                        {% if x._data.get("context").startswith("Paste") %}
                         <div class="btn-group" role="group">
-                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs"
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs code-task"
                                 title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
                                 <i class="fa fa-edit"></i>
                             </a>
                         </div>                
+                        {% else %}
+                        <div class="btn-group" role="group">
+                            <a href="/admin/{{course.get_id()}}/edit/task/{{x.get_id()}}" class="btn btn-default btn-xs code-task"
+                                title data-toggle="tooltip" data-placement="bottom" data-original-title="Edit task">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </div>                
+                        {% endif %}
                     </th>
         {% endif %}
     {% endfor %}
