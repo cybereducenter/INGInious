@@ -94,7 +94,7 @@
                 <div >
                         <div class="message-section message-feedback-{{category_en}} message"
                              style="width: 100%;">
-                            <textarea id="message-feedback-{{category_en}}" rows="4" maxlength="500" placeholder="הערות מדריך"></textarea>
+                            <textarea id="message-feedback-{{category_en}}" dir="rtl" rows="4" maxlength="500" placeholder="הערות מדריך"></textarea>
                         </div>
                 </div>
                 <div class="test-container" style="margin: 1.5rem">
@@ -142,7 +142,7 @@
     {%endfor%}
     <div class="total-feedback message">
         <label for="total-feedback" class="feedback_label">משוב מסכם</label>
-        <textarea id="total-feedback" rows="8" maxlength="1000">{{feedback['total_feedback']}}</textarea>
+        <textarea id="total-feedback" dir="rtl" rows="8" maxlength="1000">{{feedback['total_feedback']}}</textarea>
     </div>
 </div>
 <div id="" class="step3-view step-view" style="display: none">
