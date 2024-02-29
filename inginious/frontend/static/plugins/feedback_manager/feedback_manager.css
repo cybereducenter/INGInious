@@ -48,7 +48,7 @@
 }
 
 .message Textarea {
-    width: calc(100% - 20px);
+    width: 100%;
     border: 1.5px solid rgba(0,0,0,.125);
     border-radius: 10px;
     margin-inline: 10px;
