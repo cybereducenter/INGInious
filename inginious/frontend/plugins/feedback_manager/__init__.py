@@ -59,7 +59,7 @@ class FeedbackCoutPage(INGIniousAuthPage):
         return cout_text
 
 
-class FeedbackManagerPage(INGIniousAdminPage):
+class FeedbackManagerPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
 
         manager_userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
@@ -68,7 +68,9 @@ class FeedbackManagerPage(INGIniousAdminPage):
             self.logger.error('Unavailable manager user')
             raise APIInvalidArguments()
 
-        course, task = self.get_course_and_check_rights(courseid, taskid)
+        # course, task = self.get_course_and_check_rights(courseid, taskid)
+        course = self.course_factory.get_course(courseid)
+        task = self.task_factory.get_task(course, taskid)
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
@@ -108,7 +110,7 @@ class FeedbackManagerPage(INGIniousAdminPage):
                                            now=datetime.now())
 
     def POST_AUTH(self, courseid, taskid, submission_id):
-        course, task = self.get_course_and_check_rights(courseid, taskid)
+        course = self.course_factory.get_course(courseid)
         submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         updated_feedback = flask.request.json
         if not updated_feedback['categories']:
@@ -198,9 +200,9 @@ def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
     return ''
 
 
-class PreviewPage(INGIniousAdminPage):
+class PreviewPage(INGIniousAuthPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
-        course, task = self.get_course_and_check_rights(courseid, taskid)
+        course = self.course_factory.get_course(courseid)
         get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         feedback_json = flask.request.json
         injected = inject_html(courseid, taskid, submission_id, feedback_json)

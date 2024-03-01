@@ -1,12 +1,16 @@
 {% extends "layout.html" %}
+{% set staff = user_manager.has_staff_rights_on_course(course) %}
+
 
 {% block column %}
     <h3>{{student}}</h3>
+    {% if staff %}
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
         <button class="btn btn-primary btn-info btn-sm previous-student-btn nav-btn">Previous Student</button>
         <button class="btn btn-primary btn-info btn-sm next-student-btn nav-btn">Next Student</button>
         <a class="btn btn-primary btn-info btn-sm download-btn nav-btn">Download submission files</a>
     </div>
+    {% endif %}
 {% endblock %}
 
 {% block navbar %}
@@ -25,7 +29,8 @@
 {% endblock %}
 
 {% block content %}
-<h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} </h3>
+<h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} / Student: {{student}} </h3>
+{% if staff %}
 <div id="feedback_submit_status"></div>
 <div class="page-actions-container">
     <div class="top-page-right-actions" style="margin: 10px 2px">
@@ -60,9 +65,10 @@
     </div>
 
 </div>
+{% endif %}
 <div id="feedbacks" class="step1-view step2-view step-view test-result-table">
     {%for category_en, category in feedback['categories'].items()%}
-    {%if category['tests']%}
+    <!-- {%if category['tests']%} -->
         <!-- temp hack (Raz) -->
         {% if category['name'] == 'פונקציונליות' %}
             <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
@@ -138,7 +144,7 @@
                 </div>
             </div>
         </div>
-    {%endif%}
+    <!-- {%endif%} -->
     {%endfor%}
     <div class="total-feedback message">
         <label for="total-feedback" class="feedback_label">משוב מסכם</label>
@@ -153,6 +159,7 @@
     </div>
 </div>
 
+{% if staff %}
 <div class="page-actions-container">
     <div id="submit-buttons" style="display: none; flex-wrap: nowrap;">
         <div class="btn-group submit-buttons" >
@@ -174,6 +181,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <div id="popup" class="cout-popup">
     <div class="cout-shell scrollable-container">
@@ -185,14 +193,16 @@
 
 
 <script type="text/javascript">
+    var staff = '{{ staff }}';
     var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
     var tasktype = '{{ task._type }}';
     var submissionid = '{{submission_id}}';
     var feedback_manager = {{ feedback | tojson }};
+
     $(document).ready(function () {
-        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype);
+        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, staff, tasktype);
         FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);
     });
 </script>

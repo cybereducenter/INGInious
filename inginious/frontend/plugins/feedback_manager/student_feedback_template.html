@@ -47,7 +47,7 @@
             <div >
                 {% if (o.feedback) { %}
                     <div class="message-feedback-{%=o.category%} message">
-                        <span style="font-weight: bold">{%=o.feedback%}</span>
+                        <textarea readonly style="font-weight: bold">{%=o.feedback%}</textarea>
                     </div>
                 {% } %}
             </div>
