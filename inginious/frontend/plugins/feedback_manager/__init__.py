@@ -123,7 +123,6 @@ class FeedbackManagerPage(INGIniousAuthPage):
             for key in FEEDBACK_TEST_CATEGORIES.keys():
                 if key in updated_feedback['categories'].keys():
                     value = updated_feedback['categories'][key]
-                    self.logger.info(f"key = {key}") 
                     value['tests'] = list(filter(lambda x: x['selected'], value['tests']))
                     if value['tests']:
                         categories[key] = value
