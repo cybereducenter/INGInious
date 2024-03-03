@@ -120,10 +120,13 @@ class FeedbackManagerPage(INGIniousAuthPage):
         feedback_html = submission.get('text')
         if flask.request.args.to_dict().get('submit', 'false') == 'true':
             categories = {}
-            for key, value in updated_feedback['categories'].items():
-                value['tests'] = list(filter(lambda x: x['selected'], value['tests']))
-                if value['tests']:
-                    categories[key] = value
+            for key in FEEDBACK_TEST_CATEGORIES.keys():
+                if key in updated_feedback['categories'].keys():
+                    value = updated_feedback['categories'][key]
+                    self.logger.info(f"key = {key}") 
+                    value['tests'] = list(filter(lambda x: x['selected'], value['tests']))
+                    if value['tests']:
+                        categories[key] = value
             updated_feedback['categories'] = categories
             feedback_html = inject_html(courseid, taskid, submission_id, updated_feedback)
         submission = self.submission_manager._database.submissions.find_one_and_update(
