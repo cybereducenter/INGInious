@@ -44,17 +44,13 @@
                         <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem"
                               class="dropdown_button fa fa-caret-left"></span>
             </div>
-            <div >
-                {% if (o.feedback) { %}
+            <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" style="display: none">
+                <div class="test-container" style=" margin: 12px;">
+                    {% if (o.feedback) { %}
                     <div class="message-feedback-{%=o.category%} message">
                         <textarea readonly style="font-weight: bold">{%=o.feedback%}</textarea>
                     </div>
-                {% } %}
-            </div>
-            <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" style="display: none">
-
-                <div class="test-container" style=" margin: 1.5rem">
-
+                    {% } %}
                 </div>
             </div>
 
