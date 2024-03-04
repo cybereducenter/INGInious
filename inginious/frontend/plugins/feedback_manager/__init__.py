@@ -24,7 +24,6 @@ from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 FEEDBACK_TEST_CATEGORIES = {
-    "submission": "תצורת הגשה",
     "functionality": "פונקציונליות",
     "coding": "תכנות נכון",
     "design": "עיצוב ומבנה התוכנית",

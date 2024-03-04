@@ -4,7 +4,7 @@
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
 var FeedbackPlugin = (function () {
-    const default_categories = ['submission', 'functionality']
+    const default_categories = ['functionality']
     var currentStep = 1
     var filter = "all"
     var courseid = ""
@@ -40,6 +40,7 @@ var FeedbackPlugin = (function () {
     }
 
     function init_manage_feedback_page(feedbacks) {
+        console.log('initial step = %d', currentStep);
         categories = feedbacks;
         for (const key in feedbacks) {
             var category = feedbacks[key];
@@ -62,7 +63,7 @@ var FeedbackPlugin = (function () {
                     // }
                 }
                 tests[test['name']] = test;
-                add_test_popup(test);
+                // add_test_popup(test); TEMP by Raz
                 add_test_messages(test, false);
             })
             // if (default_categories.includes(key)) {
@@ -455,10 +456,11 @@ var FeedbackPlugin = (function () {
         var total_feedback = $("#total-feedback").val();
         var categories_for_save = {}
         for (const key in categories) {
-            if (displayedSections.includes('feedback-' + key)) {
+            // if (displayedSections.includes('feedback-' + key)) {
                 categories_for_save[key] = JSON.parse(JSON.stringify(categories[key]));
-            }
+            // }
         }
+        console.log('categories_for_save = %O', categories_for_save)
         for (const key in categories_for_save) {
             var category = categories_for_save[key]
             category['feedback'] = $("#message-feedback-" + key).val();
