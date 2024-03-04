@@ -47,39 +47,39 @@ var FeedbackPlugin = (function () {
             if (category['feedback'] && category['feedback'].length > 0) {
                 $("#message-feedback-" + key).val(category['feedback']);
             }
-            if ('selected' in category) {
-                if (category['selected'] && !checkedSections.includes('feedback-' + key)){
-                    checkedSections.push('feedback-' + key);
-                    displayedSections.push('feedback-' + key);
-                }
-            }
+            // if ('selected' in category) {
+            //     if (category['selected'] && !checkedSections.includes('feedback-' + key)){
+            //         checkedSections.push('feedback-' + key);
+            //         displayedSections.push('feedback-' + key);
+            //     }
+            // }
             category['tests'].forEach(test => {
                 if ('selected' in test && test['selected'] && !checkedSections.includes(test['name'])) {
                     checkedSections.push(test['name']);
                     displayedSections.push(test['name']);
-                    if (!displayedSections.includes('feedback-' + key)){
-                        displayedSections.push('feedback-' + key);
-                    }
+                    // if (!displayedSections.includes('feedback-' + key)){
+                    //     displayedSections.push('feedback-' + key);
+                    // }
                 }
                 tests[test['name']] = test;
                 add_test_popup(test);
                 add_test_messages(test, false);
             })
-            if (default_categories.includes(key)) {
-                if (!checkedSections.includes('feedback-' + key)) {
-                    checkedSections.push('feedback-' + key);
-                    displayedSections.push('feedback-' + key);
-                }
-                category['tests'].forEach( test => {
-                    if (!checkedSections.includes(test['name'])) {
-                        checkedSections.push(test['name']);
-                        displayedSections.push(test['name']);
-                    }
-                })
-            }
+            // if (default_categories.includes(key)) {
+            //     if (!checkedSections.includes('feedback-' + key)) {
+            //         checkedSections.push('feedback-' + key);
+            //         displayedSections.push('feedback-' + key);
+            //     }
+            //     category['tests'].forEach( test => {
+            //         if (!checkedSections.includes(test['name'])) {
+            //             checkedSections.push(test['name']);
+            //             displayedSections.push(test['name']);
+            //         }
+            //     })
+            // }
         }
-        console.log(checkedSections);
-        console.log(displayedSections);
+        console.log('checkedSections = %O', checkedSections);
+        console.log('displayedSections = %O', displayedSections);
 
         var next_student_btn = $(".next-student-btn");
         next_student_btn.click(function() {
@@ -181,16 +181,8 @@ var FeedbackPlugin = (function () {
     function update_filter(event) {
         var value = event.value;
         filter = value;
-        console.log({value});
         if (value === "passed") {
-            var passed_categories = $("div[data-status=100]")
-            for (var i = 0; i < passed_categories.length; i++){
-                change_display_mode(passed_categories[i], "flex");
-            }
-            var failed_categories = $("div[data-status=0]")
-            for (var i = 0; i < failed_categories.length; i++){
-                change_display_mode(failed_categories[i], "none");
-            }
+            // show only passed tests
             var passed_tests = $("div[data-result=passed]")
             for (var i = 0; i < passed_tests.length; i++){
                 change_display_mode(passed_tests[i], "flex");
@@ -200,14 +192,7 @@ var FeedbackPlugin = (function () {
                 change_display_mode(failed_tests[i], "none");
             }
         } else if (value === "failed") {
-            var passed_categories = $("div[data-status=100]")
-            for (var i = 0; i < passed_categories.length; i++){
-                change_display_mode(passed_categories[i], "none");
-            }
-            var failed_categories = $("div[data-status=0]")
-            for (var i = 0; i < failed_categories.length; i++){
-                change_display_mode(failed_categories[i], "flex");
-            }
+            // show only failed tests
             var passed_tests = $("div[data-result=passed]")
             for (var i = 0; i < passed_tests.length; i++){
                 change_display_mode(passed_tests[i], "none");
@@ -217,7 +202,7 @@ var FeedbackPlugin = (function () {
                 change_display_mode(failed_tests[i], "flex");
             }
         } else {
-            // All
+            // show all tests
             var all_tests = $(".test-data")
             for (var i = 0; i < all_tests.length; i++){
                 change_display_mode(all_tests[i], "flex");
@@ -231,6 +216,7 @@ var FeedbackPlugin = (function () {
 
     function update_step(accumulator) {
         currentStep += accumulator;
+        console.log('currentStep = %d, filter = %s', currentStep, filter);
         save_to_storage();
         update_page(currentStep);
     }
@@ -255,47 +241,67 @@ var FeedbackPlugin = (function () {
         var page_tests = $("#feedbacks .displayed_test_feedback");
 
         if (currentStep === 3) {
+            // STEP 3
             make_preview();
             $("#submit-buttons")[0].style.display = 'flex';
+
         } else if (currentStep === 2) {
+            // STEP 2
+
+            // hide submit/save draft buttons
             $("#submit-buttons")[0].style.display = 'none';
+
+            // hide category and test checkboxes
             var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].style.display = 'none';
             }
+
+            // hide unselected  tests
             for (var i = 0; i < page_tests.length; i++) {
                 if (!displayedSections.includes(page_tests[i].id)) {
                     page_tests[i].style.display = 'none';
                 }
             }
+
+            // show instructor comments box
             for (var i = 0; i < page_categories.length; i++) {
-                if (!displayedSections.includes(page_categories[i].id)) {
-                    page_categories[i].style.display = 'none';
-                } else {
-                    var messageInputs = $(".message-" + page_categories[i].id);
-                    for (var j = 0; j < messageInputs.length; j++) {
-                        messageInputs[j].style.display = 'initial';
-                    }
+                var messageInputs = $(".message-" + page_categories[i].id);
+                for (var j = 0; j < messageInputs.length; j++) {
+                    messageInputs[j].style.display = 'initial';
                 }
             }
+            // show summary comment
             $(".total-feedback")[0].style.display = 'initial';
         }else {
-            $("#submit-buttons")[0].style.display = 'none';
-            var checkboxes = $("#feedbacks input[type='checkbox']");
+            // STEP 1
 
+            // hide submit buttons
+            $("#submit-buttons")[0].style.display = 'none';
+
+            // show category and test checkboxes
+            var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].style.display = 'initial';
             }
+
+            // show all tests
             for (var i = 0; i < page_tests.length; i++) {
                 page_tests[i].style.display = 'flex';
             }
+
+            // show all categories
             for (var i = 0; i < page_categories.length; i++) {
                 page_categories[i].style.display = 'flex';
+
+                // hide instructor messages
                 var messageInputs = $(".message-" + page_categories[i].id);
                 for (var j = 0; j < messageInputs.length; j++) {
                     messageInputs[j].style.display = 'none';
                 }
             }
+
+            // hide summary comment
             $(".total-feedback")[0].style.display = 'none';
         }
         $('#select-btn').val(filter);
@@ -306,6 +312,7 @@ var FeedbackPlugin = (function () {
     function select_category_or_test(event) {
         if (event.checked) {
             if (event.value.startsWith("feedback")) {
+                // category checked
                 var checkboxes = $("#" + event.value + " input[type='checkbox']");
                 for (var i = 0; i < checkboxes.length; i++) {
                     checkboxes[i].checked = true;
@@ -313,12 +320,13 @@ var FeedbackPlugin = (function () {
                     displayedSections.push(checkboxes[i].value);
                 }
             } else {
+                // test checked
                 checkedSections.push(event.value);
                 displayedSections.push(event.value);
                 var test_category = event.closest('.displayed_feedback');
-                if (!displayedSections.includes(test_category.id)) {
-                    displayedSections.push(test_category.id);
-                }
+                // if (!displayedSections.includes(test_category.id)) {
+                //     displayedSections.push(test_category.id);
+                // }
                 var category_children = $("#" + test_category.id + " .displayed_test_feedback");
                 var flag = true
                 for (var i = 0; i < category_children.length; i++) {
@@ -329,11 +337,12 @@ var FeedbackPlugin = (function () {
                 if (flag) {
                     var checkbox = $("#" + test_category.id + " input[type='checkbox']")[0];
                     checkbox.checked = true;
-                    checkedSections.push(test_category.id)
+                    // checkedSections.push(test_category.id)
                 }
             }
         } else {
             if (event.value.startsWith("feedback")) {
+                // category unchecked
                 var checkboxes = $("#" + event.value + " input[type='checkbox']");
                 for (var i = 0; i < checkboxes.length; i++) {
                     checkboxes[i].checked = false;
@@ -341,6 +350,7 @@ var FeedbackPlugin = (function () {
                     displayedSections = displayedSections.filter(v => v !== checkboxes[i].value);
                 }
             } else {
+                // test unchecked
                 checkedSections = checkedSections.filter(v => v !== event.value);
                 displayedSections = displayedSections.filter(v => v !== event.value);
                 var test_category = event.closest('.displayed_feedback');
@@ -359,8 +369,8 @@ var FeedbackPlugin = (function () {
                 }
             }
         }
-        console.log(checkedSections)
-        console.log(displayedSections);
+        console.log('checkedSections = %O', checkedSections);
+        console.log('displayedSections = %O', displayedSections);
     }
 
     function send_request_for_another_student(response) {
@@ -581,7 +591,6 @@ var FeedbackPlugin = (function () {
     }
 
     function sort_categories(feedback_categories) {
-        console.log("here")
         var keys = Object.keys(feedback_categories);
         keys.sort((k1, k2) => {
             if (default_categories.includes(k1) && !default_categories.includes(k2)) {
@@ -605,8 +614,7 @@ var FeedbackPlugin = (function () {
         taskid = input_taskid;
         submissionid = input_submissionid;
         var category_section;
-        console.log('here is feedbackData from Gitlab');
-        console.log(feedback_data);
+        console.log('feedback_data = %O', feedback_data);
         if (feedback_data['total_feedback']) {
             var total_feedback = $(tmpl('tmpl-total-feedback', feedback_data['total_feedback']));
             $('#scenarios-table').append(total_feedback);
@@ -675,5 +683,3 @@ var FeedbackPlugin = (function () {
         render_student_feedback: render_student_feedback
     }
 })(jQuery);
-
-

@@ -123,6 +123,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
             for key in FEEDBACK_TEST_CATEGORIES.keys():
                 if key in updated_feedback['categories'].keys():
                     value = updated_feedback['categories'][key]
+                    self.logger.info(f"key = {key}") 
                     value['tests'] = list(filter(lambda x: x['selected'], value['tests']))
                     if value['tests']:
                         categories[key] = value
@@ -207,6 +208,7 @@ class PreviewPage(INGIniousAuthPage):
         course = self.course_factory.get_course(courseid)
         get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
         feedback_json = flask.request.json
+        self.logger.info(f'feedback_json = {feedback_json}')
         injected = inject_html(courseid, taskid, submission_id, feedback_json)
         return injected
 
