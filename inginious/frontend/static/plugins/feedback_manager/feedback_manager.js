@@ -63,7 +63,7 @@ var FeedbackPlugin = (function () {
                     // }
                 }
                 tests[test['name']] = test;
-                // add_test_popup(test); TEMP by Raz
+                add_test_popup(test);
                 add_test_messages(test, false);
             })
             // if (default_categories.includes(key)) {
