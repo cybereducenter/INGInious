@@ -17,6 +17,10 @@
     margin-top: 10px;
 }
 
+.code-task {
+    border: 1px solid black;
+}
+
 .notaccessible {
     background: #b9b9b9;
 }
