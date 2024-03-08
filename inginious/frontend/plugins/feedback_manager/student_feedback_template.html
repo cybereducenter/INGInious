@@ -45,13 +45,16 @@
                             <div id="feedback-{%=o.category%}-info" >&nbsp;</div>
                         </span>
             </div>
+
+            <div class="test-container" style=" margin: 12px;">
+                <div class="message-feedback-{%=o.category%} message">
+                    <textarea readonly style="font-weight: bold">{%=o.feedback%}</textarea>
+                </div>
+            </div>
+
             <div id="feedback-{%=o.category%}-tests" class="content list-group list-group-flush task-feedback" style="display: none">
                 <div class="test-container" style=" margin: 12px;">
-                    {% if (o.feedback) { %}
-                    <div class="message-feedback-{%=o.category%} message">
-                        <textarea readonly style="font-weight: bold">{%=o.feedback%}</textarea>
-                    </div>
-                    {% } %}
+ 
                 </div>
             </div>
 
@@ -91,7 +94,7 @@
     </script>
     <script type="text/x-tmpl" id="tmpl-total-feedback" >
         <div class="message" >
-           <textarea readonly dir="rtl" style="margin: 20px 0; padding: 0 10px; bold">{%=o%}</textarea>
+           <textarea readonly dir="rtl" style="margin: 20px 0; padding: 0 10px; font-weight: bold">{%=o%}</textarea>
         </div>
     </script>
     <script type="text/x-tmpl" id="tmpl-popup" >
