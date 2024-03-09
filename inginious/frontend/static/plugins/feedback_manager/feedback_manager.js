@@ -138,6 +138,10 @@ var FeedbackPlugin = (function () {
 
         var checkboxes = $("#feedbacks input[type='checkbox']");
         for (var i = 0; i < checkboxes.length; i++) {
+            console.log("checkboxe[%d] = %O", i, checkboxes[i]);
+            if (checkboxes[i].value  == "feedback-functionality") {
+                checkboxes[i].disabled = true;
+            }
             if (checkedSections.includes(checkboxes[i].value)) {
                 checkboxes[i].checked = true;
                 var category_name = "";
