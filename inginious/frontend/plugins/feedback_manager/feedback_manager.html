@@ -96,12 +96,15 @@
                                onchange="FeedbackPlugin.select_category_or_test(this)">
 
             </div>
+            
+            <div class="test-container" style=" margin: 12px;">
+                <div class="message-section message-feedback-{{category_en}} message" width: 100%;">
+                    <textarea id="message-feedback-{{category_en}}" dir="rtl" rows="4" maxlength="500" placeholder="הערות מדריך"></textarea>
+                </div>
+            </div>
+            
             <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none; ">
                 <div class="test-container" style="margin: 12px;">
-                   <div class="message-section message-feedback-{{category_en}} message" style="display:none; width: 100%;">
-                        <textarea id="message-feedback-{{category_en}}" dir="rtl" rows="4" maxlength="500" placeholder="הערות מדריך"></textarea>
-                   </div>
-
                     {%for test in category["tests"]%}
                     <div>
                         <div id="{{test['name']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}

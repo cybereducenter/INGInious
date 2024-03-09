@@ -266,6 +266,7 @@ var FeedbackPlugin = (function () {
             }
 
             // show instructor comments box
+            console.log('page_categories = %O', page_categories)
             for (var i = 0; i < page_categories.length; i++) {
                 var messageInputs = $(".message-" + page_categories[i].id);
                 for (var j = 0; j < messageInputs.length; j++) {
