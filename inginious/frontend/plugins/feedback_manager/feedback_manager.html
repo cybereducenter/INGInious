@@ -202,6 +202,7 @@
     var submissionid = '{{submission_id}}';
     var feedback_manager = {{ feedback | tojson }};
 
+    console.log('feedback_manager = %O', feedback_manager);
     $(document).ready(function () {
         FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, staff, tasktype);
         FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);

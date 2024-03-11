@@ -43,41 +43,46 @@ var FeedbackPlugin = (function () {
         console.log('initial step = %d', currentStep);
         categories = feedbacks;
         for (const key in feedbacks) {
+            console.log('key = %s', key);
             var category = feedbacks[key];
 
+            console.log('category = %O', category);
             if (category['feedback'] && category['feedback'].length > 0) {
                 $("#message-feedback-" + key).val(category['feedback']);
             }
-            // if ('selected' in category) {
-            //     if (category['selected'] && !checkedSections.includes('feedback-' + key)){
-            //         checkedSections.push('feedback-' + key);
-            //         displayedSections.push('feedback-' + key);
-            //     }
-            // }
+            if ('selected' in category) {
+                if (category['selected'] && !checkedSections.includes('feedback-' + key)){
+                    checkedSections.push('feedback-' + key);
+                    displayedSections.push('feedback-' + key);
+                }
+            }
             category['tests'].forEach(test => {
                 if ('selected' in test && test['selected'] && !checkedSections.includes(test['name'])) {
                     checkedSections.push(test['name']);
                     displayedSections.push(test['name']);
-                    // if (!displayedSections.includes('feedback-' + key)){
-                    //     displayedSections.push('feedback-' + key);
-                    // }
+                    if (!displayedSections.includes('feedback-' + key)){
+                        displayedSections.push('feedback-' + key);
+                    }
                 }
-                tests[test['name']] = test;
+                test_id = test['category'] + '-' + test['name'] + '-' + test['taskid'];
+                // console.log('test_id = %s', test_id);
+                tests[test_id] = test;
                 add_test_popup(test);
                 add_test_messages(test, false);
             })
-            // if (default_categories.includes(key)) {
-            //     if (!checkedSections.includes('feedback-' + key)) {
-            //         checkedSections.push('feedback-' + key);
-            //         displayedSections.push('feedback-' + key);
-            //     }
-            //     category['tests'].forEach( test => {
-            //         if (!checkedSections.includes(test['name'])) {
-            //             checkedSections.push(test['name']);
-            //             displayedSections.push(test['name']);
-            //         }
-            //     })
-            // }
+            console.log('tests = %O', tests);
+            if (default_categories.includes(key)) {
+                if (!checkedSections.includes('feedback-' + key)) {
+                    checkedSections.push('feedback-' + key);
+                    displayedSections.push('feedback-' + key);
+                }
+                category['tests'].forEach( test => {
+                    if (!checkedSections.includes(test['name'])) {
+                        checkedSections.push(test['name']);
+                        displayedSections.push(test['name']);
+                    }
+                })
+            }
         }
         console.log('checkedSections = %O', checkedSections);
         console.log('displayedSections = %O', displayedSections);
@@ -138,9 +143,6 @@ var FeedbackPlugin = (function () {
 
         var checkboxes = $("#feedbacks input[type='checkbox']");
         for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].value  == "feedback-functionality") {
-                checkboxes[i].disabled = true;
-            }
             if (checkedSections.includes(checkboxes[i].value)) {
                 checkboxes[i].checked = true;
                 var category_name = "";
@@ -268,7 +270,6 @@ var FeedbackPlugin = (function () {
             console.log("diplayedSections = %O", displayedSections);
             for (var i = 0; i < page_tests.length; i++) {
                 if (!displayedSections.includes(page_tests[i].id)) {
-                    console.log("hide page_tests[%d] = %O", i, page_tests[i]);
                     page_tests[i].style.display = 'none';
                 }
                 else {
@@ -337,9 +338,9 @@ var FeedbackPlugin = (function () {
                 checkedSections.push(event.value);
                 displayedSections.push(event.value);
                 var test_category = event.closest('.displayed_feedback');
-                // if (!displayedSections.includes(test_category.id)) {
-                //     displayedSections.push(test_category.id);
-                // }
+                if (!displayedSections.includes(test_category.id)) {
+                    displayedSections.push(test_category.id);
+                }
                 var category_children = $("#" + test_category.id + " .displayed_test_feedback");
                 var flag = true
                 for (var i = 0; i < category_children.length; i++) {
@@ -350,7 +351,7 @@ var FeedbackPlugin = (function () {
                 if (flag) {
                     var checkbox = $("#" + test_category.id + " input[type='checkbox']")[0];
                     checkbox.checked = true;
-                    // checkedSections.push(test_category.id)
+                    checkedSections.push(test_category.id)
                 }
             }
         } else {
@@ -417,6 +418,7 @@ var FeedbackPlugin = (function () {
 
     function open_popup(event) {
         const test_element = event.closest(".displayed_test_feedback");
+        console.log('test_element = %O', test_element);
         const test_id = test_element.attributes['id'].value;
         const test = tests[test_id];
         var cout_text = test['cout_text'] || "";
@@ -667,7 +669,9 @@ var FeedbackPlugin = (function () {
                     }
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
-                    tests[test['name']] = test;
+                    test_id = test['category'] + '-' + test['name'] + '-' + test['taskid'];
+                    // console.log('test_id = %s', test_id);
+                    tests[test[test_id]] = test;
                     add_test_popup(test);
                     add_test_messages(test, true);
                 })

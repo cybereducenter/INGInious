@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ manage_feedback plugin - show course overview of student grades """
+import logging
 import codecs
 import json
 import zipfile
@@ -139,7 +140,8 @@ class FeedbackManagerPage(INGIniousAuthPage):
         return {
             "name": test["name"],
             "taskid": test.get("taskid") if task._type != 'cpp-test' else None,
-            "category": FEEDBACK_TEST_CATEGORIES.get(test["category"], test["category"]),
+            "category": test["category"],
+            "category_he": FEEDBACK_TEST_CATEGORIES.get(test["category"], test["category"]),
             "exit_code": test.get("message_code", 0),
             "link": test.get("link", "") if task._type == 'cpp-test' else None,
             "cout_file": None if test.get("cout_file", "N/A") == 'N/A' else "Cout/" + test["cout_file"],
