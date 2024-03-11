@@ -107,7 +107,7 @@
                 <div class="test-container" style="margin: 12px;">
                     {%for test in category["tests"]%}
                     <div>
-                        <div id="{{test['name']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
+                        <div id="{{category_en}}-{{test['name']}}-{{test['taskid']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
                              style="display:{% if test['result']['text'] == filterValue %} none {% else %} flex {% endif %};
                              border-color:{% if test['result']['text'] == 'passed' %} green {% elif test['result']['text'] == 'failed' %} red {% else %} black {% endif %}">
                             <div class="test-section">
@@ -135,7 +135,7 @@
                                     </div>
                                     <input type="checkbox" id="checkBoxSelect-{{test['name']}}" class="col-md-3 col-xs-3 pull-right"
                                            style="padding-inline: 1.5rem; vertical-align: middle; margin-top: 8px"
-                                           value="{{test['name']}}"
+                                           value="{{category_en}}-{{test['name']}}-{{test['taskid']}}"
                                            onchange="FeedbackPlugin.select_category_or_test(this)">
                                 </div>
                             </div>
@@ -148,6 +148,7 @@
     <!-- {%endif%} -->
     {%endfor%}
     <div class="total-feedback message">
+        
         <textarea id="total-feedback" dir="rtl" rows="8" maxlength="1000" placeholder="משוב מסכם">{{feedback['total_feedback']}} </textarea>
     </div>
 </div>

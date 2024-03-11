@@ -138,7 +138,6 @@ var FeedbackPlugin = (function () {
 
         var checkboxes = $("#feedbacks input[type='checkbox']");
         for (var i = 0; i < checkboxes.length; i++) {
-            console.log("checkboxe[%d] = %O", i, checkboxes[i]);
             if (checkboxes[i].value  == "feedback-functionality") {
                 checkboxes[i].disabled = true;
             }
@@ -245,6 +244,9 @@ var FeedbackPlugin = (function () {
         var page_categories = $("#feedbacks .displayed_feedback");
         var page_tests = $("#feedbacks .displayed_test_feedback");
 
+        console.log("page_categories = %O", page_categories);
+        console.log("page_tests = %O", page_tests);
+
         if (currentStep === 3) {
             // STEP 3
             make_preview();
@@ -263,9 +265,14 @@ var FeedbackPlugin = (function () {
             }
 
             // hide unselected  tests
+            console.log("diplayedSections = %O", displayedSections);
             for (var i = 0; i < page_tests.length; i++) {
                 if (!displayedSections.includes(page_tests[i].id)) {
+                    console.log("hide page_tests[%d] = %O", i, page_tests[i]);
                     page_tests[i].style.display = 'none';
+                }
+                else {
+                    console.log("show page_tests[%d] = %O", i, page_tests[i]);
                 }
             }
 
