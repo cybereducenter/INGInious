@@ -91,9 +91,12 @@ class FeedbackManagerPage(INGIniousAuthPage):
                 "passed": len(passed_tests),
                 "percent": round(100 * len(passed_tests) / len(total_tests))
             }
-        for data in submission_feedback['categories'].values():
-            total += len(data['tests'])
-            passed += len([t for t in data['tests'] if t['result']['bool']])
+        
+        for category in submission_feedback['categories'].values():
+            category['name_he'] = FEEDBACK_TEST_CATEGORIES[category['name']]
+            total += len(category['tests'])
+            passed += len([t for t in category['tests'] if t['result']['bool']])
+
         self.database.submissions.update_one({"_id": ObjectId(submission_id)},
                                              {"$set": {"custom": {"feedback_data": submission_feedback},
                                                        "grade": int(100 * passed / total)}})

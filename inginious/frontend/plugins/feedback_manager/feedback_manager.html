@@ -70,22 +70,22 @@
     {%for category_en, category in feedback['categories'].items()%}
     <!-- {%if category['tests']%} -->
         <!-- temp hack (Raz) -->
-        {% if category['name'] == 'פונקציונליות' %}
+        {% if category['name'] == 'functionality' %}
             <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
         {% else %}
             <div id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
         {% endif %}
             <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)"
                  style="display: flex; margin: 5px;
-                 {% if category["name"] != "פונקציונליות" %} background-color: #5bc0de; 
+                 {% if category["name"] != "functionality" %} background-color: #5bc0de; 
                  {% elif category['status']['percent'] == 100 %} background-color: #318331;
                  {% elif category['status']['percent'] > 80 %} background-color: #e4e729;
                  {% elif category['status']['percent'] > 50 %} background-color: #ffbc40;
                  {% else %} background-color: #fd4242; {% endif %}">
                         <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
-                            <div>{{category["name"]}}</div>
+                            <div>{{category["name_he"]}}</div>
                             <!-- temp hack (Raz) -->
-                            {% if category["name"] == "פונקציונליות" %}
+                            {% if category["name"] == "functionality" %}
                             <div>&nbsp;- {{category['status']['passed']}}/{{category['status']['total']}}  {{category['status']['percent']}}%</div>
                             {% endif %}
                         </span>
