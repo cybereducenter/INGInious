@@ -688,7 +688,7 @@ var FeedbackPlugin = (function () {
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
             displayedSections = data.displayedSections ? data.displayedSections : [];
-            draft_categories = data.feedback_draft ? data.feedback_draft : [];
+            draft_categories = sort_categories(data.feedback_draft) ? data.feedback_draft : [];
             total_feedback = data.total_feedback ? data.total_feedback : '';
             filter = data.current_filter ? data.current_filter : "failed";
 
