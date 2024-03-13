@@ -25,7 +25,7 @@ var FeedbackPlugin = (function () {
     // this function is called from feedback_manager.html
     // ---
     function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype) {
-        console.log('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s)', 
+        console.debug('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s)', 
                      input_courseid, input_taskid, input_submissionid, input_student, input_tasktype);
         
         courseid = input_courseid;
@@ -38,16 +38,17 @@ var FeedbackPlugin = (function () {
         } catch (e) {
             console.log("there is nothing in storage");
         }
+        
     }
 
     // this function is called from feedback_manager.html
     // ---
     function init_manage_feedback_page(feedbacks) {
-        console.log('In function: init_manage_feedback_page(%O)', feedbacks);
+        console.debug('In function: init_manage_feedback_page(%O)', feedbacks);
         for (const cat in Object.keys(feedbacks)) {
-            console.log('    %s', Object.keys(feedbacks)[cat]);
+            console.debug('    %s', Object.keys(feedbacks)[cat]);
         }
-        // console.log('initial step = %d', currentStep);
+        // console.debug('Initial step = %d', currentStep);
 
         categories = feedbacks;
         for (const key in feedbacks) {
@@ -113,21 +114,21 @@ var FeedbackPlugin = (function () {
             }
         }
         // list of all checked categories and tests
-        console.log('checkedSections = %O', checkedSections);
+        console.debug('checkedSections = %O', checkedSections);
         for (const sec in checkedSections) {
-            console.log('    %s', checkedSections[sec]);
+            console.debug('    %s', checkedSections[sec]);
         }
 
         // list of all displayed categories and tests
-        console.log('displayedSections = %O', displayedSections);
+        console.debug('displayedSections = %O', displayedSections);
         for (const sec in displayedSections) {
-            console.log('    %s', displayedSections[sec]);
+            console.debug('    %s', displayedSections[sec]);
         }
 
         // set checkboxes
         var checkboxes = $("#feedbacks input[type='checkbox']");
         for (var i = 0; i < checkboxes.length; i++) {
-            console.log('checkboxes[%d] = %O', i, checkboxes[i].value);
+            console.debug('checkboxes[%d] = %O', i, checkboxes[i].value);
             // selected category/test
             if (checkedSections.includes(checkboxes[i].value)) {
                 // check category/test
@@ -224,7 +225,7 @@ var FeedbackPlugin = (function () {
     // the past
     // ---
     function update_page(currentStep) {
-        console.log('In function: update_page(%d)', currentStep);
+        console.debug('In function: update_page(%d)', currentStep);
 
         // load data from storafe
         try {
@@ -249,13 +250,13 @@ var FeedbackPlugin = (function () {
         var page_categories = $("#feedbacks .displayed_feedback");
         var page_tests = $("#feedbacks .displayed_test_feedback");
 
-        console.log("page_categories = %O", page_categories);
+        console.debug("page_categories = %O", page_categories);
         for (const cat in page_categories) {
-            console.log('    %s', page_categories[cat]['id']);
+            console.debug('    %s', page_categories[cat]['id']);
         }
-        console.log("page_tests = %O", page_tests);
+        console.debug("page_tests = %O", page_tests);
         for (const tst in page_tests) {
-            console.log('    %s', page_tests[tst]['id']);
+             console.debug('    %s', page_tests[tst]['id']);
         }
 
         // STEP 1
@@ -341,7 +342,7 @@ var FeedbackPlugin = (function () {
     // for example: next_btn, back_btn.
     // ---
     function disable_button(btn, value) {
-        console.log('In function: disable_button(%s, %s)', btn, value);
+        console.debug('In function: disable_button(%s, %s)', btn, value);
 
         var btns = $("." + btn + "_btn")
         for (i = 0; i < btns.length; i++) {
@@ -352,7 +353,7 @@ var FeedbackPlugin = (function () {
     // this function adds the message of a test
     // ---
     function add_test_messages(test, is_draft) {
-        console.log('In function: add_test_messages(%O, %s)', test, is_draft);
+        console.debug('In function: add_test_messages(%O, %s)', test, is_draft);
 
         if (test['message']) {
             var messages = test['message'].split("\n");
@@ -376,8 +377,8 @@ var FeedbackPlugin = (function () {
     // this function creates the 'additional details' popup window for a test
     // ---
     function add_test_popup(test) {
-        console.log('In function: add_test_popup(%O)', test);
-        console.log('   %s', test['name']);
+        console.debug('In function: add_test_popup(%O)', test);
+        console.debug('   %s', test['name']);
 
         if ((('cout_text' in test) && test['cout_text']) || (('cout_file' in test) && test['cout_file'])) {
             $("." + test['name'].replace(/ /g, '') + "-popup").css("display", "initial");
@@ -387,7 +388,7 @@ var FeedbackPlugin = (function () {
     // this function sets the display mode (flex = show, none = hide) for tests
     // ---
     function change_display_mode(test, mode) {
-        console.log('In function: change_display_mode(\n    %O,\n    %s)', test, mode);
+        console.debug('In function: change_display_mode(\n    %O,\n    %s)', test, mode);
 
         if (currentStep === 2) {
             // in STEP 2, a test is shown only if its parent category is shown
@@ -402,7 +403,7 @@ var FeedbackPlugin = (function () {
     // this functions is called when a user changes the testqcategory filter
     // ---
     function update_filter(event) {
-        console.log('In function: update_filter(%s)', event.value);
+        console.debug('In function: update_filter(%s)', event.value);
 
         var value = event.value;
         filter = value;
@@ -444,7 +445,7 @@ var FeedbackPlugin = (function () {
     // this functions updates the current step, and refreshes the page accordingly
     // ---
     function update_step(accumulator) {
-        console.log('In function: update_step(%d)', accumulator);
+        console.debug('In function: update_step(%d)', accumulator);
 
         // update curret step
         currentStep += accumulator;
@@ -460,7 +461,7 @@ var FeedbackPlugin = (function () {
     // this function is called when a user checks/unchecks a tests or category
     // ---
     function select_category_or_test(event) {
-        console.log('In function: select_category_or_test(%O)', event);
+        console.debug('In function: select_category_or_test(%O)', event);
         console.log('    value   = %s', event.value);
         console.log('    checked = %s', event.checked);
 
@@ -540,7 +541,7 @@ var FeedbackPlugin = (function () {
     // the next/previous student button
     // ---
     function send_request_for_another_student(response) {
-        console.log('In function: send_request_for_another_student(%O)', response);
+        console.debug('In function: send_request_for_another_student(%O)', response);
 
         if (response) {
             var href = window.location.href.split("/");
@@ -566,7 +567,7 @@ var FeedbackPlugin = (function () {
     // for a specific tests. it prepares the cout text and shows it in a popup.
     // ---
     function open_popup(event) {
-        console.log('In function: open_popup(%O)', event);
+        console.debug('In function: open_popup(%O)', event);
 
         // find associated test
         const test_element = event.closest(".displayed_test_feedback");
@@ -574,6 +575,7 @@ var FeedbackPlugin = (function () {
         const test = tests[test_id];
 
         // get test cout 
+        console.log('test_element = %O', test_element);
         var cout_text = test['cout_text'] || "";
 
         if (cout_text) {
@@ -605,7 +607,7 @@ var FeedbackPlugin = (function () {
     // this function prepares the text for display in popup
     // ---
     function print_popup(data) {
-        console.log('In function: print_popup(%s)', data);
+        console.debug('In function: print_popup(%s)', data);
 
         var line;
         data.split("\n").forEach(text => {
@@ -618,7 +620,7 @@ var FeedbackPlugin = (function () {
     // this function closes the popup window.
     // ---
     function close_popup (event) {
-        console.log('In function: close_popup(%O)', event);
+        console.debug('In function: close_popup(%O)', event);
 
         $("#popup").css("display", "none");
         $("#popup-text").empty();
@@ -627,7 +629,7 @@ var FeedbackPlugin = (function () {
     // this function save page content to local storage
     // ---
     function save_to_storage() {
-        console.log('In function: save_to_storage()');
+        console.debug('In function: save_to_storage()');
 
         // summary feedback
         var total_feedback = $("#total-feedback").val();
@@ -642,7 +644,7 @@ var FeedbackPlugin = (function () {
             }
         }
 
-        console.log('categories_for_save = %O', categories_for_save);
+        // console.debug('categories_for_save = %O', categories_for_save);
 
         // save instructor comments and selected tests, for each visible category
         for (const key in categories_for_save) {
@@ -679,7 +681,7 @@ var FeedbackPlugin = (function () {
     // this function loads data from local storage
     // ---
     function load_from_storage() {
-        console.log('In function: load_from_storage()');
+        console.debug('In function: load_from_storage()');
 
         // check if browser supports local storage
         if (typeof (Storage) !== "undefined") {
@@ -709,7 +711,7 @@ var FeedbackPlugin = (function () {
     // this function saves a draft of the feedback manager page
     // ---
     function save_draft() {
-        console.log('In function: save_draft()');
+        console.debug('In function: save_draft()');
 
         // send save request
         send_save_request(categories,false);
@@ -718,10 +720,23 @@ var FeedbackPlugin = (function () {
         save_to_storage();
     }
 
+    // this function saves a draft of the feedback manager page
+    // ---
+    function delete_draft() {
+        console.debug('In function: delete_draft()');
+
+        // if saved in local storge, remove draft
+        if (typeof (Storage) !== "undefined") {
+            localStorage.removeItem([courseid + "/" + taskid + "/" + submissionid]);
+        } else {
+            alert("Your browser doesn't support web storage");
+        }
+    }
+
     // this function submits a final version of feedback
     // ---
     function submit() {
-        console.log('In function: submit()');
+        console.debug('In function: submit()');
 
         // send save request
         send_save_request(categories, true);
@@ -737,7 +752,7 @@ var FeedbackPlugin = (function () {
     // this function sends a request to save feedback in the database (draft or final)
     // ---
     function send_save_request(feedback, is_final_version) {
-        console.log('In function: send_save_request(%O, %s)', feedback, is_final_version);
+        console.debug('In function: send_save_request(%O, %s)', feedback, is_final_version);
 
         var feedback_categories = JSON.parse(JSON.stringify(feedback));
         var category;
@@ -790,7 +805,7 @@ var FeedbackPlugin = (function () {
     // this function displays a message to the user, and hides it after 3 seconds
     function studio_display_feedback_submit_message(title, content, type, dismissible)
     {
-        console.log('In function: studio_display_feedback_submit_message(\n    %s,\n    %s,\n    %s,\n    %s)', 
+        console.debug('In function: studio_display_feedback_submit_message(\n    %s,\n    %s,\n    %s,\n    %s)', 
                     title, content, type, dismissible);
 
         // get message html code
@@ -818,7 +833,7 @@ var FeedbackPlugin = (function () {
     // this function prepares a preview of the feedback (STEP 3)
     // ---
     function make_preview() {
-        console.log('In function: make_preview()');
+        console.debug('In function: make_preview()');
 
         // send preview request
         send_preview_request();
@@ -830,7 +845,7 @@ var FeedbackPlugin = (function () {
     // this function send a preview request
     // ---
     function send_preview_request() {
-        console.log('In function: send_preview_request()');
+        console.debug('In function: send_preview_request()');
 
         $.ajax({
                 type: "POST",
@@ -857,7 +872,7 @@ var FeedbackPlugin = (function () {
     // this function renders a student's feedback, when the student_feedback_template is shown
     // ---
     function render_student_feedback(feedback_data, input_courseid, input_taskid, input_submissionid) {
-        console.log('In function: render_student_feedback(\n    %O,\n    %s,\n    %s,\n    %s)', 
+        console.debug('In function: render_student_feedback(\n    %O,\n    %s,\n    %s,\n    %s)', 
                     feedback_data, input_courseid, input_taskid, input_submissionid);
 
         // get inputs
@@ -900,38 +915,36 @@ var FeedbackPlugin = (function () {
 
                 // category headline text
                 info.text(' - ' + category_data['status']['passed'] + '/' + category_data['status']['total'] + ' ' + category_data['status']['percent'] + '%');
-
-                // add category box
                 $('#feedback-' + key + '-info').append(info);
-
-                // category tests
-                category_data['tests'].forEach(test => {
-                    // for default categories (e.g., functionality) border color is set according to test result
-                    if (default_categories.includes(test['category'])) {
-                        if (test['result']['text'] === 'passed') {
-                            test["border_color"] = 'green';
-                        } else if (test['result']['text'] === 'failed') {
-                            test["border_color"] = 'red';
-                        }
-                    }
-
-                    // add test box
-                    var test_section = $(tmpl('tmpl-test', test));
-                    $('#feedback-' + key + '-tests .test-container').append(test_section);
-
-                    // save test for further processing
-                    tests[test['id']] = test;
-
-                    // add test popup
-                    add_test_popup(test);
-
-                    // add test message
-                    add_test_messages(test, true);
-                })
-
-                // TODO don't know what this is
-                $('.print-head').hide()
             }
+
+            // category tests
+            category_data['tests'].forEach(test => {
+                // for default categories (e.g., functionality) border color is set according to test result
+                if (default_categories.includes(test['category'])) {
+                    if (test['result']['text'] === 'passed') {
+                        test["border_color"] = 'green';
+                    } else if (test['result']['text'] === 'failed') {
+                        test["border_color"] = 'red';
+                    }
+                }
+
+                // add test box
+                var test_section = $(tmpl('tmpl-test', test));
+                $('#feedback-' + key + '-tests .test-container').append(test_section);
+
+                // save test for further processing
+                tests[test['id']] = test;
+
+                // add test popup
+                add_test_popup(test);
+
+                // add test message
+                add_test_messages(test, true);
+            })
+
+            // TODO don't know what this is
+            $('.print-head').hide()
         };
 
         // TODO not sure what this is and why is it outside the loop
@@ -947,7 +960,7 @@ var FeedbackPlugin = (function () {
 
     // this function sorts a list of categories: defualt categories first
     function sort_categories(feedback_categories) {
-        console.log('In function: sort_categories(%O)', feedback_categories);
+        console.debug('In function: sort_categories(%O)', feedback_categories);
 
         var keys = Object.keys(feedback_categories);
         keys.sort((k1, k2) => {
