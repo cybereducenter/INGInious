@@ -53,7 +53,7 @@ var FeedbackPlugin = (function () {
         for (const key in feedbacks) {
             // key is the category name, in English. For example, coding, design...
             var category = feedbacks[key];
-
+            
             // set test uniqueu id
             category['tests'].forEach(test => {
                 test['id'] = test['category'] + '-' + test['name'] + '-' + test['taskid'];
@@ -66,12 +66,12 @@ var FeedbackPlugin = (function () {
             }
 
             // check if category is selected
-            // TODO - this one should be changed, since categories are always disbled. The checkbox
-            // near the category name is only a shortcut to selection of all tests in category??
+            // categories are always displayed. The checkbox near the category name
+            // is only a shortcut to selection of all tests in category??
+            displayedSections.push('feedback-' + key);
             if ('selected' in category) {
                 if (category['selected'] && !checkedSections.includes('feedback-' + key)){
                     checkedSections.push('feedback-' + key);
-                    displayedSections.push('feedback-' + key);
                 }
             }
 
@@ -642,6 +642,8 @@ var FeedbackPlugin = (function () {
             }
         }
 
+        console.log('categories_for_save = %O', categories_for_save);
+
         // save instructor comments and selected tests, for each visible category
         for (const key in categories_for_save) {
             var category = categories_for_save[key]
@@ -877,33 +879,30 @@ var FeedbackPlugin = (function () {
         for (const key in feedback_categories) {
             var category_data = feedback_categories[key]
 
-            // TODO only categories with tests?
-            if (category_data['tests'].length > 0) {
-                category_data["category"] = key
-                category_section = $(tmpl('tmpl-category', category_data));
-                $('#scenarios-table').append(category_section);
+            category_data["category"] = key
+            category_section = $(tmpl('tmpl-category', category_data));
+            $('#scenarios-table').append(category_section);
 
-                // for default categories (e.g., functionality) set color based on status
-                if (default_categories.includes(key)) {
-                    var color = '#5bc0de';
-                    if (category_data['status']['percent'] == 100) {
-                        color = '#318331'
-                    } else if (category_data['status']['percent'] > 80) {
-                        color = '#e4e729'
-                    } else if (category_data['status']['percent'] > 50) {
-                        color = '#ffbc40'
-                    } else {
-                        color = '#fd4242'
-                    }
-                    $('#feedback-' + key + ' .category-header').css('background-color', color);
-                    var info = $('<span></span>');
-
-                    // category headline text
-                    info.text(' - ' + category_data['status']['passed'] + '/' + category_data['status']['total'] + ' ' + category_data['status']['percent'] + '%');
-
-                    // add category box
-                    $('#feedback-' + key + '-info').append(info);
+            // for default categories (e.g., functionality) set color based on status
+            if (default_categories.includes(key)) {
+                var color = '#5bc0de';
+                if (category_data['status']['percent'] == 100) {
+                    color = '#318331'
+                } else if (category_data['status']['percent'] > 80) {
+                    color = '#e4e729'
+                } else if (category_data['status']['percent'] > 50) {
+                    color = '#ffbc40'
+                } else {
+                    color = '#fd4242'
                 }
+                $('#feedback-' + key + ' .category-header').css('background-color', color);
+                var info = $('<span></span>');
+
+                // category headline text
+                info.text(' - ' + category_data['status']['passed'] + '/' + category_data['status']['total'] + ' ' + category_data['status']['percent'] + '%');
+
+                // add category box
+                $('#feedback-' + key + '-info').append(info);
 
                 // category tests
                 category_data['tests'].forEach(test => {
