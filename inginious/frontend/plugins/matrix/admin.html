@@ -227,10 +227,17 @@
                             {% for x in user['tasks'] %}
                                 {% if (specific_task['taskid'].get_id() in user['tasks'][x]['taskid'].get_problems_dict().keys()) %}
                                    {% if user['tasks'][x].get('submission_data', {}).get('has_feedback_data') %}
+                                        {% if user['tasks'][x].get('submission_data', {}).get('draft') %}
+                                            {% set icon = 'fa fa-square-o' %}
+                                            {% set text = 'Click for adding feedback' %}
+                                        {% else %}
+                                            {% set icon = 'fa fa-check-square-o' %}
+                                            {% set text = 'Click for reviewing feedback' %}
+                                        {% endif %}
                                     <a class="feedback_nav" target="_blank" href="/feedback_manager/{{course.get_id()}}/{{user['tasks'][x]['taskid'].get_id()}}/{{ user['tasks'][x].get('submissionid') }}">
-                                        <span class="feedback_link"><li class="fa fa-file-text"></li></span>
+                                        <span class="feedback_link"><li class="{{ icon }}" style="margin-left: 2px;"></li></span>
                                         <div class="feedbacktext">
-                                            <p>Click for adding feedback</p>
+                                            <p>{{ text }}</p>
                                         </div>
                                     </a>
                                     {% endif %}
@@ -249,7 +256,7 @@
                         {% endif %}
                         <a target="_blank" href="{{ specific_task['submission_data']['url'] }}">
                             <span class="graded_icon" id="{{ user['tasks'][task]['submission_data'] }}">
-                                <i class="fa fa-rss fa-rotate-180"></i>
+                                <i class="fa fa-rss fa-rotate-180" style="margin-top: 0; margin-right: 2px;"></i>
                             </span>
                             <div class="tooltiptext"> <!-- This class should hide the element, change it if needed -->
                                 <b>Last submission:</b> {{user['tasks'][task]['submission_data']['time_passed']}}

@@ -7,7 +7,7 @@
 import json
 from collections import OrderedDict
 from datetime import datetime
-
+import logging
 import bson
 import flask
 import pymongo
@@ -196,11 +196,24 @@ class MatrixPage(INGIniousAdminPage):
                     # link to the all submissions page, for example /admin/tutorial/student/ohad/03_tasks
                     href_to_submissions = self._build_student_submissions_url(course_name, student_name, task_id)
                     time_passed = calculate_time_passed_since(user_task_latest_submission["submitted_on"])
-                    has_feedback_data = (bool(user_task_latest_submission.get('custom'))
-                                         and bool(user_task_latest_submission['custom'].get("feedback_data")
-                                                  or user_task_latest_submission['custom'].get("extra_feedback_data")))
-                    task_for_user['submission_data'] = {'url': href_to_submissions, 'time_passed':  time_passed,
-                                                        'has_feedback_data': has_feedback_data}
+                    draft = True
+                    has_feedback_data = False
+                    custom = user_task_latest_submission.get('custom')
+                    if custom is not None:
+                        feeddback_data = custom.get('feedback_data')
+                        extra_feeddback_data = custom.get('extra_feedback_data')
+                        has_feedback_data = (feeddback_data is not None) or (extra_feeddback_data is not None)
+                        if feeddback_data is not None:
+                            draft = feeddback_data['draft']
+                            logging.info(f'draft= {draft}')
+
+                    # has_feedback_data = (bool(user_task_latest_submission.get('custom'))
+                    #                      and bool(user_task_latest_submission['custom'].get("feedback_data")
+                    #                               or user_task_latest_submission['custom'].get("extra_feedback_data")))
+                    task_for_user['submission_data'] = {'url': href_to_submissions, 
+                                                        'time_passed':  time_passed,
+                                                        'has_feedback_data': has_feedback_data,
+                                                        'draft': draft}
 
         return ordered_tasks_for_user
 
