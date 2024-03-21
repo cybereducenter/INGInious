@@ -8,7 +8,7 @@ var FeedbackPlugin = (function () {
     // underlined tests.
     const default_categories = ['functionality']
 
-    var currentStep = 1
+    var currentStep = 1;
     var filter = "all"
     var courseid = ""
     var taskid = ""
@@ -24,10 +24,9 @@ var FeedbackPlugin = (function () {
 
     // this function is called from feedback_manager.html
     // ---
-    function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype) {
-        console.debug('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s)', 
-                     input_courseid, input_taskid, input_submissionid, input_student, input_tasktype);
-        
+    function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff) {
+        console.debug('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s\n    %s)', 
+                     input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff);
         courseid = input_courseid;
         taskid = input_taskid;
         submissionid = input_submissionid;
@@ -38,7 +37,10 @@ var FeedbackPlugin = (function () {
         } catch (e) {
             console.log("there is nothing in storage");
         }
-        
+        if (staff == 'False') {
+            // STEP 3 = Student View only; no buttons, all text fields are read only.
+            currentStep = 3;
+        }        
     }
 
     // this function is called from feedback_manager.html
@@ -48,7 +50,7 @@ var FeedbackPlugin = (function () {
         for (const cat in Object.keys(feedbacks)) {
             console.debug('    %s', Object.keys(feedbacks)[cat]);
         }
-        // console.debug('Initial step = %d', currentStep);
+        console.debug('Initial step = %d', currentStep);
 
         categories = feedbacks;
         for (const key in feedbacks) {
@@ -215,9 +217,11 @@ var FeedbackPlugin = (function () {
             // set test filter to all
             $('#select-btn').val('all');
             update_filter($('#select-btn')[0]);
-        } else {
-            // if inital step is 2 or 3, page is undated accordingly
+        } else if (currentStep ==2 || currentStep == 3) {
+            // if inital step is 2 or 3, page is updated accordingly
             update_page(currentStep);
+        } else {
+            console.error('Unexpected currentStep = %d', currentStep);
         }
     }
 
@@ -395,8 +399,10 @@ var FeedbackPlugin = (function () {
             if (displayedSections.includes(test.id)) {
                 test.style.display = mode
             }
-        } else {
+        } else if (currentStep ==1 || currentStep == 3) {
             test.style.display = mode
+        } else {
+            console.error('Unexpected currentStep = %d', currentStep);
         }
     }
 
@@ -861,7 +867,6 @@ var FeedbackPlugin = (function () {
                     // get preview from server
                     var html = response.replace(/.. raw:: html/g, "");
                     $("#draft").html(html);
-
                 },
                 error: function (e) {
                     console.log("preview: " + e.toString())
@@ -871,9 +876,9 @@ var FeedbackPlugin = (function () {
 
     // this function renders a student's feedback, when the student_feedback_template is shown
     // ---
-    function render_student_feedback(feedback_data, input_courseid, input_taskid, input_submissionid) {
-        console.debug('In function: render_student_feedback(\n    %O,\n    %s,\n    %s,\n    %s)', 
-                    feedback_data, input_courseid, input_taskid, input_submissionid);
+    function render_student_feedback(feedback_data, input_courseid, input_taskid, input_submissionid, staff) {
+        console.debug('In function: render_student_feedback(\n    %O,\n    %s,\n    %s,\n    %s\n    %s)', 
+                    feedback_data, input_courseid, input_taskid, input_submissionid, staff);
 
         // get inputs
         courseid = input_courseid;
@@ -956,6 +961,14 @@ var FeedbackPlugin = (function () {
         // refresh filter
         $('#select-btn').val(filter);
         update_filter($('#select-btn')[0]);
+
+        // For student view - disable all active UI eleemnts
+        if (staff == 'False') {
+            $(".page-actions-container").css("display", "none");
+            $(".previous-student-btn").css("display", "none");
+            $(".next-student-btn").css("display", "none");
+            $(".download-btn").css("display", "none");
+        }
     }
 
     // this function sorts a list of categories: defualt categories first

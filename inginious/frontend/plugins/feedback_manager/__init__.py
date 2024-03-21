@@ -68,10 +68,9 @@ class FeedbackManagerPage(INGIniousAuthPage):
             self.logger.error('Unavailable manager user')
             raise APIInvalidArguments()
 
-        # course, task = self.get_course_and_check_rights(courseid, taskid)
         course = self.course_factory.get_course(courseid)
         task = self.task_factory.get_task(course, taskid)
-        submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
+        submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
         extra_submission_feedback = submission['custom'].get('extra_feedback_data', [])
@@ -114,7 +113,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
 
     def POST_AUTH(self, courseid, taskid, submission_id):
         course = self.course_factory.get_course(courseid)
-        submission = get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
+        submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
         updated_feedback = flask.request.json
         if not updated_feedback['categories']:
             self.logger.error("Invalid categories")
@@ -131,7 +130,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
                     if value['tests']:
                         categories[key] = value
             updated_feedback['categories'] = categories
-            feedback_html = inject_html(courseid, taskid, submission_id, updated_feedback)
+            feedback_html = inject_html(courseid, taskid, submission_id, updated_feedback, True)
         submission = self.submission_manager._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
             {"$set": {"custom": {'feedback_data': updated_feedback}, 'text': feedback_html}},
@@ -184,7 +183,7 @@ class ManagerFeedbackNextPage(INGIniousAdminPage):
 
 def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
     course, _ = page.get_course_and_check_rights(courseid, taskid)
-    submission = get_submission_by_id(page.submission_manager, course, submission_id, page.logger)
+    submission = get_submission_by_id(page.submission_manager, submission_id, page.logger)
     current_username = submission['username'][0]
     course_users = list(get_course_students(course, page.user_manager).keys())
     current_index = course_users.index(current_username)
@@ -209,16 +208,17 @@ def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
 
 class PreviewPage(INGIniousAuthPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
-        course = self.course_factory.get_course(courseid)
-        get_submission_by_id(self.submission_manager, course, submission_id, self.logger)
+        course = course = self.course_factory.get_course(courseid)
+        staff = self.user_manager.has_staff_rights_on_course(course);
+        get_submission_by_id(self.submission_manager, submission_id, self.logger)
         feedback_json = flask.request.json
         self.logger.info(f'feedback_json = {feedback_json}')
-        injected = inject_html(courseid, taskid, submission_id, feedback_json)
+        injected = inject_html(courseid, taskid, submission_id, feedback_json, staff)
         return injected
 
 
-def get_submission_by_id(submission_manager, course, submission_id, logger):
-    submission = submission_manager.get_submission(submissionid=submission_id, course=course)
+def get_submission_by_id(submission_manager, submission_id, logger):
+    submission = submission_manager.get_submission(submissionid=submission_id, user_check=False)
     validate_submission(logger, submission)
     return submission
 
@@ -232,11 +232,12 @@ def validate_submission(logger, submission):
         raise APIInvalidArguments()
 
 
-def inject_html(courseid, task_id, submissionid, feedback_json):
+def inject_html(courseid, task_id, submissionid, feedback_json, staff):
     file_path = inginious.get_root_path() + '/frontend/plugins/feedback_manager/student_feedback_template.html'
     with codecs.open(file_path, 'r', encoding='utf8') as f:
         feedback_html = f.read()
-    injected = feedback_html.replace('task_id', task_id)
+    injected = feedback_html.replace('staff', str(staff))
+    injected = injected.replace('task_id', task_id)
     injected = injected.replace('course_id', courseid)
     injected = injected.replace('submission_id', submissionid)
     injected = injected.replace('feedback_json', u'eval(' + json.dumps(feedback_json) + u')')
