@@ -103,7 +103,7 @@
                 <div class="test-container" style="margin: 12px;">
                     {%for test in category["tests"]%}
                     <div>
-                        <div id="{{category_en}}-{{test['name']}}-{{test['taskid']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
+                        <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" cout-name="{{test['cout_file']}}" class="test-data displayed_test_feedback" data-result={{test['result']['text']}}
                              style="display:{% if test['result']['text'] == filterValue %} none {% else %} flex {% endif %};
                              border-color:{% if test['result']['text'] == 'passed' %} green {% elif test['result']['text'] == 'failed' %} red {% else %} black {% endif %}">
                             <div class="test-section">
@@ -117,21 +117,21 @@
                                                 <div style="color: #008cba">{{test["name"]}}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="row {{test['taskid']}}{{test['name'].replace(' ', '')}}-message" style="display: block; font-style: italic">
+                                        <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" style="display: block; font-style: italic">
 
                                         </div>
                                     </div>
 
                                 </div>
                                 <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
-                                    <div class="{{test['name'].replace(' ', '')}}-popup" style="display: none">
+                                    <div class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup" style="display: none">
                                         <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left" type="button" onclick="FeedbackPlugin.open_popup(this)">
                                             <div class="d-none d-sm-inline">פרטים נוספים</div>
                                         </button>
                                     </div>
-                                    <input type="checkbox" id="checkBoxSelect-{{test['name']}}" class="col-md-3 col-xs-3 pull-right"
+                                    <input type="checkbox" id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="col-md-3 col-xs-3 pull-right"
                                            style="padding-inline: 1.5rem; vertical-align: middle; margin-top: 8px"
-                                           value="{{category_en}}-{{test['name']}}-{{test['taskid']}}"
+                                           value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
                                            onchange="FeedbackPlugin.select_category_or_test(this)">
                                 </div>
                             </div>

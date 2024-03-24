@@ -90,6 +90,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
                 "passed": len(passed_tests),
                 "percent": round(100 * len(passed_tests) / len(total_tests))
             }
+
         
         for category in submission_feedback['categories'].values():
             category['name_he'] = FEEDBACK_TEST_CATEGORIES[category['name']]
@@ -140,6 +141,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
 
     def build_test_feedback(self, test, task):
         return {
+            "id": test["id"],
             "name": test["name"],
             "taskid": test.get("taskid") if task._type != 'cpp-test' else None,
             "category": test["category"],

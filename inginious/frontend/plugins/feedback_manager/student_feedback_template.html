@@ -62,7 +62,7 @@
     </script>
     <script type="text/x-tmpl" id="tmpl-test">
         <div>
-           <div id="{%=o.category%}-{%=o.name%}-{%=o.taskid%}" cout-name="{%=o.cout_file%}" class="test-data displayed_test_feedback" data-result={%=o.result.text%}
+           <div id="{%=o.id%}" cout-name="{%=o.cout_file%}" class="test-data displayed_test_feedback" data-result={%=o.result.text%}
                 style="border-color:{%=o.border_color%}">
                 <div class="test-section" dir="ltr">
                     <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
@@ -75,18 +75,18 @@
                                     <div style="color: #008cba">{%=o.name%}</div>
                                 {% } %}
                             </div>
-                            <div class="row test-{%=o.taskid%}{%=o.name.replaceAll(' ', '')%}-message" style="display: block; font-style: italic">
+                            <div class="row test-{%=o.id%}-message" style="display: block; font-style: italic">
 
                             </div>
                         </div>
                     </div>
                     <div class="actions col-md-3 col-xs-3" style="padding-right: 0px">
-                        <div class="{%=o.name.replaceAll(' ', '')%}-popup" style="display: none">
+                        <div class="{%=o.id%}-popup" style="display: none">
                             <button class="btn btn-primary btn-info btn-sm show_cout_btn col-md-9 col-xs-9 pull-left"
                                     type="button" onclick="FeedbackPlugin.open_popup(this)">
                                 <div class="d-none d-sm-inline">פרטים נוספים</div>
                             </button>
-                        </div>
+                        </div> 
                     </div>
                 </div>
            </div>

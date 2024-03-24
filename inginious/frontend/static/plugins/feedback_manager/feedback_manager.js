@@ -59,7 +59,7 @@ var FeedbackPlugin = (function () {
             
             // set test uniqueu id
             category['tests'].forEach(test => {
-                test['id'] = test['category'] + '-' + test['name'] + '-' + test['taskid'];
+                test['id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
             })
 
             // check if there is already instructor feedback for this category
@@ -364,16 +364,13 @@ var FeedbackPlugin = (function () {
 
             // TODO not clear why this is needed
             var extra_text = is_draft ? "test-" : "";
-
-            // get test's taskid if any
-            var taskid = 'taskid' in test ? (test['taskid'] ? test['taskid']: "None") : "";
-
+       
             // insert message html
             messages.forEach(message => {
                 message = message.replaceAll(/\"/g, '\\\"')
                 var line = $('<p style="margin: 0"></p>');
                 line.text(message);
-                $("." + extra_text + taskid + test['name'].replace(/ /g, '') + "-message").append(line);
+                $("." + extra_text + test['id'] + "-message").append(line);
             })
         }
     }
@@ -385,7 +382,7 @@ var FeedbackPlugin = (function () {
         console.debug('   %s', test['name']);
 
         if ((('cout_text' in test) && test['cout_text']) || (('cout_file' in test) && test['cout_file'])) {
-            $("." + test['name'].replace(/ /g, '') + "-popup").css("display", "initial");
+            $("." + test['id'] + "-popup").css("display", "initial");
         }
     }
 
@@ -925,6 +922,7 @@ var FeedbackPlugin = (function () {
 
             // category tests
             category_data['tests'].forEach(test => {
+                // test['id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
                 // for default categories (e.g., functionality) border color is set according to test result
                 if (default_categories.includes(test['category'])) {
                     if (test['result']['text'] === 'passed') {
