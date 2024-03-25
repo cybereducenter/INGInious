@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 """ manage_feedback plugin - show course overview of student grades """
-import logging
 import codecs
 import json
 import zipfile
@@ -63,14 +62,14 @@ class FeedbackManagerPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
 
         manager_userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
-
         if not manager_userdata:
             self.logger.error('Unavailable manager user')
             raise APIInvalidArguments()
-
+        
         course = self.course_factory.get_course(courseid)
         task = self.task_factory.get_task(course, taskid)
         submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
+              
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
         extra_submission_feedback = submission['custom'].get('extra_feedback_data', [])
@@ -109,6 +108,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
                                            feedback=submission_feedback,
                                            user=manager_userdata,
                                            student_username=submission['username'][0],
+                                           session_username=manager_userdata['username'],
                                            submission_id=submission['_id'],
                                            now=datetime.now())
 
@@ -126,8 +126,6 @@ class FeedbackManagerPage(INGIniousAuthPage):
             for key in FEEDBACK_TEST_CATEGORIES.keys():
                 if key in updated_feedback['categories'].keys():
                     value = updated_feedback['categories'][key]
-                    self.logger.info(f"key = {key}") 
-                    value['tests'] = list(filter(lambda x: x['selected'], value['tests']))
                     if value['tests']:
                         categories[key] = value
             updated_feedback['categories'] = categories
@@ -214,7 +212,6 @@ class PreviewPage(INGIniousAuthPage):
         staff = self.user_manager.has_staff_rights_on_course(course);
         get_submission_by_id(self.submission_manager, submission_id, self.logger)
         feedback_json = flask.request.json
-        self.logger.info(f'feedback_json = {feedback_json}')
         injected = inject_html(courseid, taskid, submission_id, feedback_json, staff)
         return injected
 
@@ -265,7 +262,6 @@ def add_qtip_css_file():
 def add_qtip_js_file():
     """ Add manage_feedback js file to the admin page """
     return 'https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.js'
-
 
 def init(plugin_manager, _, _2, _3):
     """ Init the feedback manager plugin """

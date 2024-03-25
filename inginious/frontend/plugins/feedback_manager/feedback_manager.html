@@ -2,7 +2,6 @@
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
 
 {% block column %}
-    <h3>{{student}}</h3>
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
         <button class="btn btn-primary btn-info btn-sm previous-student-btn nav-btn">Previous Student</button>
         <button class="btn btn-primary btn-info btn-sm next-student-btn nav-btn">Next Student</button>
@@ -191,6 +190,8 @@
 
 <script type="text/javascript">
     var staff = '{{ staff }}';
+    var session_username = '{{ session_username }}';
+    var student_username = '{{ student_username}}'
     var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
@@ -198,10 +199,27 @@
     var submissionid = '{{submission_id}}';
     var feedback_manager = {{ feedback | tojson }};
     
-    console.log('feedback_manager = %O', feedback_manager);
-    $(document).ready(function () {
-        FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype, staff);
-        FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);
-    });
+    if ((staff == 'False') && (session_username != student_username)) {
+        // Not an admin, and not the student who should get the feedback
+        console.log('session_username = %s, student_username = %s', session_username, student_username);
+        $("#main-content").css("display", "none");
+        $(".btn").css("display", "none");
+        $("#main-container").css("display", "block");
+        $("#main-container.row").append('<h2 align="center">משוב זה אינו מיועד לך. דווח.י על כך למדריכ.ה הקורס</h2>')
+    } else if ((staff == 'False') && feedback_manager['draft']) {
+        // Not an admin, and the feedback was not submitted/finalized by the instructor
+        console.log('session_username = %s, student_username = %s, draft = %s', 
+            session_username, student_username, feedback_manager['draft']);
+        $("#main-content").css("display", "none");
+        $(".btn").css("display", "none");
+        $("#main-container").css("display", "block");
+        $("#main-container.row").append('<h2 align="center">משוב זה אינו סופי. דווח.י על כך למדריכ.ה הקורס</h2>')
+    } else {
+        console.log('feedback_manager = %O', feedback_manager);
+        $(document).ready(function () {
+            FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype, staff);
+            FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);
+        });
+    }
 </script>
 {% endblock %}
