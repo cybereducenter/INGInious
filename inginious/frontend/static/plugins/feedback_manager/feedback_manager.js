@@ -35,7 +35,7 @@ var FeedbackPlugin = (function () {
         try {
             load_from_storage();
         } catch (e) {
-            console.log("there is nothing in storage");
+            console.debug("there is nothing in storage");
         }
         if (staff == 'False') {
             // STEP 3 = Student View only; no buttons, all text fields are read only.
@@ -47,9 +47,6 @@ var FeedbackPlugin = (function () {
     // ---
     function init_manage_feedback_page(feedbacks) {
         console.debug('In function: init_manage_feedback_page(%O)', feedbacks);
-        for (const cat in Object.keys(feedbacks)) {
-            console.debug('    %s', Object.keys(feedbacks)[cat]);
-        }
         console.debug('Initial step = %d', currentStep);
 
         categories = feedbacks;
@@ -117,20 +114,13 @@ var FeedbackPlugin = (function () {
         }
         // list of all checked categories and tests
         console.debug('checkedSections = %O', checkedSections);
-        for (const sec in checkedSections) {
-            console.debug('    %s', checkedSections[sec]);
-        }
 
         // list of all displayed categories and tests
         console.debug('displayedSections = %O', displayedSections);
-        for (const sec in displayedSections) {
-            console.debug('    %s', displayedSections[sec]);
-        }
 
         // set checkboxes
         var checkboxes = $("#feedbacks input[type='checkbox']");
         for (var i = 0; i < checkboxes.length; i++) {
-            console.debug('checkboxes[%d] = %O', i, checkboxes[i].value);
             // selected category/test
             if (checkedSections.includes(checkboxes[i].value)) {
                 // check category/test
@@ -235,7 +225,7 @@ var FeedbackPlugin = (function () {
         try {
             load_from_storage();
         } catch (e) {
-            console.log("there is nothing in storage");
+            console.debug("there is nothing in storage");
         }
 
         // set 'back' and 'next' buttons, based on current step
@@ -253,15 +243,6 @@ var FeedbackPlugin = (function () {
 
         var page_categories = $("#feedbacks .displayed_feedback");
         var page_tests = $("#feedbacks .displayed_test_feedback");
-
-        console.debug("page_categories = %O", page_categories);
-        for (const cat in page_categories) {
-            console.debug('    %s', page_categories[cat]['id']);
-        }
-        console.debug("page_tests = %O", page_tests);
-        for (const tst in page_tests) {
-             console.debug('    %s', page_tests[tst]['id']);
-        }
 
         // STEP 1
         // ------
@@ -357,7 +338,7 @@ var FeedbackPlugin = (function () {
     // this function adds the message of a test
     // ---
     function add_test_messages(test, is_draft) {
-        console.debug('In function: add_test_messages(%O, %s)', test, is_draft);
+        // console.debug('In function: add_test_messages(%O, %s)', test, is_draft);
 
         if (test['message']) {
             var messages = test['message'].split("\n");
@@ -378,8 +359,7 @@ var FeedbackPlugin = (function () {
     // this function creates the 'additional details' popup window for a test
     // ---
     function add_test_popup(test) {
-        console.debug('In function: add_test_popup(%O)', test);
-        console.debug('   %s', test['name']);
+        // console.debug('In function: add_test_popup(%O)', test);
 
         if ((('cout_text' in test) && test['cout_text']) || (('cout_file' in test) && test['cout_file'])) {
             $("." + test['id'] + "-popup").css("display", "initial");
@@ -389,7 +369,7 @@ var FeedbackPlugin = (function () {
     // this function sets the display mode (flex = show, none = hide) for tests
     // ---
     function change_display_mode(test, mode) {
-        console.debug('In function: change_display_mode(\n    %O,\n    %s)', test, mode);
+        // console.debug('In function: change_display_mode(\n    %O,\n    %s)', test, mode);
 
         if (currentStep === 2) {
             // in STEP 2, a test is shown only if its parent category is shown
@@ -674,6 +654,8 @@ var FeedbackPlugin = (function () {
                 "current_filter": filter,
             };
 
+            console.debug("save_to_storage data = %O", data);
+
             // save data
             localStorage.setItem(courseid + "/" + taskid + "/" + submissionid, JSON.stringify(data));
         } else {
@@ -691,7 +673,7 @@ var FeedbackPlugin = (function () {
             // get data from local storage
             var data = localStorage[courseid + "/" + taskid + "/" + submissionid];
             data = JSON.parse(data);
-
+            console.debug('load_from_storage data = %O', data);
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
             displayedSections = data.displayedSections ? data.displayedSections : [];
@@ -859,7 +841,7 @@ var FeedbackPlugin = (function () {
                     "total_feedback": total_feedback,
                 }),
                 success: function(response) {
-                    console.log("preview: success");
+                    console.debug("preview: success");
 
                     // get preview from server
                     var html = response.replace(/.. raw:: html/g, "");
@@ -876,6 +858,19 @@ var FeedbackPlugin = (function () {
     function render_student_feedback(feedback_data, input_courseid, input_taskid, input_submissionid, staff) {
         console.debug('In function: render_student_feedback(\n    %O,\n    %s,\n    %s,\n    %s\n    %s)', 
                     feedback_data, input_courseid, input_taskid, input_submissionid, staff);
+        
+        if (feedback_data.categories.length == 0) {
+            try {
+                load_from_storage();
+                feedback_data['categories'] = draft_categories;
+                feedback_data['total_feedback'] = total_feedback;
+            } catch (e) {
+                console.debug("there is nothing in storage");
+            }    
+        }
+                    
+        
+        console.debug("feedback_data = %O", feedback_data);
 
         // get inputs
         courseid = input_courseid;
@@ -887,8 +882,8 @@ var FeedbackPlugin = (function () {
         if (feedback_data['total_feedback']) {
             total_feedback_data = feedback_data['total_feedback']
         }
-        var total_feedback = $(tmpl('tmpl-total-feedback', total_feedback_data));
-        $('#scenarios-table').append(total_feedback);
+        var total_feedback_element = $(tmpl('tmpl-total-feedback', total_feedback_data));
+        $('#scenarios-table').append(total_feedback_element);
 
         // render categories
         var category_section;
