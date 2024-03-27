@@ -215,6 +215,14 @@
         $(".btn").css("display", "none");
         $("#main-container").css("display", "block");
         $("#main-container.row").append('<h2 align="center">משוב זה אינו סופי. דווח.י על כך למדריכ.ת הקורס</h2>')
+    } else if (submissionid == "") {
+        // Not an admin, and the feedback was not submitted/finalized by the instructor
+        console.log('session_username = %s, student_username = %s, draft = %s', 
+            session_username, student_username, feedback_manager['draft']);
+        $("#main-content").css("display", "none");
+        $(".btn").css("display", "none");
+        $("#main-container").css("display", "block");
+        $("#main-container.row").append('<h2 align="center">עדין לא נשלח משוב לתרגיל זה</h2>')
     } else {
         console.log('feedback_manager = %O', feedback_manager);
         $(document).ready(function () {

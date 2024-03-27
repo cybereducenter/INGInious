@@ -58,6 +58,11 @@ class FeedbackCoutPage(INGIniousAuthPage):
         return cout_text
 
 
+class StudentFeedbackManagerPage(INGIniousAuthPage):
+    def GET_AUTH(self, courseid, taskid):
+        return FeedbackManagerPage.GET_AUTH(self, courseid, taskid, self.user_manager.session_username())
+
+    
 class FeedbackManagerPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid, taskid, submission_id):
 
@@ -65,28 +70,37 @@ class FeedbackManagerPage(INGIniousAuthPage):
         if not manager_userdata:
             self.logger.error('Unavailable manager user')
             raise APIInvalidArguments()
-        
-        # Special handling of student feedback url, where instead of submission id we have username
-        if submission_id == self.user_manager.session_username():
-            # Fetch latest feedback
-            submission = self.database.submissions.find({
-                "username": self.user_manager.session_username(),
-                "courseid": courseid,
-                "taskid": taskid}).sort([('submitted_on', -1)]).limit(1)
-            submission = list(submission)[0]
-            submission_id = str(submission['_id'])
-            submission_url_parts = flask.request.url.split('/')
-            submission_url_parts[-1] = submission_id
-            submission_url = '/'.join(submission_url_parts)
-            self.logger.info(f"submission_url = {submission_url}")
-        else:
-            submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
-            submission_url = flask.request.url
 
         course = self.course_factory.get_course(courseid)
         task = self.task_factory.get_task(course, taskid)
-        
-              
+
+        # Special handling of student feedback url, where instead of submission id we have username
+        if submission_id == self.user_manager.session_username():
+            # Fetch latest feedback
+            submission_result = list(self.database.submissions.find({
+                "username": self.user_manager.session_username(),
+                "courseid": courseid,
+                "taskid": taskid}).sort([('submitted_on', -1)]).limit(1))
+            if submission_result:
+                submission = submission_result[0]
+                submission_id = str(submission['_id'])
+                submission_url_parts = flask.request.url.split('/')
+                submission_url_parts.append(submission_id)
+                submission_url = '/'.join(submission_url_parts)
+                self.logger.info(f"submission_url = {submission_url}")
+            else:
+                # Display error message...
+                return self.template_helper.render("feedback_manager.html",
+                                                   template_folder='frontend/plugins/feedback_manager',
+                                                   course=course,
+                                                   task=task,
+                                                   feedback={'categories': {}},
+                                                   submission_id='',
+                                                   now=datetime.now())
+        else:
+            submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
+            submission_url = flask.request.url
+            
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
         extra_submission_feedback = submission['custom'].get('extra_feedback_data', [])
@@ -287,6 +301,8 @@ def init(plugin_manager, _, _2, _3):
     plugin_manager.add_hook('css', add_qtip_css_file)
     plugin_manager.add_hook('javascript_header', add_js_file)
     plugin_manager.add_hook('javascript_header', add_qtip_js_file)
+    plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>",
+                            StudentFeedbackManagerPage.as_view('student_feedback_manager'))
     plugin_manager.add_page("/feedback_manager/<courseid>/<taskid>/<submission_id>",
                             FeedbackManagerPage.as_view('feedback_manager'))
     plugin_manager.add_page("/feedback/<courseid>/<taskid>/<submission_id>/cout",
