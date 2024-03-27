@@ -191,14 +191,15 @@
 <script type="text/javascript">
     var staff = '{{ staff }}';
     var session_username = '{{ session_username }}';
-    var student_username = '{{ student_username}}'
+    var student_username = '{{ student_username}}';
     var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
     var tasktype = '{{ task._type }}';
-    var submissionid = '{{submission_id}}';
+    var submissionid = '{{ submission_id }}';
+    var submission_url = '{{ submission_url }}';
     var feedback_manager = {{ feedback | tojson }};
-    
+
     if ((staff == 'False') && (session_username != student_username)) {
         // Not an admin, and not the student who should get the feedback
         console.log('session_username = %s, student_username = %s', session_username, student_username);
@@ -217,7 +218,7 @@
     } else {
         console.log('feedback_manager = %O', feedback_manager);
         $(document).ready(function () {
-            FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype, staff);
+            FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype, staff, submission_url);
             FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);
         });
     }

@@ -21,17 +21,19 @@ var FeedbackPlugin = (function () {
     var tests = {}
     var draft_categories = []
     var total_feedback = ""
+    var submission_url = ""
 
     // this function is called from feedback_manager.html
     // ---
-    function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff) {
-        console.debug('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s\n    %s)', 
-                     input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff);
+    function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff, input_submission_url) {
+        console.debug('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s\n    %s\n    %s)', 
+                     input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff, input_submission_url);
         courseid = input_courseid;
         taskid = input_taskid;
         submissionid = input_submissionid;
         student = input_student;
         tasktype = input_tasktype
+        submission_url = input_submission_url
         try {
             load_from_storage();
         } catch (e) {
@@ -834,7 +836,7 @@ var FeedbackPlugin = (function () {
 
         $.ajax({
                 type: "POST",
-                url: window.location.href + "/preview",
+                url: submission_url + "/preview",
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "categories": draft_categories,

@@ -66,9 +66,26 @@ class FeedbackManagerPage(INGIniousAuthPage):
             self.logger.error('Unavailable manager user')
             raise APIInvalidArguments()
         
+        # Special handling of student feedback url, where instead of submission id we have username
+        if submission_id == self.user_manager.session_username():
+            # Fetch latest feedback
+            submission = self.database.submissions.find({
+                "username": self.user_manager.session_username(),
+                "courseid": courseid,
+                "taskid": taskid}).sort([('submitted_on', -1)]).limit(1)
+            submission = list(submission)[0]
+            submission_id = str(submission['_id'])
+            submission_url_parts = flask.request.url.split('/')
+            submission_url_parts[-1] = submission_id
+            submission_url = '/'.join(submission_url_parts)
+            self.logger.info(f"submission_url = {submission_url}")
+        else:
+            submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
+            submission_url = flask.request.url
+
         course = self.course_factory.get_course(courseid)
         task = self.task_factory.get_task(course, taskid)
-        submission = get_submission_by_id(self.submission_manager, submission_id, self.logger)
+        
               
         student_userdata = self.database.users.find_one({"username": submission['username'][0]})
         submission_feedback = submission['custom']['feedback_data']
@@ -101,6 +118,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
                                                        "grade": int(100 * passed / total)}})
 
         return self.template_helper.render("feedback_manager.html",
+                                           submission_url= submission_url,
                                            template_folder='frontend/plugins/feedback_manager',
                                            course=course,
                                            task=task,
