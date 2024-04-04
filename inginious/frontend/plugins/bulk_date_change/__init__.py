@@ -37,6 +37,10 @@ class BulkDateChangePage(INGIniousAdminPage):
 
         filtered_tasks = self._get_lesson_tasks(course, data['selected_lesson'])
         for task_id in filtered_tasks:
+            # ignore feedback tasks
+            if 'feedback' in task_id:
+                continue
+
             try:
                 task_data = self.task_factory.get_task_descriptor_content(courseid, task_id)
             except:
