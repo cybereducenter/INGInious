@@ -46,7 +46,9 @@
             {% endif %}
         {% endfor %}
         </select>
-        <button class="btn btn-default btn-success" value="{{data_users | length}}"  style="margin-left: 15px;" onclick="MatrixPlugin.final_submission(this)">Final Submission</button>
+        <!-- <button class="btn btn-default btn-success" value="{{data_users | length}}"  style="margin-left: 15px;" onclick="MatrixPlugin.final_submission(this)">Final Submission</button> -->
+        <button class="btn btn-default btn-success" value="{{data_users | length}}"  style="margin-left: 15px;" onclick="clicked(this)">Final Submission</button>
+
     </div>
     {% endif %}
 
@@ -294,6 +296,33 @@
           includeSelectAllOption: true,
         });
     });
+
+    function clicked(element)
+    {
+        const lesson = $('#select_lesson')[0].value;
+        const students = $('#select_students')[0];
+
+        if (lesson == 'None selected') {
+            alert('No lesson was selected.')
+            return;
+        }
+
+        var student_count = 0;
+        for (var i = 0; i < students.options.length; i++) {
+            if (students.options[i].selected) {
+                student_count++;
+            }
+        }
+        if (student_count == 0) {
+            alert('No students were selected.')
+            return;
+        }
+
+        message = `Pressing OK will overwrite "${lesson}", for all ${student_count} selected users!!!\n Are you sure you want to continue?`;
+        if(confirm(message)) {
+            MatrixPlugin.final_submission(this);
+        }
+    }
 
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
