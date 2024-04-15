@@ -29,14 +29,15 @@
     {% if course_type != 'cpp-test' %}
     <div id="final_submission">
 
-        <select id="select_lesson" class="btn btn-default select_feedback" style="margin-right: 15px;">
+        <select id="select_lesson" class="btn btn-default select_feedback" style="margin-right:15px">
+            <option value="None selected">None selected</option>
         {% for task in order_tasks %}
             {% if task._data.get("feedback") %}
-                    <option>{{task.get_id()}}</option>
+                    <option value="{{task.get_id()}}">{{task.get_id()}}</option>
             {% endif %}
         {% endfor %}
         </select>
-        <select id="select_students" class=" btn btn-default select_feedback" multiple="multiple" data-style="bg-white rounded-pill px-4 py-3 shadow-sm ">
+        <select id="select_students" class="btn btn-default select_feedback" multiple="multiple">
         {% for user in data_users %}
             {% if user['name']['realname'] is defined %}
                     <option value="{{user['name']['username']}}">{{user['name']['realname']}}</option>
