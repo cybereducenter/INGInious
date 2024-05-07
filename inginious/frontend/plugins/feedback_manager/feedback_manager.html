@@ -1,5 +1,19 @@
 {% extends "layout.html" %}
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
+{% set category_placeholder = 
+"הוסיפו / התייחסו ל …
+1. הקשר מתוך השיעור.
+2. הסבר על נקודה מבלבלת במשוב.
+3. דוגמאות משלימות להמחשה.
+4. הערות חוזרות מתרגילים קודמים.
+5. הערה בחשיבות גבוהה יותר."
+%}
+{% set total_feedback_placeholder = 
+"1. תמצתו נקודות עיקריות שעלו.
+2. כתבו משוב אישי ומותאם לחניך/ה.
+3. התייחסו לחוזקות ואזורים לשיפור.
+4. שלבו מילות עידוד ומוטיבציה!"
+%}
 
 {% block column %}
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
@@ -91,7 +105,7 @@
             
             <div class="test-container" style=" margin: 12px;">
                 <div class="message-section message-feedback-{{category_en}} message" width: 100%;">
-                    <textarea id="message-feedback-{{category_en}}" dir="rtl" rows="4" maxlength="500" placeholder="הערות מדריך"></textarea>
+                    <textarea id="message-feedback-{{category_en}}" dir="rtl" rows="6" maxlength="500" placeholder="{{category_placeholder}}""></textarea>
                 </div>
             </div>
             
@@ -141,7 +155,7 @@
     {%endfor%}
     <div class="total-feedback message">
         
-        <textarea id="total-feedback" dir="rtl" rows="8" maxlength="1000" placeholder="משוב מסכם">{{feedback['total_feedback']}}</textarea>
+        <textarea id="total-feedback" dir="rtl" rows="8" maxlength="1000" placeholder="{{ total_feedback_placeholder }}">{{feedback['total_feedback']}}</textarea>
     </div>
 </div>
 <div id="" class="step3-view step-view" style="display: none">
