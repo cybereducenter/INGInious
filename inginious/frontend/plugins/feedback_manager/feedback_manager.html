@@ -41,7 +41,7 @@
 
 {% block content %}
 <h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} / Student: {{student}} </h3>
-
+<div id="feedback_submit_status"></div>
 <div class="page-actions-container">
     <div style="display: flex; flex-wrap: nowrap; margin-right: 5px;">
         <div class="step-indicator" data-step=1 style="opacity: 1">STEP 1</div>
