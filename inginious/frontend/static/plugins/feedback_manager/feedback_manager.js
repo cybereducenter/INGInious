@@ -26,8 +26,7 @@ var FeedbackPlugin = (function () {
     // this function is called from feedback_manager.html
     // ---
     function init_variables(input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff, input_submission_url) {
-        console.debug('In function: init_variables(\n    %s, \n    %s, \n    %s, \n    %s, \n    %s\n    %s\n    %s)', 
-                     input_courseid, input_taskid, input_submissionid, input_student, input_tasktype, staff, input_submission_url);
+        console.debug('In function: init_variables');
         courseid = input_courseid;
         taskid = input_taskid;
         submissionid = input_submissionid;
@@ -204,11 +203,6 @@ var FeedbackPlugin = (function () {
             // hide instructor comments and total feedback (will apear in STEP 2 & 3)
             $(".message").css("display", "none");
 
-            // TODO consider droping this filter, since the failed/passsed criterion is only relevant 
-            // to functionality tests
-            // set test filter to all
-            $('#select-btn').val('all');
-            update_filter($('#select-btn')[0]);
         } else if (currentStep ==2 || currentStep == 3) {
             // if inital step is 2 or 3, page is updated accordingly
             update_page(currentStep);
@@ -221,6 +215,7 @@ var FeedbackPlugin = (function () {
     // the past
     // ---
     function update_page(currentStep) {
+        console.debug('==========')
         console.debug('In function: update_page(%d)', currentStep);
 
         // load data from storafe
@@ -320,8 +315,6 @@ var FeedbackPlugin = (function () {
             console.log('Unexpected currentStep = %d', currentStep);
         }
 
-        $('#select-btn').val(filter);
-        update_filter($('#select-btn')[0]);
         window.scrollTo(0,0);
     }
 
@@ -382,48 +375,6 @@ var FeedbackPlugin = (function () {
             test.style.display = mode
         } else {
             console.error('Unexpected currentStep = %d', currentStep);
-        }
-    }
-
-    // this functions is called when a user changes the testqcategory filter
-    // ---
-    function update_filter(event) {
-        console.debug('In function: update_filter(%s)', event.value);
-
-        var value = event.value;
-        filter = value;
-        if (value === "passed") {
-            // show only passed tests
-            var passed_tests = $("div[data-result=passed]")
-            for (var i = 0; i < passed_tests.length; i++){
-                change_display_mode(passed_tests[i], "flex");
-            }
-            var failed_tests = $("div[data-result=failed]")
-            for (var i = 0; i < failed_tests.length; i++){
-                change_display_mode(failed_tests[i], "none");
-            }
-        } else if (value === "failed") {
-            // show only failed tests
-            var passed_tests = $("div[data-result=passed]")
-            for (var i = 0; i < passed_tests.length; i++){
-                change_display_mode(passed_tests[i], "none");
-            }
-            var failed_tests = $("div[data-result=failed]")
-            for (var i = 0; i < failed_tests.length; i++){
-                change_display_mode(failed_tests[i], "flex");
-            }
-        } else if (value == "all") {
-            // show all tests
-            var all_tests = $(".test-data")
-            for (var i = 0; i < all_tests.length; i++){
-                change_display_mode(all_tests[i], "flex");
-            }
-            var all_categories = $(".category")
-            for (var i = 0; i < all_categories.length; i++){
-                change_display_mode(all_categories[i], "flex");
-            }
-        } else {
-            console.log('Unexpected filter event value = %s', value);
         }
     }
 
@@ -953,10 +904,6 @@ var FeedbackPlugin = (function () {
             $('#scenarios-table').append(popup_section);
         }
 
-        // refresh filter
-        $('#select-btn').val(filter);
-        update_filter($('#select-btn')[0]);
-
         // For student view - disable all active UI eleemnts
         if (staff == 'False') {
             $(".page-actions-container").css("display", "none");
@@ -996,7 +943,6 @@ var FeedbackPlugin = (function () {
     return {
         init_manage_feedback_page: init_manage_feedback_page,
         init_variables: init_variables,
-        update_filter: update_filter,
         update_step: update_step,
         select_category_or_test: select_category_or_test,
         save_to_storage: save_to_storage,

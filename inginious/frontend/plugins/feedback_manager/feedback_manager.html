@@ -43,15 +43,6 @@
 <h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} / Student: {{student}} </h3>
 <div id="feedback_submit_status"></div>
 <div class="page-actions-container">
-    <div class="top-page-right-actions" style="margin: 10px 2px">
-            <div class="btn-group" style="margin-right: 5px;">
-                <select id="select-btn" class="btn btn-primary btn-info btn-sm" onchange="FeedbackPlugin.update_filter(this)">
-                    <option value="all">Show All</option>
-                    <option value="failed">Show Failed</option>
-                    <option value="passed">Show Succeeded</option>
-                </select>
-            </div>
-    </div>
     <div class="page-right-actions">
         <div class="btn-group footer-action-button">
             <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">
