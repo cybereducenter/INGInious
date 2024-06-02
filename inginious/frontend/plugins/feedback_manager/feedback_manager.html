@@ -9,13 +9,13 @@
 5. הערה בחשיבות גבוהה יותר."
 %}
 {% set total_feedback_placeholder = 
-"במשוב המסכם ﻿הוסיפו / התייחסו ל...
-1. תמצתו נקודות עיקריות שעלו.
-2. כתבו משוב אישי ומותאם לחניך/ה.
-3. התייחסו לחוזקות ואזורים לשיפור.
-4. שלבו מילות עידוד ומוטיבציה!"
+    "במשוב המסכם ﻿הוסיפו / התייחסו ל...
+    1. תמצתו נקודות עיקריות שעלו.
+    2. כתבו משוב אישי ומותאם לחניך/ה.
+    3. התייחסו לחוזקות ואזורים לשיפור.
+    4. שלבו מילות עידוד ומוטיבציה!"
 %}
-
+    
 {% block column %}
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
         <button class="btn btn-primary btn-info btn-sm previous-student-btn nav-btn">Previous Student</button>
@@ -43,10 +43,14 @@
 <h3>Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} / Student: {{student}} </h3>
 <div id="feedback_submit_status"></div>
 <div class="page-actions-container">
-    <div style="display: flex; flex-wrap: nowrap; margin-right: 5px;">
-        <div class="step-indicator" data-step=1 style="opacity: 1">STEP 1</div>
-        <div class="step-indicator" data-step=2 >STEP 2</div>
-        <div class="step-indicator" data-step=3 >STEP 3</div>
+    <div class="top-page-right-actions" style="margin: 10px 2px">
+            <div class="btn-group" style="margin-right: 5px;">
+                <select id="select-btn" class="btn btn-primary btn-info btn-sm" onchange="FeedbackPlugin.update_filter(this)">
+                    <option value="all">Show All</option>
+                    <option value="failed">Show Failed</option>
+                    <option value="passed">Show Succeeded</option>
+                </select>
+            </div>
     </div>
     <div class="page-right-actions">
         <div class="btn-group footer-action-button">
@@ -58,6 +62,15 @@
                 <div class="d-none d-sm-inline">Next</div></button>
         </div>
     </div>
+</div>
+
+<div class="page-actions-container">
+    <div style="display: flex; flex-wrap: nowrap; margin-right: 5px;">
+        <div class="step-indicator" data-step=1 style="opacity: 1">STEP 1</div>
+        <div class="step-indicator" data-step=2 >STEP 2</div>
+        <div class="step-indicator" data-step=3 >STEP 3</div>
+    </div>
+
 </div>
 
 <div id="feedbacks" class="step1-view step2-view step-view test-result-table">
@@ -106,21 +119,16 @@
                              border-color:{% if test['result']['text'] == 'passed' %} green {% elif test['result']['text'] == 'failed' %} red {% else %} black {% endif %}">
                             <div class="test-section">
                                 <div class="content col-md-9 col-xs-9 black-text" style="padding: 10px 5px">
-                                    <div id="test-result" class="pull-left" style="padding-inline: 1.5rem">
+                                    <div class="pull-left" style="padding-inline: 1.5rem">
                                         <div class="row" style="display: block">
                                             {% if test.get("taskid") %}<div style="font-size: larger">{{test["taskid"]}}</div>{% endif %}
                                             {% if test.get("link") %}
                                                 <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
                                             {% else %}
-                                                <div style="color: #008cba">
-                                                    <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> {{test["name"]}}</i>
-                                                    <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" onclick="FeedbackPlugin.edit_result(this)" title="" data-toggle="tooltip" data-original-title="עריכה" style="display: none"><i class="fa fa-edit"></i></button>
-                                                    <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled" onclick="FeedbackPlugin.cancel_edit(this)" title="" data-toggle="tooltip" data-original-title="ביטול" style="display: none"><i class="fa fa-close"></i></button>
-                                                    <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  onclick="FeedbackPlugin.save_edit(this)" title="" data-toggle="tooltip" data-original-title="שמירה" style="display: none"><i class="fa fa-check"></i></button>
-                                                </div>
+                                                <div style="color: #008cba">{{test["name"]}}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" spellcheck="false" style="display: block; font-style: italic">
+                                        <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" style="display: block; font-style: italic">
 
                                         </div>
                                     </div>
@@ -170,6 +178,7 @@
                     onclick="FeedbackPlugin.delete_draft()"><i class="fa fa-trash"></i> <div class="d-none d-sm-inline">Delete draft</div></button> -->
         </div>
     </div>
+    <div></div>
     <div class="page-right-actions">
         <div class="btn-group footer-action-button">
             <button id="back-btn" class="btn btn-primary btn-info btn-sm back_btn" type="button" onclick="FeedbackPlugin.update_step(-1)">

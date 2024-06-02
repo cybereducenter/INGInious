@@ -240,8 +240,8 @@ def get_next_prev_student(page, courseid, taskid, submission_id, is_prev):
 
 class PreviewPage(INGIniousAuthPage):
     def POST_AUTH(self, courseid, taskid, submission_id):
-        course = self.course_factory.get_course(courseid)
-        staff = self.user_manager.has_staff_rights_on_course(course)
+        course = course = self.course_factory.get_course(courseid)
+        staff = self.user_manager.has_staff_rights_on_course(course);
         get_submission_by_id(self.submission_manager, submission_id, self.logger)
         feedback_json = flask.request.json
         injected = inject_html(courseid, taskid, submission_id, feedback_json, staff)

@@ -22,27 +22,6 @@
     margin: 10px 2px;
 }
 
-.edit_btn {
-    padding-left: 15px;
-    border: none;
-}
-
-.cancel_btn {
-    color: red;
-    border: none;
-    padding-left: 0;
-}
-
-.save_btn {
-    color: green;
-    border: none;
-    padding-left: 0;
-}
-
-.disabled {
-    color: lightgrey;
-    opacity: 0.6;
-}
 
 .test-section {
     width: 100%;
