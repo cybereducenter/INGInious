@@ -116,7 +116,7 @@
                                             {% if test.get("link") %}
                                                 <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
                                             {% else %}
-                                                <div style="color: #008cba">{{test["name"]}}</div>
+                                                <div class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" style="color: #008cba">{{test["name"]}}</div>
                                             {% endif %}
                                         </div>
                                         <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" style="display: block; font-style: italic">
