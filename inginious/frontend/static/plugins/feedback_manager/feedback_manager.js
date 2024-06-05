@@ -42,6 +42,7 @@ var FeedbackPlugin = (function () {
             // STEP 3 = Student View only; no buttons, all text fields are read only.
             currentStep = 3;
         }        
+        console.debug('==========');
     }
 
     // this function is called from feedback_manager.html
@@ -55,9 +56,9 @@ var FeedbackPlugin = (function () {
             // key is the category name, in English. For example, coding, design...
             var category = feedbacks[key];
             
-            // set test uniqueu id
+            // set test uniqueu UI id
             category['tests'].forEach(test => {
-                test['id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
+                test['ui_id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
             })
 
             // check if there is already instructor feedback for this category
@@ -80,8 +81,8 @@ var FeedbackPlugin = (function () {
             category['tests'].forEach(test => {
                 // check if test is selected
                 if ('selected' in test && test['selected'] && !checkedSections.includes(test['name'])) {
-                    checkedSections.push(test['id']);
-                    displayedSections.push(test['id']);
+                    checkedSections.push(test['ui_id']);
+                    displayedSections.push(test['ui_id']);
                     // if test's category was not selected, make sure it is displayed
                     if (!displayedSections.includes('feedback-' + key)){
                         displayedSections.push('feedback-' + key);
@@ -247,6 +248,16 @@ var FeedbackPlugin = (function () {
             // hide submit/save buttons
             $("#submit-buttons")[0].style.display = 'none';
 
+            // hide test edit buttons
+            var buttons = document.getElementsByTagName('button');
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].classList.contains('edit_btn') ||
+                    buttons[i].classList.contains('save_btn') ||
+                    buttons[i].classList.contains('cancel_btn')) {
+                    buttons[i].style.display = 'none';
+                    }
+            }
+
             // show category and test checkboxes
             // TODO consider removing ceckboxes from categories
             var checkboxes = $("#feedbacks input[type='checkbox']");
@@ -279,6 +290,15 @@ var FeedbackPlugin = (function () {
             // hide submit/save draft buttons
             $("#submit-buttons")[0].style.display = 'none';
 
+            // show edit buttons
+            var buttons = document.getElementsByTagName('button');
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].classList.contains('edit_btn') ||
+                    buttons[i].classList.contains('save_btn') ||
+                    buttons[i].classList.contains('cancel_btn'))
+                buttons[i].style.display = 'initial';
+            }
+            
             // hide category and test checkboxes
             var checkboxes = $("#feedbacks input[type='checkbox']");
             for (var i = 0; i < checkboxes.length; i++) {
@@ -346,7 +366,7 @@ var FeedbackPlugin = (function () {
                 message = message.replaceAll(/\"/g, '\\\"')
                 var line = $('<p style="margin: 0"></p>');
                 line.text(message);
-                $("." + extra_text + test['id'] + "-message").append(line);
+                $("." + extra_text + test['ui_id'] + "-message").append(line);
             })
         }
     }
@@ -584,15 +604,29 @@ var FeedbackPlugin = (function () {
 
         // save instructor comments and selected tests, for each visible category
         for (const key in categories_for_save) {
-            var category = categories_for_save[key]
+            var category = categories_for_save[key];
 
             // instructor comments
             category['feedback'] = $("#message-feedback-" + key).val();
 
             // selected tests
-            category['tests'] = category['tests'].filter(test =>
-                displayedSections.includes(test['id'])
-            )
+            console.debug("displayedSections = %O", displayedSections);
+            selected_tests = [];
+            for (const t in category['tests']) {
+                var test = category['tests'][t];
+                if (displayedSections.includes(test['ui_id'])) {
+                    console.debug("test = %O", test);
+                    var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
+                    var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
+                    test['name'] =test_name.innerText;
+                    test['message'] = test_message.innerText;
+                    selected_tests.push(test);
+                }
+            }
+            categories['tests'] = selected_tests;
+            // category['tests'] = category['tests'].filter(test =>
+            //     displayedSections.includes(test['id'])
+            // )
         }
 
         // check if browser supports local storage
@@ -619,20 +653,20 @@ var FeedbackPlugin = (function () {
     // this function loads data from local storage
     // ---
     function load_from_storage() {
-        console.debug('In function: load_from_storage()');
-
         // check if browser supports local storage
         if (typeof (Storage) !== "undefined") {
             // get data from local storage
             var data = localStorage[courseid + "/" + taskid + "/" + submissionid];
             data = JSON.parse(data);
-            console.debug('load_from_storage data = %O', data);
+
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
             displayedSections = data.displayedSections ? data.displayedSections : [];
             draft_categories = sort_categories(data.feedback_draft) ? data.feedback_draft : [];
             total_feedback = data.total_feedback ? data.total_feedback : '';
             filter = data.current_filter ? data.current_filter : "failed";
+
+            console.debug('load_from_storage %O', draft_categories);
 
             // restore instructor comments
             for (const key in draft_categories) {
@@ -940,6 +974,112 @@ var FeedbackPlugin = (function () {
         return sorted_categories;
     }
 
+    function edit_result(event) {
+        console.log("edit_result - %O", event);
+
+        // update buttons state
+        let el = event.nextSibling;
+        while (el) {
+            if (el.type == 'button' && el.classList) {
+                if (el.classList.contains("cancel_btn")) {
+                    el.disabled = false;
+                    el.classList.remove("disabled");
+                }
+                else if (el.classList.contains("save_btn")) {
+                    el.disabled = false;
+                    el.classList.remove("disabled");
+                }
+            }
+            el = el.nextSibling;
+        }
+        event.disabled = true;
+        event.classList.add("disabled");
+        
+        // make name and message editable
+        var test_name = document.getElementsByClassName(event.value + '-name')[0];
+        var test_message = document.getElementsByClassName(event.value + '-message')[0];
+        
+        test_name.setAttribute("contenteditable", "");
+        test_name.setAttribute("original_text", test_name.innerHTML);
+
+        test_message.setAttribute("contenteditable", "");
+        test_message.setAttribute("original_text", test_message.innerHTML);
+
+        // set focus to message
+        test_message.focus();
+    }
+
+    function save_edit(event) {
+        console.log("save_edit - %O", event);
+
+        var test_name = document.getElementsByClassName(event.value + '-name')[0];
+        var test_message = document.getElementsByClassName(event.value + '-message')[0];
+
+        test_name.removeAttribute("original_text");
+        test_message.removeAttribute("original_text");
+
+        // update buttons state
+        var elements = event.parentElement.children;
+        for (var el = 0; el < elements.length; el++) {
+            if (elements[el].type == 'button' && elements[el].classList) {
+                if (elements[el].classList.contains("edit_btn")) {
+                    elements[el].disabled = false;
+                    elements[el].classList.remove("disabled");
+                }
+                else if (elements[el].classList.contains("cancel_btn")) {
+                    elements[el].disabled = true;
+                    elements[el].classList.add("disabled");
+                }
+                else if (elements[el].classList.contains("save_btn")) {
+                    elements[el].disabled = true;
+                    elements[el].classList.add("disabled");
+                }
+            }
+        }
+        
+        test_name.removeAttribute("contenteditable");
+        test_message.removeAttribute("contenteditable");
+
+        document.activeElement.blur();
+    }
+
+    function cancel_edit(event) {
+        console.log("cancel_edit - %O", event);
+
+        var test_name = document.getElementsByClassName(event.value + '-name')[0];
+        var test_message = document.getElementsByClassName(event.value + '-message')[0];
+
+        test_name.innerHTML = test_name.getAttribute("original_text");
+        test_message.innerHTML = test_message.getAttribute("original_text");
+
+        test_name.removeAttribute("original_text");
+        test_message.removeAttribute("original_text");
+
+        // update buttons state
+        var elements = event.parentElement.children;
+        for (var el = 0; el < elements.length; el++) {
+            if (elements[el].type == 'button' && elements[el].classList) {
+                if (elements[el].classList.contains("edit_btn")) {
+                    elements[el].disabled = false;
+                    elements[el].classList.remove("disabled");
+                }
+                else if (elements[el].classList.contains("cancel_btn")) {
+                    elements[el].disabled = true;
+                    elements[el].classList.add("disabled");
+                }
+                else if (elements[el].classList.contains("save_btn")) {
+                    elements[el].disabled = true;
+                    elements[el].classList.add("disabled");
+                }
+            }
+        }
+
+        test_name.removeAttribute("contenteditable");
+        test_message.removeAttribute("contenteditable");
+ 
+        document.activeElement.blur();
+    }
+
     return {
         init_manage_feedback_page: init_manage_feedback_page,
         init_variables: init_variables,
@@ -951,7 +1091,10 @@ var FeedbackPlugin = (function () {
         submit: submit,
         open_popup: open_popup,
         close_popup: close_popup,
-        render_student_feedback: render_student_feedback
+        render_student_feedback: render_student_feedback,
+        edit_result: edit_result,
+        save_edit: save_edit,
+        cancel_edit: cancel_edit
     }
 
 })(jQuery);
