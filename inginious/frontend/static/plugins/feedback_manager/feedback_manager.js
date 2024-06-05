@@ -107,9 +107,9 @@ var FeedbackPlugin = (function () {
                     displayedSections.push('feedback-' + key);
                 }
                 category['tests'].forEach( test => {
-                    if (!checkedSections.includes(test['id'])) {
-                        checkedSections.push(test['id']);
-                        displayedSections.push(test['id']);
+                    if (!checkedSections.includes(test['ui_id'])) {
+                        checkedSections.push(test['ui_id']);
+                        displayedSections.push(test['ui_id']);
                     }
                 })
             }
