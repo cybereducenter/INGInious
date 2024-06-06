@@ -17,7 +17,6 @@ var FeedbackPlugin = (function () {
     var tasktype = ""
     var checkedSections = []
     var displayedSections = []
-    var categories = []
     var tests = {}
     var draft_categories = []
     var total_feedback = ""
@@ -33,11 +32,6 @@ var FeedbackPlugin = (function () {
         student = input_student;
         tasktype = input_tasktype
         submission_url = input_submission_url
-        try {
-            load_from_storage();
-        } catch (e) {
-            console.debug("there is nothing in storage");
-        }
         if (staff == 'False') {
             // STEP 3 = Student View only; no buttons, all text fields are read only.
             currentStep = 3;
@@ -47,14 +41,22 @@ var FeedbackPlugin = (function () {
 
     // this function is called from feedback_manager.html
     // ---
-    function init_manage_feedback_page(feedbacks) {
-        console.debug('In function: init_manage_feedback_page(%O)', feedbacks);
+    function init_manage_feedback_page(database_categories) {
+        console.debug('In function: init_manage_feedback_page(%O)', database_categories);
         console.debug('Initial step = %d', currentStep);
 
-        categories = feedbacks;
-        for (const key in feedbacks) {
+        try {
+            load_from_storage();
+            console.debug('Initial data from storage = %O', draft_categories);
+        } catch (e) {
+            draft_categories = database_categories;
+            save_to_storage();
+            console.debug('Initial data from database = %O', draft_categories);
+        }
+        
+        for (const key in draft_categories) {
             // key is the category name, in English. For example, coding, design...
-            var category = feedbacks[key];
+            var category = draft_categories[key];
             
             // set test uniqueu UI id
             category['tests'].forEach(test => {
@@ -593,10 +595,10 @@ var FeedbackPlugin = (function () {
         // categories to save
         // TODO should be all categories
         var categories_for_save = {}
-        for (const key in categories) {
+        for (const key in draft_categories) {
             // save if category visible
             if (displayedSections.includes('feedback-' + key)) {
-                categories_for_save[key] = JSON.parse(JSON.stringify(categories[key]));
+                categories_for_save[key] = JSON.parse(JSON.stringify(draft_categories[key]));
             }
         }
 
@@ -610,21 +612,18 @@ var FeedbackPlugin = (function () {
             category['feedback'] = $("#message-feedback-" + key).val();
 
             // selected tests
-            selected_tests = [];
+            // selected_tests = [];
             for (const t in category['tests']) {
                 var test = category['tests'][t];
                 if (displayedSections.includes(test['ui_id'])) {
                     var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
                     var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
-                    test['name'] =test_name.innerText;
+                    test['name'] = test_name.innerText;
                     test['message'] = test_message.innerText;
-                    selected_tests.push(test);
+                    // selected_tests.push(test);
                 }
             }
-            categories['tests'] = selected_tests;
-            // category['tests'] = category['tests'].filter(test =>
-            //     displayedSections.includes(test['id'])
-            // )
+            // draft_categories['tests'] = selected_tests;
         }
 
         // check if browser supports local storage
@@ -684,7 +683,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: save_draft()');
 
         // send save request
-        send_save_request(categories,false);
+        send_save_request(draft_categories,false);
 
         // save to local storage
         save_to_storage();
@@ -709,7 +708,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: submit()');
 
         // send save request
-        send_save_request(categories, true);
+        send_save_request(draft_categories, true);
 
         // if saved in local storge, remove draft
         if (typeof (Storage) !== "undefined") {
