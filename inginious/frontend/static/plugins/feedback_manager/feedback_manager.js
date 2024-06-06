@@ -610,12 +610,10 @@ var FeedbackPlugin = (function () {
             category['feedback'] = $("#message-feedback-" + key).val();
 
             // selected tests
-            console.debug("displayedSections = %O", displayedSections);
             selected_tests = [];
             for (const t in category['tests']) {
                 var test = category['tests'][t];
                 if (displayedSections.includes(test['ui_id'])) {
-                    console.debug("test = %O", test);
                     var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
                     var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
                     test['name'] =test_name.innerText;
@@ -904,28 +902,28 @@ var FeedbackPlugin = (function () {
 
             // category tests
             category_data['tests'].forEach(test => {
-                // test['id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
-                // for default categories (e.g., functionality) border color is set according to test result
-                if (default_categories.includes(test['category'])) {
-                    if (test['result']['text'] === 'passed') {
-                        test["border_color"] = 'green';
-                    } else if (test['result']['text'] === 'failed') {
-                        test["border_color"] = 'red';
+                if (checkedSections.includes(test['ui_id'])) {
+                    if (default_categories.includes(test['category'])) {
+                        if (test['result']['text'] === 'passed') {
+                            test["border_color"] = 'green';
+                        } else if (test['result']['text'] === 'failed') {
+                            test["border_color"] = 'red';
+                        }
                     }
+
+                    // add test box
+                    var test_section = $(tmpl('tmpl-test', test));
+                    $('#feedback-' + key + '-tests .test-container').append(test_section);
+
+                    // save test for further processing
+                    tests[test['id']] = test;
+
+                    // add test popup
+                    add_test_popup(test);
+
+                    // add test message
+                    add_test_messages(test, true);
                 }
-
-                // add test box
-                var test_section = $(tmpl('tmpl-test', test));
-                $('#feedback-' + key + '-tests .test-container').append(test_section);
-
-                // save test for further processing
-                tests[test['id']] = test;
-
-                // add test popup
-                add_test_popup(test);
-
-                // add test message
-                add_test_messages(test, true);
             })
 
             // TODO don't know what this is
