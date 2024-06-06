@@ -116,8 +116,13 @@
                                             {% if test.get("link") %}
                                                 <div><a href="{{test['link']}}">{{test["name"]}}</a></div>
                                             {% else %}
-                                                <div class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" style="color: #008cba">{{test["name"]}}</div>
-                                            {% endif %}
+                                            <div style="color: #008cba">
+                                                <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> {{test["name"]}}</i>
+                                                <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" onclick="FeedbackPlugin.edit_result(this)" title="" data-toggle="tooltip" data-original-title="עריכה" style="display: none"><i class="fa fa-edit"></i></button>
+                                                <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled" onclick="FeedbackPlugin.cancel_edit(this)" title="" data-toggle="tooltip" data-original-title="ביטול" style="display: none"><i class="fa fa-close"></i></button>
+                                                <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  onclick="FeedbackPlugin.save_edit(this)" title="" data-toggle="tooltip" data-original-title="שמירה" style="display: none"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        {% endif %}
                                         </div>
                                         <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" style="display: block; font-style: italic">
 
