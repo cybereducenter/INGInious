@@ -9,7 +9,6 @@ var FeedbackPlugin = (function () {
     const default_categories = ['functionality']
 
     var currentStep = 1;
-    var filter = "all"
     var courseid = ""
     var taskid = ""
     var submissionid = ""
@@ -19,7 +18,7 @@ var FeedbackPlugin = (function () {
     var displayedSections = []
     var tests = {}
     var draft_categories = []
-    var total_feedback = ""
+    var feedback_summary = ""
     var submission_url = ""
 
     // this function is called from feedback_manager.html
@@ -590,7 +589,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: save_to_storage()');
 
         // summary feedback
-        var total_feedback = $("#total-feedback").val();
+        var feedback_summary = $("#total-feedback").val();
 
         // categories to save
         // TODO should be all categories
@@ -633,15 +632,14 @@ var FeedbackPlugin = (function () {
                 "currentStep": currentStep,
                 "checkedSections": checkedSections,
                 "displayedSections": displayedSections,
-                "feedback_draft": categories_for_save,
-                "total_feedback": total_feedback,
-                "current_filter": filter,
+                "feedback_categories": categories_for_save,
+                "feedback_summary": feedback_summary,
             };
 
             console.debug("save_to_storage data = %O", data);
 
             // save data
-            localStorage.setItem(courseid + "/" + taskid + "/" + submissionid, JSON.stringify(data));
+            localStorage.setItem(submissionid, JSON.stringify(data));
         } else {
             alert("Your browser doesn't support web storage");
         }
@@ -653,15 +651,14 @@ var FeedbackPlugin = (function () {
         // check if browser supports local storage
         if (typeof (Storage) !== "undefined") {
             // get data from local storage
-            var data = localStorage[courseid + "/" + taskid + "/" + submissionid];
+            var data = localStorage[submissionid];
             data = JSON.parse(data);
 
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
             displayedSections = data.displayedSections ? data.displayedSections : [];
-            draft_categories = sort_categories(data.feedback_draft) ? data.feedback_draft : [];
-            total_feedback = data.total_feedback ? data.total_feedback : '';
-            filter = data.current_filter ? data.current_filter : "failed";
+            draft_categories = sort_categories(data.feedback_categories) ? data.feedback_categories : [];
+            feedback_summary = data.feedback_summary ? data.feedback_summary : '';
 
             console.debug('load_from_storage %O', draft_categories);
 
@@ -671,7 +668,7 @@ var FeedbackPlugin = (function () {
             }
 
             // restore summary feedback
-            $("#total-feedback").val(total_feedback)
+            $("#total-feedback").val(feedback_summary)
         } else {
             alert("Your browser doesn't support web storage");
         }
@@ -696,7 +693,7 @@ var FeedbackPlugin = (function () {
 
         // if saved in local storge, remove draft
         if (typeof (Storage) !== "undefined") {
-            localStorage.removeItem([courseid + "/" + taskid + "/" + submissionid]);
+            localStorage.removeItem([submissionid]);
         } else {
             alert("Your browser doesn't support web storage");
         }
@@ -712,7 +709,7 @@ var FeedbackPlugin = (function () {
 
         // if saved in local storge, remove draft
         if (typeof (Storage) !== "undefined") {
-            localStorage.removeItem([courseid + "/" + taskid + "/" + submissionid]);
+            localStorage.removeItem([submissionid]);
         } else {
             alert("Your browser doesn't support web storage");
         }
@@ -741,7 +738,7 @@ var FeedbackPlugin = (function () {
         };
 
         // summary feedback
-        total_feedback = $("#total-feedback").val();
+        feedback_summary = $("#total-feedback").val();
 
         // send save request
         var error_message = "";
@@ -751,7 +748,7 @@ var FeedbackPlugin = (function () {
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "categories": feedback_categories,
-                    "total_feedback": total_feedback,
+                    "feedback_summary": feedback_summary,
                     "draft": !is_final_version,
                 }),
                 success: function(data) {
@@ -822,7 +819,7 @@ var FeedbackPlugin = (function () {
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "categories": draft_categories,
-                    "total_feedback": total_feedback,
+                    "feedback_summary": feedback_summary,
                 }),
                 success: function(response) {
                     console.debug("preview: success");
@@ -847,7 +844,7 @@ var FeedbackPlugin = (function () {
             try {
                 load_from_storage();
                 feedback_data['categories'] = draft_categories;
-                feedback_data['total_feedback'] = total_feedback;
+                feedback_data['feedback_summary'] = feedback_summary;
             } catch (e) {
                 console.debug("there is nothing in storage");
             }    
@@ -862,12 +859,12 @@ var FeedbackPlugin = (function () {
         submissionid = input_submissionid;
 
         // render summary feedback
-        var total_feedback_data = "<None>";
-        if (feedback_data['total_feedback']) {
-            total_feedback_data = feedback_data['total_feedback']
+        var feedback_summary_data = "<None>";
+        if (feedback_data['feedback_summary']) {
+            feedback_summary_data = feedback_data['feedback_summary']
         }
-        var total_feedback_element = $(tmpl('tmpl-total-feedback', total_feedback_data));
-        $('#scenarios-table').append(total_feedback_element);
+        var feedback_summary_element = $(tmpl('tmpl-total-feedback', feedback_summary_data));
+        $('#scenarios-table').append(feedback_summary_element);
 
         // render categories
         var category_section;
