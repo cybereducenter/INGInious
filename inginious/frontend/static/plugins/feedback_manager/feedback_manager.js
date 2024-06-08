@@ -6,20 +6,22 @@
 var FeedbackPlugin = (function () {
     // Default categories are always treated as if they are selected, along with their
     // underlined tests.
-    const default_categories = ['functionality']
+    const grade_categories = ['functionality'];
 
+    // Global variables for data stored in local storage
     var currentStep = 1;
-    var courseid = ""
-    var taskid = ""
-    var submissionid = ""
-    var student = ""
-    var tasktype = ""
-    var checkedSections = []
-    var displayedSections = []
-    var tests = {}
-    var draft_categories = []
-    var feedback_summary = ""
-    var submission_url = ""
+    var checkedSections = [];
+    var displayedSections = [];
+    var feedback_categories = [];
+    var feedback_summary = "";
+
+    var courseid = "";
+    var taskid = "";
+    var submissionid = "";
+    var student = "";
+    var tasktype = "";
+    var tests = {};   
+    var submission_url = "";
 
     // this function is called from feedback_manager.html
     // ---
@@ -46,16 +48,16 @@ var FeedbackPlugin = (function () {
 
         try {
             load_from_storage();
-            console.debug('Initial data from storage = %O', draft_categories);
+            console.debug('Initial data from storage = %O', feedback_categories);
         } catch (e) {
-            draft_categories = database_categories;
+            feedback_categories = database_categories;
             save_to_storage();
-            console.debug('Initial data from database = %O', draft_categories);
+            console.debug('Initial data from database = %O', feedback_categories);
         }
         
-        for (const key in draft_categories) {
+        for (const key in feedback_categories) {
             // key is the category name, in English. For example, coding, design...
-            var category = draft_categories[key];
+            var category = feedback_categories[key];
             
             // set test uniqueu UI id
             category['tests'].forEach(test => {
@@ -78,7 +80,7 @@ var FeedbackPlugin = (function () {
                 }
             }
 
-            // go through all the tests associated to the category
+            // go through all the tests associated with the category
             category['tests'].forEach(test => {
                 // check if test is selected
                 if ('selected' in test && test['selected'] && !checkedSections.includes(test['name'])) {
@@ -101,8 +103,8 @@ var FeedbackPlugin = (function () {
                 add_test_messages(test, false);
             })
 
-            // default categories (e.g., functionality) should always be treated as selected
-            if (default_categories.includes(key)) {
+            // grade categories (e.g., functionality) should always be treated as selected
+            if (grade_categories.includes(key)) {
                 if (!checkedSections.includes('feedback-' + key)) {
                     checkedSections.push('feedback-' + key);
                     displayedSections.push('feedback-' + key);
@@ -138,7 +140,7 @@ var FeedbackPlugin = (function () {
                 }
 
                 // default categories cannot be unselected
-                if (default_categories.includes(category_name)) {
+                if (grade_categories.includes(category_name)) {
                     checkboxes[i].disabled = true;
                 }
             }
@@ -594,10 +596,10 @@ var FeedbackPlugin = (function () {
         // categories to save
         // TODO should be all categories
         var categories_for_save = {}
-        for (const key in draft_categories) {
+        for (const key in feedback_categories) {
             // save if category visible
             if (displayedSections.includes('feedback-' + key)) {
-                categories_for_save[key] = JSON.parse(JSON.stringify(draft_categories[key]));
+                categories_for_save[key] = JSON.parse(JSON.stringify(feedback_categories[key]));
             }
         }
 
@@ -622,7 +624,6 @@ var FeedbackPlugin = (function () {
                     // selected_tests.push(test);
                 }
             }
-            // draft_categories['tests'] = selected_tests;
         }
 
         // check if browser supports local storage
@@ -657,14 +658,14 @@ var FeedbackPlugin = (function () {
             currentStep = data.currentStep ? data.currentStep : 1;
             checkedSections = data.checkedSections ? data.checkedSections : [];
             displayedSections = data.displayedSections ? data.displayedSections : [];
-            draft_categories = sort_categories(data.feedback_categories) ? data.feedback_categories : [];
+            feedback_categories = sort_categories(data.feedback_categories) ? data.feedback_categories : [];
             feedback_summary = data.feedback_summary ? data.feedback_summary : '';
 
-            console.debug('load_from_storage %O', draft_categories);
+            console.debug('load_from_storage %O', feedback_categories);
 
             // restore instructor comments
-            for (const key in draft_categories) {
-                $("#message-feedback-" + key).val(draft_categories[key]['feedback']);
+            for (const key in feedback_categories) {
+                $("#message-feedback-" + key).val(feedback_categories[key]['feedback']);
             }
 
             // restore summary feedback
@@ -680,7 +681,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: save_draft()');
 
         // send save request
-        send_save_request(draft_categories,false);
+        send_save_request(feedback_categories,false);
 
         // save to local storage
         save_to_storage();
@@ -705,7 +706,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: submit()');
 
         // send save request
-        send_save_request(draft_categories, true);
+        send_save_request(feedback_categories, true);
 
         // if saved in local storge, remove draft
         if (typeof (Storage) !== "undefined") {
@@ -818,7 +819,7 @@ var FeedbackPlugin = (function () {
                 url: submission_url + "/preview",
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    "categories": draft_categories,
+                    "categories": feedback_categories,
                     "feedback_summary": feedback_summary,
                 }),
                 success: function(response) {
@@ -843,7 +844,7 @@ var FeedbackPlugin = (function () {
         if (feedback_data.categories.length == 0) {
             try {
                 load_from_storage();
-                feedback_data['categories'] = draft_categories;
+                feedback_data['categories'] = feedback_categories;
                 feedback_data['feedback_summary'] = feedback_summary;
             } catch (e) {
                 console.debug("there is nothing in storage");
@@ -877,7 +878,7 @@ var FeedbackPlugin = (function () {
             $('#scenarios-table').append(category_section);
 
             // for default categories (e.g., functionality) set color based on status
-            if (default_categories.includes(key)) {
+            if (grade_categories.includes(key)) {
                 var color = '#5bc0de';
                 if (category_data['status']['percent'] == 100) {
                     color = '#318331'
@@ -899,7 +900,7 @@ var FeedbackPlugin = (function () {
             // category tests
             category_data['tests'].forEach(test => {
                 if (checkedSections.includes(test['ui_id'])) {
-                    if (default_categories.includes(test['category'])) {
+                    if (grade_categories.includes(test['category'])) {
                         if (test['result']['text'] === 'passed') {
                             test["border_color"] = 'green';
                         } else if (test['result']['text'] === 'failed') {
@@ -948,13 +949,13 @@ var FeedbackPlugin = (function () {
         var keys = Object.keys(feedback_categories);
         keys.sort((k1, k2) => {
             // default category before non-default category
-            if (default_categories.includes(k1) && !default_categories.includes(k2)) {
+            if (grade_categories.includes(k1) && !grade_categories.includes(k2)) {
                 return -1;
-            } else if (!default_categories.includes(k1) && default_categories.includes(k2)) {
+            } else if (!grade_categories.includes(k1) && grade_categories.includes(k2)) {
                 return 1;
-            } else if (default_categories.includes(k1) && default_categories.includes(k2)) {
+            } else if (grade_categories.includes(k1) && grade_categories.includes(k2)) {
                 // default categories in the order they are defined
-                return default_categories.indexOf(k1) < default_categories.indexOf(k2) ? -1 : 1;
+                return grade_categories.indexOf(k1) < grade_categories.indexOf(k2) ? -1 : 1;
             }
             // regular order for non-default categories
             return k1.localeCompare(k2);
