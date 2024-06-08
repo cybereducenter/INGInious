@@ -203,7 +203,6 @@
     var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
-    var tasktype = '{{ task._type }}';
     var submissionid = '{{ submission_id }}';
     var submission_url = '{{ submission_url }}';
     var feedback_manager = {{ feedback | tojson }};
@@ -234,8 +233,13 @@
     } else {
         console.log('feedback_manager = %O', feedback_manager);
         $(document).ready(function () {
-            FeedbackPlugin.init_variables(courseid, taskid, submissionid, student, tasktype, staff, submission_url);
-            FeedbackPlugin.init_manage_feedback_page(feedback_manager['categories']);
+            FeedbackPlugin.init_manage_feedback_page(courseid, 
+                                                     taskid, 
+                                                     submissionid, 
+                                                     student, 
+                                                     staff, 
+                                                     submission_url, 
+                                                     feedback_manager['categories']);
         });
     }
 </script>
