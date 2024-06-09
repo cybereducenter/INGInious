@@ -389,23 +389,11 @@ var FeedbackPlugin = (function () {
                     for (const t in g_feedback_categories[cat]['tests']) {
                         var test = g_feedback_categories[cat]['tests'][t];
                         if (test['ui_id'] == event.value) {
-                            break;
+                            var event_test = test;
                         }
                     }
                 }
-                // if all tests are checked - check category
-                var category_children = $("#" + "checkBoxSelect-" + test['category']);
-                console.debug('test = %O, children = %O', test, category_children);
-                var flag = true
-                for (var i = 0; i < category_children.length; i++) {
-                    if (!category_children[i].checked) {
-                        flag = false
-                    }
-                }
-                
-                if (flag) {
-                    test_category_checkbox.checked = true;
-                }
+                // TODO if all tests are checked - check category
             } else {
                 // uncheck parent category
                 test_category_checkbox.checked = false;
