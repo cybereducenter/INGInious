@@ -155,6 +155,18 @@ var FeedbackPlugin = (function () {
             });
         })
 
+        // set test names and messages
+        for (const c in g_feedback_categories) {
+            for (t in g_feedback_categories[c]['tests']) {
+                var test = g_feedback_categories[c]['tests'][t];
+                var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
+                var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
+        
+                test_name.innerHTML = test['name'];
+                test_message.innerHTML = test['message'];
+            }
+        }
+
         // set 'download' button
         var href = window.location.origin + "/admin/" + g_courseid + "/submissions?download_submission=" + g_submissionid
         var download_btn = $(".download-btn");
@@ -322,21 +334,24 @@ var FeedbackPlugin = (function () {
     // ---
     function add_test_messages(test, is_draft) {
         // console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
+        
+        // TODO not clear why this is needed
+        var extra_text = is_draft ? "test-" : "";    
 
-        if (test['message']) {
-            var messages = test['message'].split("\n");
+        $("." + extra_text + test['ui_id'] + "-name").innerHTML = test['name'];       
+        document.getElementsByClassName(extra_text + test['ui_id'] + "-message")[0].innerHTML = test['message'];
 
-            // TODO not clear why this is needed
-            var extra_text = is_draft ? "test-" : "";
-       
-            // insert message html
-            messages.forEach(message => {
-                message = message.replaceAll(/\"/g, '\\\"')
-                var line = $('<p style="margin: 0"></p>');
-                line.text(message);
-                $("." + extra_text + test['ui_id'] + "-message").append(line);
-            })
-        }
+        // if (test['message']) {
+        //     var messages = test['message'].split("\n");
+
+        //     // insert message html
+        //     messages.forEach(message => {
+        //         message = message.replaceAll(/\"/g, '\\\"')
+        //         var line = $('<p style="margin: 0"></p>');
+        //         line.text(message);
+        //         $("." + extra_text + test['ui_id'] + "-message").append(line);
+        //     })
+        // }
     }
 
     // this function creates the 'additional details' popup window for a test
@@ -794,7 +809,6 @@ var FeedbackPlugin = (function () {
                     add_test_popup(test);
 
                     // add test message
-                    console.debug('test = %O', test);
                     add_test_messages(test, true);
                 }
             })
@@ -885,21 +899,15 @@ var FeedbackPlugin = (function () {
 
         var test_name = document.getElementsByClassName(event.value + '-name')[0];
         var test_message = document.getElementsByClassName(event.value + '-message')[0];
+        var test = get_test_from_element_id(event.value);
 
         test_name.removeAttribute("original_text");
         test_message.removeAttribute("original_text");
 
-        for (const cat in g_feedback_categories) {
-            for (t in g_feedback_categories[cat]['tests']) {
-                var test = g_feedback_categories[cat]['tests'][t];
+        test['name'] = test_name.innerHTML;
+        test['message'] = test_message.innerHTML;
 
-                if (event.value == test['ui_id']) {
-                    console.debug('test_name = %O', test_name);
-                    test['name'] = test_name.innerHTML;
-                    test['message'] = test_message.innerHTML;
-                }
-            }
-        }
+        save_to_storage();
 
         // update buttons state
         var elements = event.parentElement.children;
