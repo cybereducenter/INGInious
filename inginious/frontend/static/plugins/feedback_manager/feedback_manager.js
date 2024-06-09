@@ -454,12 +454,11 @@ var FeedbackPlugin = (function () {
         console.debug('In function: open_popup(%O)', event);
 
         // find associated test
-        const test_element = event.closest(".displayed_test_feedback");
-        const test_id = test_element.attributes['id'].value;
+        const test_id = event.parentElement.classList[0].split('-popup')[0];
         var test = get_test_from_element_id(test_id);
 
         // get test cout 
-        console.log('test_element = %O', test_element);
+        console.log('test_id = %s, test = %O', test_id, test);
         var cout_text = test['cout_text'] || "";
 
         if (cout_text) {
