@@ -88,7 +88,6 @@ var FeedbackPlugin = (function () {
                     var category_checkbox_element = document.getElementById('checkBoxSelect-feedback-' + test['category']);
 
                     // check category/test
-                    category_checkbox_element.checked = true;
                     test_checkbox_element.checked = true;
 
                     // TODO not clear what this 'if' is meant to do...
@@ -345,7 +344,7 @@ var FeedbackPlugin = (function () {
     function add_test_popup(test) {
         // console.debug('In function: add_test_popup(%O)', test);
 
-        if ((('cout_text' in test) && test['cout_text']) || (('cout_file' in test) && test['cout_file'])) {
+        if ((('cout_text' in test) && test['cout_text'] != 'N/A') || (('cout_file' in test) && test['cout_file'])) {
             $("." + test['ui_id'] + "-popup").css("display", "initial");
         }
     }
