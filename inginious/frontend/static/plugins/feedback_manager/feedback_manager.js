@@ -346,7 +346,7 @@ var FeedbackPlugin = (function () {
         // console.debug('In function: add_test_popup(%O)', test);
 
         if ((('cout_text' in test) && test['cout_text']) || (('cout_file' in test) && test['cout_file'])) {
-            $("." + test['id'] + "-popup").css("display", "initial");
+            $("." + test['ui_id'] + "-popup").css("display", "initial");
         }
     }
 
@@ -385,14 +385,8 @@ var FeedbackPlugin = (function () {
             var test_category_checkbox = $("#" + test_category.id + " input[type='checkbox']")[0];
 
             if (event.checked) {
-                for (const cat in g_feedback_categories) {
-                    for (const t in g_feedback_categories[cat]['tests']) {
-                        var test = g_feedback_categories[cat]['tests'][t];
-                        if (test['ui_id'] == event.value) {
-                            var event_test = test;
-                        }
-                    }
-                }
+                var event_test = get_test_from_element_id(event.value)
+                console.debug('event_test = %O', event_test);
                 // TODO if all tests are checked - check category
             } else {
                 // uncheck parent category
@@ -448,21 +442,7 @@ var FeedbackPlugin = (function () {
         // find associated test
         const test_element = event.closest(".displayed_test_feedback");
         const test_id = test_element.attributes['id'].value;
-        var test;
-
-        var test_found = false;
-        for (const cat in g_feedback_categories) {
-            for (t in g_feedback_categories[cat]['tests']) {
-                test = g_feedback_categories[cat]['tests'][t];
-                if (test['ui_id'] == test_id) {
-                    test_found = true
-                    break;
-                }
-            }
-            if (test_found) {
-                break;
-            }
-        }
+        var test = get_test_from_element_id(test_id);
 
         // get test cout 
         console.log('test_element = %O', test_element);
@@ -982,6 +962,18 @@ var FeedbackPlugin = (function () {
         test_message.removeAttribute("contenteditable");
  
         document.activeElement.blur();
+    }
+
+    function get_test_from_element_id(element_id) {
+        for (const c in g_feedback_categories) {
+            for (const t in g_feedback_categories[c]['tests']) {
+                var test = g_feedback_categories[c]['tests'][t];
+                if (test['ui_id'] == element_id) {
+                    return test;
+                }
+            }
+        }
+        return null;
     }
 
     return {
