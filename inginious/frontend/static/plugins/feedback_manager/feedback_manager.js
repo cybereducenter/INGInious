@@ -970,6 +970,7 @@ var FeedbackPlugin = (function () {
         document.activeElement.blur();
     }
 
+    //
     function get_test_from_element_id(element_id) {
         for (const c in g_feedback_categories) {
             for (const t in g_feedback_categories[c]['tests']) {
