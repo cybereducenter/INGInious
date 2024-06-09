@@ -9,8 +9,6 @@ var FeedbackPlugin = (function () {
 
     // Global variables for data stored in local storage
     var g_currentStep = 1;
-    var g_checkedSections = [];
-    var g_displayedSections = [];
     var g_feedback_categories = [];
     var g_feedback_summary = "";
 
@@ -19,8 +17,6 @@ var FeedbackPlugin = (function () {
     var g_submissionid = "";
     var g_student = "";
     var g_submission_url = "";
-
-    var tests = {};   
 
     // this function is called from feedback_manager.html
     // ---
@@ -46,6 +42,18 @@ var FeedbackPlugin = (function () {
             console.debug('Initial data from storage = %O', g_feedback_categories);
         } catch (e) {
             g_feedback_categories = database_categories;
+            for (const key in g_feedback_categories) {
+                g_feedback_categories[key]['tests'].forEach(test => {
+                    // set UI id
+                    test['ui_id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
+                    if (g_grade_categories.includes(test['category'])) {
+                        test['selected'] = true
+                    }
+                    else {
+                        test['selected'] = false;
+                    }
+                })
+            }    
             save_to_storage();
             console.debug('Initial data from database = %O', g_feedback_categories);
         }
@@ -60,81 +68,42 @@ var FeedbackPlugin = (function () {
                 $("#message-feedback-" + key).val(category['feedback']);
             }
 
-            // check if category is selected
-            // categories are always displayed. The checkbox near the category name
-            // is only a shortcut to selection of all tests in category??
-            g_displayedSections.push('feedback-' + key);
-            if (category['selected']) {
-                if (!g_checkedSections.includes('feedback-' + key)){
-                    g_checkedSections.push('feedback-' + key);
-                }
-            }
-
             // go through all the tests associated with the category
             category['tests'].forEach(test => {
-                // set UI id
-                test['ui_id'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
-
-                // check if test is selected
-                if (test['selected'] && !g_checkedSections.includes(test['ui_id'])) {
-                    g_checkedSections.push(test['ui_id']);
-                    g_displayedSections.push(test['ui_id']);
-                    // if test's category was not selected, make sure it is displayed
-                    if (!g_displayedSections.includes('feedback-' + key)){
-                        g_displayedSections.push('feedback-' + key);
-                    }
-                }
-
-                // unique test id must include category, test name and task id
-                // for example:  readability-Use of Constants-03-01
-                tests[test['id']] = test;
-
                 // add test 'additional details'
                 add_test_popup(test);
 
                 // add test message
                 add_test_messages(test, false);
             })
-
-            // grade categories (e.g., functionality) should always be treated as selected
-            if (g_grade_categories.includes(key)) {
-                if (!g_checkedSections.includes('feedback-' + key)) {
-                    g_checkedSections.push('feedback-' + key);
-                    g_displayedSections.push('feedback-' + key);
-                }
-                category['tests'].forEach( test => {
-                    if (!g_checkedSections.includes(test['ui_id'])) {
-                        g_checkedSections.push(test['ui_id']);
-                        g_displayedSections.push(test['ui_id']);
-                    }
-                })
-            }
         }
-        // list of all checked categories and tests
-        console.debug('checkedSections = %O', g_checkedSections);
-
-        // list of all displayed categories and tests
-        console.debug('displayedSections = %O', g_displayedSections);
 
         // set checkboxes
-        var checkboxes = $("#feedbacks input[type='checkbox']");
-        for (var i = 0; i < checkboxes.length; i++) {
-            // selected category/test
-            if (g_checkedSections.includes(checkboxes[i].value)) {
-                // check category/test
-                checkboxes[i].checked = true;
+        for (const cat in g_feedback_categories) {
+            for (const t in g_feedback_categories[cat]['tests']) {
+                var test = g_feedback_categories[cat]['tests'][t];
+                // selected category/test
+                if (test['selected']) {
+                    var test_checkbox_element = document.getElementById('checkBoxSelect-' + test['ui_id']);
+                    var category_checkbox_element = document.getElementById('checkBoxSelect-feedback-' + test['category']);
 
-                // TODO not clear what this 'if' is meant to do...
-                var category_name = "";
-                if (checkboxes[i].value.startsWith("feedback-")) {
-                    category_name = checkboxes[i].id.replace("checkBoxSelect-feedback-", "");
-                } else {
-                    category_name = checkboxes[i].closest('.displayed_feedback').id.replace("feedback-", "");
-                }
+                    // check category/test
+                    category_checkbox_element.checked = true;
+                    test_checkbox_element.checked = true;
 
-                // default categories cannot be unselected
-                if (g_grade_categories.includes(category_name)) {
-                    checkboxes[i].disabled = true;
+                    // TODO not clear what this 'if' is meant to do...
+                    var category_name = "";
+                    if (test_checkbox_element.value.startsWith("feedback-")) {
+                        category_name = test_checkbox_element.id.replace("checkBoxSelect-feedback-", "");
+                    } else {
+                        category_name = test_checkbox_element.closest('.displayed_feedback').id.replace("feedback-", "");
+                    }
+
+                    // default categories cannot be unselected
+                    if (g_grade_categories.includes(category_name)) {
+                        category_checkbox_element.disabled = true;
+                        test_checkbox_element.disabled = true;
+                    }
                 }
             }
         }
@@ -302,10 +271,14 @@ var FeedbackPlugin = (function () {
             }
 
             // hide unselected  tests
-            console.log("diplayedSections = %O", g_displayedSections);
-            for (var i = 0; i < page_tests.length; i++) {
-                if (!g_displayedSections.includes(page_tests[i].id)) {
-                    page_tests[i].style.display = 'none';
+            for (const cat in g_feedback_categories) {
+                var category = g_feedback_categories[cat];
+                for (const t in category['tests']) {
+                    var test = category['tests'][t];
+                    if (!test['selected']) {
+                        var test_element = document.getElementById(test['ui_id']);
+                        test_element.style.display = 'none';
+                    }    
                 }
             }
 
@@ -349,7 +322,7 @@ var FeedbackPlugin = (function () {
     // this function adds the message of a test
     // ---
     function add_test_messages(test, is_draft) {
-        // console.debug('In function: add_test_messages(%O, %s)', test, is_draft);
+        // console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
 
         if (test['message']) {
             var messages = test['message'].split("\n");
@@ -377,23 +350,6 @@ var FeedbackPlugin = (function () {
         }
     }
 
-    // this function sets the display mode (flex = show, none = hide) for tests
-    // ---
-    function change_display_mode(test, mode) {
-        // console.debug('In function: change_display_mode(\n    %O,\n    %s)', test, mode);
-
-        if (g_currentStep === 2) {
-            // in STEP 2, a test is shown only if its parent category is shown
-            if (g_displayedSections.includes(test.id)) {
-                test.style.display = mode
-            }
-        } else if (g_currentStep ==1 || g_currentStep == 3) {
-            test.style.display = mode
-        } else {
-            console.error('Unexpected currentStep = %d', g_currentStep);
-        }
-    }
-
     // this functions updates the current step, and refreshes the page accordingly
     // ---
     function update_step(accumulator) {
@@ -417,76 +373,56 @@ var FeedbackPlugin = (function () {
         console.log('    value   = %s', event.value);
         console.log('    checked = %s', event.checked);
 
-        if (event.checked) {
-            if (event.value.startsWith("feedback")) {
-                // category checked - check all subsequent tests
-                var checkboxes = $("#" + event.value + " input[type='checkbox']");
-                for (var i = 0; i < checkboxes.length; i++) {
-                    checkboxes[i].checked = true;
-                    g_checkedSections.push(checkboxes[i].value);
-                    g_displayedSections.push(checkboxes[i].value);
-                }
-            } else {
-                // test checked
-                g_checkedSections.push(event.value);
-                g_displayedSections.push(event.value);
+        if (event.value.startsWith("feedback")) {
+            // Category checkbox event
+            var checkboxes = $("#" + event.value + " input[type='checkbox']");
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = event.checked;
+            }        
+        } else {
+            // Test checkbox event
+            var test_category = event.closest('.displayed_feedback');
+            var test_category_checkbox = $("#" + test_category.id + " input[type='checkbox']")[0];
 
-                // make parent category visible
-                var test_category = event.closest('.displayed_feedback');
-                if (!g_displayedSections.includes(test_category.id)) {
-                    g_displayedSections.push(test_category.id);
+            if (event.checked) {
+                for (const cat in g_feedback_categories) {
+                    for (const t in g_feedback_categories[cat]['tests']) {
+                        var test = g_feedback_categories[cat]['tests'][t];
+                        if (test['ui_id'] == event.value) {
+                            break;
+                        }
+                    }
                 }
-
-                // category should be checked only if all subsequent tests are checked
-                var category_children = $("#" + test_category.id + " .displayed_test_feedback");
+                // if all tests are checked - check category
+                var category_children = $("#" + "checkBoxSelect-" + test['category']);
+                console.debug('test = %O, children = %O', test, category_children);
                 var flag = true
                 for (var i = 0; i < category_children.length; i++) {
-                    if (!g_checkedSections.includes(category_children[i].id)) {
+                    if (!category_children[i].checked) {
                         flag = false
                     }
                 }
+                
                 if (flag) {
-                    var checkbox = $("#" + test_category.id + " input[type='checkbox']")[0];
-                    checkbox.checked = true;
-                    g_checkedSections.push(test_category.id)
-                }
-            }
-        } else {
-            if (event.value.startsWith("feedback")) {
-                // category unchecked - uncheck all subsequent tests
-                var checkboxes = $("#" + event.value + " input[type='checkbox']");
-                for (var i = 0; i < checkboxes.length; i++) {
-                    checkboxes[i].checked = false;
-                    g_checkedSections = g_checkedSections.filter(v => v !== checkboxes[i].value);
-                    g_displayedSections = g_displayedSections.filter(v => v !== checkboxes[i].value);
+                    test_category_checkbox.checked = true;
                 }
             } else {
-                // test unchecked
-                g_checkedSections = g_checkedSections.filter(v => v !== event.value);
-                g_displayedSections = g_displayedSections.filter(v => v !== event.value);
-
                 // uncheck parent category
-                var test_category = event.closest('.displayed_feedback');
-                var checkbox = $("#" + test_category.id + " input[type='checkbox']")[0];
-                checkbox.checked = false;
-
-                // if no test left selected, hide category
-                g_checkedSections = g_checkedSections.filter(v => v !== test_category.id);
-                var category_children = $("#" + test_category.id + " .displayed_test_feedback");
-                var flag = false
-                for (var i = 0; i < category_children.length; i++) {
-                    if (g_displayedSections.includes(category_children[i].id)) {
-                        flag = true
-                    }
-                }
-                if (flag === false) {
-                    g_displayedSections = g_displayedSections.filter(v => v !== test_category.id);
-                }
+                test_category_checkbox.checked = false;
             }
         }
 
-        console.log('checkedSections = %O', g_checkedSections);
-        console.log('displayedSections = %O', g_displayedSections);
+        for (const c in g_feedback_categories) {
+            var category = g_feedback_categories[c];
+            for (const t in category['tests']) {
+                var test = category['tests'][t];
+                var test_checkbox = $("#" + "checkBoxSelect-" + test['ui_id'])[0];
+
+                test['selected'] = test_checkbox.checked;
+            }
+        }
+
+        save_to_storage();
     }
 
     // this function send a request to fetch another student feedback, following pushing
@@ -524,7 +460,21 @@ var FeedbackPlugin = (function () {
         // find associated test
         const test_element = event.closest(".displayed_test_feedback");
         const test_id = test_element.attributes['id'].value;
-        const test = tests[test_id];
+        var test;
+
+        var test_found = false;
+        for (const cat in g_feedback_categories) {
+            for (t in g_feedback_categories[cat]['tests']) {
+                test = g_feedback_categories[cat]['tests'][t];
+                if (test['ui_id'] == test_id) {
+                    test_found = true
+                    break;
+                }
+            }
+            if (test_found) {
+                break;
+            }
+        }
 
         // get test cout 
         console.log('test_element = %O', test_element);
@@ -586,37 +536,12 @@ var FeedbackPlugin = (function () {
         // summary feedback
         g_feedback_summary = $("#total-feedback").val();
 
-        // categories to save
-        // TODO should be all categories
-        var categories_for_save = {}
-        for (const key in g_feedback_categories) {
-            // save if category visible
-            if (g_displayedSections.includes('feedback-' + key)) {
-                categories_for_save[key] = JSON.parse(JSON.stringify(g_feedback_categories[key]));
-            }
-        }
-
-        // console.debug('categories_for_save = %O', categories_for_save);
-
         // save instructor comments and selected tests, for each visible category
-        for (const key in categories_for_save) {
-            var category = categories_for_save[key];
+        for (const key in g_feedback_categories) {
+            var category = g_feedback_categories[key];
 
             // instructor comments
             category['feedback'] = $("#message-feedback-" + key).val();
-
-            // selected tests
-            // selected_tests = [];
-            for (const t in category['tests']) {
-                var test = category['tests'][t];
-                if (g_displayedSections.includes(test['ui_id'])) {
-                    var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
-                    var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
-                    test['name'] = test_name.innerText;
-                    test['message'] = test_message.innerText;
-                    // selected_tests.push(test);
-                }
-            }
         }
 
         // check if browser supports local storage
@@ -624,9 +549,7 @@ var FeedbackPlugin = (function () {
             // prepare data for saving
             var data = {
                 "g_currentStep": g_currentStep,
-                "checkedSections": g_checkedSections,
-                "displayedSections": g_displayedSections,
-                "g_feedback_categories": categories_for_save,
+                "g_feedback_categories": g_feedback_categories,
                 "g_feedback_summary": g_feedback_summary,
             };
 
@@ -649,8 +572,6 @@ var FeedbackPlugin = (function () {
             data = JSON.parse(data);
 
             g_currentStep = data.g_currentStep ? data.g_currentStep : 1;
-            g_checkedSections = data.checkedSections ? data.checkedSections : [];
-            g_displayedSections = data.displayedSections ? data.displayedSections : [];
             g_feedback_categories = sort_categories(data.g_feedback_categories) ? data.g_feedback_categories : [];
             g_feedback_summary = data.g_feedback_summary ? data.g_feedback_summary : '';
 
@@ -723,12 +644,10 @@ var FeedbackPlugin = (function () {
             category['feedback'] = $("#message-feedback-" + key).val();
 
             // check if category is selected
-            category['selected'] = g_checkedSections.includes("feedback-" + key);
+
 
             // category selected tests
-            category['tests'].forEach(test => {
-                    test['selected'] = g_checkedSections.includes(test['id']);
-            });
+
         };
 
         // summary feedback
@@ -891,7 +810,7 @@ var FeedbackPlugin = (function () {
 
             // category tests
             category_data['tests'].forEach(test => {
-                if (g_checkedSections.includes(test['ui_id'])) {
+                if (test['selected']) {
                     if (g_grade_categories.includes(test['category'])) {
                         if (test['result']['text'] === 'passed') {
                             test["border_color"] = 'green';
@@ -904,13 +823,11 @@ var FeedbackPlugin = (function () {
                     var test_section = $(tmpl('tmpl-test', test));
                     $('#feedback-' + key + '-tests .test-container').append(test_section);
 
-                    // save test for further processing
-                    tests[test['id']] = test;
-
                     // add test popup
                     add_test_popup(test);
 
                     // add test message
+                    console.debug('test = %O', test);
                     add_test_messages(test, true);
                 }
             })
@@ -1004,6 +921,18 @@ var FeedbackPlugin = (function () {
 
         test_name.removeAttribute("original_text");
         test_message.removeAttribute("original_text");
+
+        for (const cat in g_feedback_categories) {
+            for (t in g_feedback_categories[cat]['tests']) {
+                var test = g_feedback_categories[cat]['tests'][t];
+
+                if (event.value == test['ui_id']) {
+                    console.debug('test_name = %O', test_name);
+                    test['name'] = test_name.innerHTML;
+                    test['message'] = test_message.innerHTML;
+                }
+            }
+        }
 
         // update buttons state
         var elements = event.parentElement.children;
