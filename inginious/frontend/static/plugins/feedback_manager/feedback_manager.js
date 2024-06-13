@@ -80,30 +80,31 @@ var FeedbackPlugin = (function () {
 
         // set checkboxes
         for (const cat in g_feedback_categories) {
+            var category_checkbox_element = document.getElementById('checkBoxSelect-feedback-' + cat);
+            if (g_grade_categories.includes(cat)) {
+                category_checkbox_element.disabled = true;
+            }
+            var all_tests_selected = true;
             for (const t in g_feedback_categories[cat]['tests']) {
                 var test = g_feedback_categories[cat]['tests'][t];
-                // selected category/test
-                if (test['selected']) {
-                    var test_checkbox_element = document.getElementById('checkBoxSelect-' + test['ui_id']);
-                    var category_checkbox_element = document.getElementById('checkBoxSelect-feedback-' + test['category']);
 
+                // selected category/test
+                if (test['selected'] || g_grade_categories.includes(cat)) {
+                    var test_checkbox_element = document.getElementById('checkBoxSelect-' + test['ui_id']);
+                    
                     // check category/test
                     test_checkbox_element.checked = true;
 
-                    // TODO not clear what this 'if' is meant to do...
-                    var category_name = "";
-                    if (test_checkbox_element.value.startsWith("feedback-")) {
-                        category_name = test_checkbox_element.id.replace("checkBoxSelect-feedback-", "");
-                    } else {
-                        category_name = test_checkbox_element.closest('.displayed_feedback').id.replace("feedback-", "");
-                    }
-
                     // default categories cannot be unselected
-                    if (g_grade_categories.includes(category_name)) {
-                        category_checkbox_element.disabled = true;
+                    if (g_grade_categories.includes(cat)) {
                         test_checkbox_element.disabled = true;
                     }
+                } else {
+                    all_tests_selected = false;
                 }
+            }
+            if (all_tests_selected) {
+                category_checkbox_element.checked = true;
             }
         }
 
@@ -401,7 +402,20 @@ var FeedbackPlugin = (function () {
             if (event.checked) {
                 var event_test = get_test_from_element_id(event.value)
                 console.debug('event_test = %O', event_test);
-                // TODO if all tests are checked - check category
+                
+                // if all tests are checked - check category
+                var  all_tests_selected = true
+                var checkboxes = $("#" + test_category_checkbox.value + " input[type='checkbox']");
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].value.startsWith("feedback")) {
+                        continue;
+                    }
+                    if (!checkboxes[i].checked) {
+                        all_tests_selected = false;
+                        break;
+                    }
+                }        
+                test_category_checkbox.checked = all_tests_selected;    
             } else {
                 // uncheck parent category
                 test_category_checkbox.checked = false;
