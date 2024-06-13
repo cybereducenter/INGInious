@@ -212,33 +212,24 @@ var FeedbackPlugin = (function () {
         $(".step-indicator").css('opacity', '0.3')
         $("div[data-step=" + _currentStep + "]").css('opacity', '1')
 
-        // TODO not clear what this is for
+        // STEP-3 is using a different block of elements than 1 and 2
         $(".step"+ _currentStep + "-view").css('display', 'initial');
         $(".step-view").not(".step"+ _currentStep + "-view").css('display', 'none');
 
         var page_categories = $("#feedbacks .displayed_feedback");
         var page_tests = $("#feedbacks .displayed_test_feedback");
 
-        // collapse all categories (must be a nicer way to do it...)
-        for (cat in g_feedback_categories) {
-            var cat_element = document.getElementById("feedback-" + cat);
-            var cat_data_element = document.getElementById("feedback-" + cat + "-data");
+        // collapse all categories
+        var dropdown_buttons = document.getElementsByClassName("dropdown_button");
+        console.debug("dropdown_buttons = %O", dropdown_buttons);
+        for (var button = 0; button < dropdown_buttons.length; button++) {
+            var dropdown_button = dropdown_buttons[button];
+            var cat_data_element = document.getElementById(dropdown_button.offsetParent.id + '-data');
+
             cat_data_element.style.display = 'none';           
-
-            for (var child in cat_element.children) {
-                var child_element = cat_element.children[child];
-
-                if (child_element.classList && child_element.classList.contains("section_header")) {
-                    for (var grandchild in child_element.children) {
-                        var grandchild_element = child_element.children[grandchild];
-                        if (grandchild_element.classList && grandchild_element.classList.contains("dropdown_button")) {
-                            grandchild_element.classList = ["dropdown_button fa fa-caret-left"];
-                        }
-                    }
-                }
-            }
+            dropdown_button.classList = ["dropdown_button fa fa-caret-left"];
         }
-
+        
         // STEP 1
         // ------
         if (currentStep === 1) {
