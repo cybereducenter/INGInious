@@ -219,6 +219,26 @@ var FeedbackPlugin = (function () {
         var page_categories = $("#feedbacks .displayed_feedback");
         var page_tests = $("#feedbacks .displayed_test_feedback");
 
+        // collapse all categories (must be a nicer way to do it...)
+        for (cat in g_feedback_categories) {
+            var cat_element = document.getElementById("feedback-" + cat);
+            var cat_data_element = document.getElementById("feedback-" + cat + "-data");
+            cat_data_element.style.display = 'none';           
+
+            for (var child in cat_element.children) {
+                var child_element = cat_element.children[child];
+
+                if (child_element.classList && child_element.classList.contains("section_header")) {
+                    for (var grandchild in child_element.children) {
+                        var grandchild_element = child_element.children[grandchild];
+                        if (grandchild_element.classList && grandchild_element.classList.contains("dropdown_button")) {
+                            grandchild_element.classList = ["dropdown_button fa fa-caret-left"];
+                        }
+                    }
+                }
+            }
+        }
+
         // STEP 1
         // ------
         if (currentStep === 1) {
@@ -567,7 +587,7 @@ var FeedbackPlugin = (function () {
             data = JSON.parse(data);
 
             g_currentStep = data.g_currentStep ? data.g_currentStep : 1;
-            g_feedback_categories = sort_categories(data.g_feedback_categories) ? data.g_feedback_categories : [];
+            g_feedback_categories = data.g_feedback_categories ? data.g_feedback_categories : [];
             g_feedback_summary = data.g_feedback_summary ? data.g_feedback_summary : '';
 
             console.debug('load_from_storage %O', g_feedback_categories);
