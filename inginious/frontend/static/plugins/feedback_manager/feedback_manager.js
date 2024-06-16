@@ -58,6 +58,8 @@ var FeedbackPlugin = (function () {
             console.debug('Initial data from database = %O', g_feedback_categories);
         }
         
+        console.debug("g_feedback_categories = %O", g_feedback_categories);
+
         // set UI elements
         for (const key in g_feedback_categories) {
             // key is the category name, in English. For example, coding, design...
