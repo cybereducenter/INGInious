@@ -221,15 +221,14 @@ var FeedbackPlugin = (function () {
 
         // collapse all categories
         var dropdown_buttons = document.getElementsByClassName("dropdown_button");
-        console.debug("dropdown_buttons = %O", dropdown_buttons);
-        for (var button = 0; button < dropdown_buttons.length; button++) {
-            var dropdown_button = dropdown_buttons[button];
-            var cat_data_element = document.getElementById(dropdown_button.offsetParent.id + '-data');
+        for (b = 0; b < dropdown_buttons.length; b++) {
+            var section_header = dropdown_buttons[b].parentElement;
 
-            cat_data_element.style.display = 'none';           
-            dropdown_button.classList = ["dropdown_button fa fa-caret-left"];
+            if (dropdown_buttons[b].classList.contains("fa-caret-down")) {
+                dropdown(section_header);
+            }
         }
-        
+
         // STEP 1
         // ------
         if (currentStep === 1) {
@@ -306,7 +305,6 @@ var FeedbackPlugin = (function () {
             }
 
             // show instructor comments box
-            console.log('page_categories = %O', page_categories)
             for (var i = 0; i < page_categories.length; i++) {
                 var messageInputs = $(".message-" + page_categories[i].id);
                 for (var j = 0; j < messageInputs.length; j++) {
@@ -581,7 +579,7 @@ var FeedbackPlugin = (function () {
             g_feedback_categories = data.g_feedback_categories ? data.g_feedback_categories : [];
             g_feedback_summary = data.g_feedback_summary ? data.g_feedback_summary : '';
 
-            console.debug('load_from_storage %O', g_feedback_categories);
+            console.debug('load_from_storage %O', data);
 
             // restore instructor comments
             for (const key in g_feedback_categories) {
