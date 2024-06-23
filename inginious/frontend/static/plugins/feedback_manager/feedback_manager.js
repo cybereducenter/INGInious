@@ -344,25 +344,24 @@ var FeedbackPlugin = (function () {
     // this function adds the message of a test
     // ---
     function add_test_messages(test, is_draft) {
-        // console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
+        console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
         
         // TODO not clear why this is needed
         var extra_text = is_draft ? "test-" : "";    
 
         $("." + extra_text + test['ui_id'] + "-name").innerHTML = test['name'];       
-        // document.getElementsByClassName("." +extra_text + test['ui_id'] + "-message")[0].innerHTML = test['message'];
 
-        // if (test['message']) {
-        //     var messages = test['message'].split("\n");
+        if (test['message']) {
+            var messages = test['message'].split("\n");
 
-        //     // insert message html
-        //     messages.forEach(message => {
-        //         message = message.replaceAll(/\"/g, '\\\"')
-        //         var line = $('<p style="margin: 0"></p>');
-        //         line.text(message);
-        //         $("." + extra_text + test['ui_id'] + "-message").append(line);
-        //     })
-        // }
+            // insert message html
+            messages.forEach(message => {
+                message = message.replaceAll(/\"/g, '\\\"')
+                var line = $('<p style="margin: 0"></p>');
+                line.text(message);
+                $("." + extra_text + test['ui_id'] + "-message").append(line);
+            })
+        }
     }
 
     // this function creates the 'additional details' popup window for a test
