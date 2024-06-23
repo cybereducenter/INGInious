@@ -22,7 +22,7 @@ var FeedbackPlugin = (function () {
     // this function is called from feedback_manager.html
     // ---
     function init_manage_feedback_page(input_courseid, input_taskid, input_submissionid, input_student, staff, input_submission_url, database_feedback) {
-        console.debug('In function: init_manage_feedback_page(%O)', database_feedback);
+        console.debug('In function: init_manage_feedback_page(%O, %s)', database_feedback, staff);
 
         g_courseid = input_courseid;
         g_taskid = input_taskid;
