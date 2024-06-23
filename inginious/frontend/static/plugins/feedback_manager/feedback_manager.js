@@ -17,31 +17,33 @@ var FeedbackPlugin = (function () {
     var g_submissionid = "";
     var g_student = "";
     var g_submission_url = "";
+    var g_staff = true;
 
     // this function is called from feedback_manager.html
     // ---
-    function init_manage_feedback_page(input_courseid, input_taskid, input_submissionid, input_student, staff, input_submission_url, database_categories) {
-        console.debug('In function: init_manage_feedback_page(%O)', database_categories);
-        console.debug('Initial step = %d', g_currentStep);
+    function init_manage_feedback_page(input_courseid, input_taskid, input_submissionid, input_student, staff, input_submission_url, database_feedback) {
+        console.debug('In function: init_manage_feedback_page(%O)', database_feedback);
 
         g_courseid = input_courseid;
         g_taskid = input_taskid;
         g_submissionid = input_submissionid;
         g_student = input_student;
         g_submission_url = input_submission_url;
+        g_staff = true ? staff == 'True' : false;
 
-        // Student View only; no buttons, all text fields are read only.
-        if (staff == 'False') {
-            g_currentStep = 3;
-        }        
         console.debug('==========');
 
         // get feedback data from storage, or fronm database if not there
         try {
+
             load_from_storage();
-            console.debug('Initial data from storage = %O', g_feedback_categories);
+            console.debug('Initial data from storage = %O', database_feedback);
         } catch (e) {
-            g_feedback_categories = database_categories;
+            if (!g_staff || (!database_feedback['draft'])) {
+                g_currentStep = 3; 
+            } 
+            g_feedback_summary = database_feedback['feedback_summary'];
+            g_feedback_categories = database_feedback['categories'];
             for (const key in g_feedback_categories) {
                 g_feedback_categories[key]['tests'].forEach(test => {
                     // set UI id
@@ -49,18 +51,15 @@ var FeedbackPlugin = (function () {
                     if (g_grade_categories.includes(test['category'])) {
                         test['selected'] = true
                     }
-                    else {
-                        test['selected'] = false;
-                    }
                 })
             }    
             save_to_storage();
-            console.debug('Initial data from database = %O', g_feedback_categories);
+            console.debug('Initial data from database = %O', database_feedback);
         }
         
-        console.debug("g_feedback_categories = %O", g_feedback_categories);
-
         // set UI elements
+        $("#total-feedback").val(g_feedback_summary)
+
         for (const key in g_feedback_categories) {
             // key is the category name, in English. For example, coding, design...
             var category = g_feedback_categories[key];
@@ -76,7 +75,7 @@ var FeedbackPlugin = (function () {
                 add_test_popup(test);
 
                 // add test message
-                add_test_messages(test, false);
+                add_test_messages(test, true);
             })
         }
 
@@ -351,7 +350,7 @@ var FeedbackPlugin = (function () {
         var extra_text = is_draft ? "test-" : "";    
 
         $("." + extra_text + test['ui_id'] + "-name").innerHTML = test['name'];       
-        document.getElementsByClassName(extra_text + test['ui_id'] + "-message")[0].innerHTML = test['message'];
+        // document.getElementsByClassName("." +extra_text + test['ui_id'] + "-message")[0].innerHTML = test['message'];
 
         // if (test['message']) {
         //     var messages = test['message'].split("\n");
@@ -384,6 +383,17 @@ var FeedbackPlugin = (function () {
         // update curret step
         g_currentStep += accumulator;
         console.log('    currentStep = %d', g_currentStep);
+
+        // save summary feedback
+        g_feedback_summary = $("#total-feedback").val();
+
+        // save instructor comments and selected tests, for each visible category
+        for (const key in g_feedback_categories) {
+            var category = g_feedback_categories[key];
+
+            // instructor comments
+            category['feedback'] = $("#message-feedback-" + key).val();
+        }
 
         // save data
         save_to_storage();
@@ -539,15 +549,9 @@ var FeedbackPlugin = (function () {
     function save_to_storage() {
         console.debug('In function: save_to_storage()');
 
-        // summary feedback
-        g_feedback_summary = $("#total-feedback").val();
-
-        // save instructor comments and selected tests, for each visible category
-        for (const key in g_feedback_categories) {
-            var category = g_feedback_categories[key];
-
-            // instructor comments
-            category['feedback'] = $("#message-feedback-" + key).val();
+        // local storage is only used for instructors
+        if (!g_staff) {
+            return;
         }
 
         // check if browser supports local storage
@@ -601,7 +605,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: save_draft()');
 
         // send save request
-        send_save_request(g_feedback_categories,false);
+        send_save_request(false);
 
         // save to local storage
         save_to_storage();
@@ -626,7 +630,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: submit()');
 
         // send save request
-        send_save_request(g_feedback_categories, true);
+        send_save_request(true);
 
         // if saved in local storge, remove draft
         if (typeof (Storage) !== "undefined") {
@@ -638,27 +642,10 @@ var FeedbackPlugin = (function () {
 
     // this function sends a request to save feedback in the database (draft or final)
     // ---
-    function send_save_request(feedback, is_final_version) {
-        console.debug('In function: send_save_request(%O, %s)', feedback, is_final_version);
+    function send_save_request(is_final_version) {
+        console.debug('In function: send_save_request(%s)', is_final_version);
 
-        var feedback_categories_to_send = JSON.parse(JSON.stringify(feedback));
-        var category;
-        for (const key in feedback_categories_to_send) {
-            category = feedback_categories_to_send[key]
-
-            // instructor comments
-            category['feedback'] = $("#message-feedback-" + key).val();
-
-            // check if category is selected
-
-
-            // category selected tests
-
-        };
-
-        // summary feedback
-        g_feedback_summary = $("#total-feedback").val();
-
+        console.debug("g_feedback_categories = %O", g_feedback_categories);
         // send save request
         var error_message = "";
         $.ajax({
