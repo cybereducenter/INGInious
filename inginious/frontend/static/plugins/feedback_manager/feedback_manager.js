@@ -328,7 +328,7 @@ var FeedbackPlugin = (function () {
     // this function adds the message of a test
     // ---
     function add_test_messages(test, is_draft) {
-        console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
+        // console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
         
         // draft elements (step 3) have a different class name
         var extra_text = is_draft ? "test-" : "";    
@@ -941,14 +941,15 @@ var FeedbackPlugin = (function () {
 
     //
     function get_test_from_element_id(element_id) {
+        var element = null;
         for (const c in g_feedback_categories) {
             g_feedback_categories[c]['tests'].forEach(test => {
                 if (test['ui_id'] == element_id) {
-                    return test;
+                    element = test;
                 }
             });
         }
-        return null;
+        return element;
     }
 
     return {
