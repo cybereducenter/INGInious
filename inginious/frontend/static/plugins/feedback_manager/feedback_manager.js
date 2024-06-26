@@ -534,11 +534,17 @@ var FeedbackPlugin = (function () {
 
         // check if browser supports local storage
         if (typeof (Storage) !== "undefined") {
+            // save version for debug purposes
+            var footer_element = document.getElementById("footer");
+            var version =  footer_element.innerHTML.split('INGInious ')[1].split(' ')[0];
+
             // prepare data for saving
             var data = {
                 "g_currentStep": g_currentStep,
                 "g_feedback_categories": g_feedback_categories,
                 "g_feedback_summary": g_feedback_summary,
+                "saveTime": new Date().toLocaleString(),
+                "saveVersion": version
             };
 
             console.debug("save_to_storage data = %O", data);
@@ -602,6 +608,10 @@ var FeedbackPlugin = (function () {
     function send_save_request(is_draft) {
         console.debug('In function: send_save_request(%s)', is_draft);
 
+        // save version for debug purposes
+        var footer_element = document.getElementById("footer");
+        var version =  footer_element.innerHTML.split('INGInious ')[1].split(' ')[0];
+        
         console.debug("g_feedback_categories = %O", g_feedback_categories);
         // send save request
         var error_message = "";
@@ -612,7 +622,8 @@ var FeedbackPlugin = (function () {
                 data: JSON.stringify({
                     "categories": g_feedback_categories,
                     "feedback_summary": g_feedback_summary,
-                    "draft": is_draft,
+                    "saveTime": new Date().toLocaleString(),
+                    "saveVersion": version
                 }),
                 success: function(data) {
                     console.log("save: success");
