@@ -221,3 +221,7 @@ td.grade {
 th a {
     overflow-wrap: break-word;
 }
+
+.code-task {
+    border: 1px solid black;
+}
