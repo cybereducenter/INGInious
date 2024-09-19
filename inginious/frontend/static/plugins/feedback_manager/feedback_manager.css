@@ -198,3 +198,92 @@
     color: #8080808f;
     padding-right: 10px;
 }
+
+/* Roi's split table definitions */
+
+.container {
+    display: flex;
+    width: 90%;
+    height: 80vh;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.left-panel {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px 0 0 15px;
+    min-width: 150px;
+    transition: width 0.2s ease;
+    overflow-y: auto;
+}
+
+#divider {
+    width: 5px;
+    background-color: #ccc;
+    cursor: col-resize;
+    position: relative;
+}
+
+.resizable-panel {
+    width: 300px;
+    border-left: 2px solid #ccc;
+    padding: 20px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 15px 15px 0;
+    overflow-y: auto;
+}
+
+/* Circle Button to Toggle Code Viewer */
+.circle-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #536271;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle-button:hover {
+    background-color: #3E4C5E; /* Darker blue on hover */
+}
+
+.circle-button:active {
+    background-color: #2C3D55; /* Even darker blue on click */
+}
+
+/* Close Button in the Code Viewer */
+.close-button {
+    background-color: #F56960;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 18px;
+    cursor: pointer;
+    align-self: flex-end;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.close-button:hover {
+    background-color: #881600; /* Darker blue on hover */
+}
+
+.close-button:active {
+    background-color: #4E0110; /* Even darker blue on click */
+}

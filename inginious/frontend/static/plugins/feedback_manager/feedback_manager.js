@@ -980,3 +980,170 @@ var FeedbackPlugin = (function () {
     }
 
 })(jQuery);
+
+// Roi's SPlit table changes
+document.addEventListener('DOMContentLoaded', () => {
+    const accordionItems = document.querySelectorAll('.accordion-item');
+    const subsections = document.querySelectorAll('.subsection-title');
+    const codeContent = document.getElementById('codeContent');
+    const codeSectionSelector = document.getElementById('codeSectionSelector');
+    const leftPanel = document.getElementById('leftPanel');
+    const codeViewer = document.getElementById('codeViewer');
+    const divider = document.getElementById('divider');
+    const showCodeButton = document.getElementById('showCodeButton');
+    const closeCodeViewer = document.getElementById('closeCodeViewer');
+
+    // Mock Code Snippets for different sections
+    const codeSnippets = {
+        1: `function calculateArea(length, width) {
+    return length * width;
+}`,
+        2: `function calculatePerimeter(length, width) {
+    return 2 * (length + width);
+}`,
+        3: `function calculateVolume(length, width, height) {
+    return length * width * height;
+}`
+    };
+
+    // Accordion functionality for main sections
+    accordionItems.forEach(item => {
+        const title = item.querySelector('.accordion-title');
+        const content = item.querySelector('.accordion-content');
+
+        title.addEventListener('click', () => {
+            const isActive = title.classList.contains('active');
+            // Close all accordion items
+            document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.accordion-title').forEach(t => t.classList.remove('active'));
+
+            if (!isActive) {
+                content.style.display = 'block';
+                title.classList.add('active');
+            }
+        });
+    });
+
+    // Subsection functionality
+    subsections.forEach(subsection => {
+        const title = subsection;
+        const content = subsection.nextElementSibling;
+
+        title.addEventListener('click', () => {
+            const isActive = title.classList.contains('active');
+            // Toggle visibility of subsection content
+            if (isActive) {
+                content.style.display = 'none';
+                title.classList.remove('active');
+            } else {
+                content.style.display = 'block';
+                title.classList.add('active');
+            }
+        });
+    });
+
+    // Change Code Viewer content based on dropdown selection
+    codeSectionSelector.addEventListener('change', () => {
+        const selectedSection = codeSectionSelector.value;
+        codeContent.textContent = codeSnippets[selectedSection] || 'No code available for this section.';
+    });
+
+    // Show the Code Viewer when the button is clicked
+    showCodeButton.addEventListener('click', () => {
+        codeViewer.style.display = 'flex'; // Show code viewer
+        showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
+    });
+
+    // Close the Code Viewer
+    closeCodeViewer.addEventListener('click', () => {
+        codeViewer.style.display = 'none'; // Hide code viewer
+        showCodeButton.style.display = 'block'; // Show the circular button again
+    });
+
+    // Handle resizing between left panel and code viewer
+    let isResizing = false;
+
+    divider.addEventListener('mousedown', (e) => {
+        isResizing = true;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+
+        const containerRect = document.querySelector('.container').getBoundingClientRect();
+        const newLeftPanelWidth = e.pageX - containerRect.left;
+
+        // Ensure minimum widths for both panels
+        if (newLeftPanelWidth > 150 && newLeftPanelWidth < containerRect.width - 150) {
+            leftPanel.style.width = newLeftPanelWidth + 'px';
+            codeViewer.style.width = containerRect.width - newLeftPanelWidth - 10 + 'px'; // -10px for padding
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isResizing = false;
+    });
+    
+    
+    // Editable text behavior
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const saveButtons = document.querySelectorAll('.save-btn');
+    const feedback_texts = document.querySelectorAll('.feedback-text');
+    const editAreas = document.querySelectorAll('.edit-area');
+
+    editButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            editAreas[index].value = feedback_texts[index].textContent.trim();   // Copy the current text into the textarea
+            feedback_texts[index].style.display = 'none';                        // Hide the text
+            editAreas[index].style.display = 'block';                            // Show the textarea
+            editButtons[index].style.display = 'none';                           // Hide edit button
+            saveButtons[index].style.display = 'block';                          // Show save button
+        });
+    });
+
+    saveButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            feedback_texts[index].textContent = editAreas[index].value;          // Update the text with the value from textarea
+            feedback_texts[index].style.display = 'block';                       // Show the updated text
+            editAreas[index].style.display = 'none';                             // Hide the textarea
+            editButtons[index].style.display = 'block';                          // Show edit button again
+            saveButtons[index].style.display = 'none';                           // Hide save button
+        });
+    });
+    
+
+    // Save Feedback button
+    const saveFeedbackBtn = document.getElementById('saveFeedbackBtn');
+    const feedbackEditor = document.getElementById('feedback-editor');
+
+    saveFeedbackBtn.addEventListener('click', () => {
+        const feedback = feedbackEditor.value.trim();
+        if (feedback) {
+            alert(`Feedback saved: ${feedback}`);
+        } else {
+            alert('Please enter your feedback.');
+        }
+    });
+
+    // Modal elements
+    const previewBtn = document.querySelector('.preview-btn');
+    const modal = document.getElementById('myModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Event listener for Preview button to open the modal
+    previewBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    // Event listener for Close button inside the modal
+    closeModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Close the modal when clicking outside of the modal content
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
