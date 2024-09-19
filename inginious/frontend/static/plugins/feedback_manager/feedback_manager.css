@@ -104,7 +104,8 @@
 }
 
 .category-header {
-    padding: 10px 0px
+    padding: 10px 0px;
+    border-radius: 5px;
 }
 
 .step-indicator {
@@ -210,6 +211,7 @@
     border-radius: 15px;
     position: relative;
     overflow: hidden;
+    margin: 0;
 }
 
 .left-panel {
