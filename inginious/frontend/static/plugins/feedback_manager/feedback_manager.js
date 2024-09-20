@@ -336,6 +336,26 @@ var FeedbackPlugin = (function () {
         // set test name
         $("." + extra_text + test['ui_id'] + "-name").innerHTML = test['name'];       
 
+        // set test code
+        if (test['code']) {
+            var codeSelector = document.getElementById("codeSectionSelector");
+            var options = codeSelector.options;
+            var found = false;
+
+            for (var i = 0; i < options.length; i++) {
+                var opt = options[i];
+                if (opt['text']  == test['taskid']) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                var option = document.createElement("option");
+                option.text = test['taskid'];
+                codeSelector.add(option);    
+            }
+        }
+
         // set test message
         if (test['message']) {
             var messages = test['message'].split("\n");
@@ -990,8 +1010,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftPanel = document.getElementById('leftPanel');
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
-    const showCodeButton = document.getElementById('showCodeButton');
-    const closeCodeViewer = document.getElementById('closeCodeViewer');
 
     // Mock Code Snippets for different sections
     const codeSnippets = {
@@ -1048,21 +1066,8 @@ document.addEventListener('DOMContentLoaded', () => {
         codeContent.textContent = codeSnippets[selectedSection] || 'No code available for this section.';
     });
 
-    // Show the Code Viewer when the button is clicked
-    showCodeButton.addEventListener('click', () => {
-        codeViewer.style.display = 'flex'; // Show code viewer
-        showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
-    });
-
-    // Close the Code Viewer
-    closeCodeViewer.addEventListener('click', () => {
-        codeViewer.style.display = 'none'; // Hide code viewer
-        showCodeButton.style.display = 'block'; // Show the circular button again
-    });
-
     // Handle resizing between left panel and code viewer
     let isResizing = false;
-
     divider.addEventListener('mousedown', (e) => {
         isResizing = true;
     });

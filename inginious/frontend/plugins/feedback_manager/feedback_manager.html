@@ -168,7 +168,6 @@
                     <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none; ">
                         <div class="test-container" style="margin: 12px;">
                         {%for test in category["tests"]%}
-
                             <!-- Determine border color -->
                             {% if test['result']['text'] == 'passed' %}
                                 {% set border_color = 'green' %}
@@ -270,34 +269,15 @@
     </div>
 
     <!-- Right Side - Code Viewer (Initially Hidden) -->
-    <div class="resizable-panel" id="codeViewer" style="display: none;">
-        <button class="close-button" id="closeCodeViewer">
-            X
-        </button>
+    <div class="resizable-panel" id="codeViewer" style="display: flex;">
         <h2>
             Code Viewer
         </h2>
         <select id="codeSectionSelector">
-            <option value="1">
-                Section 1: Calculate Area
-            </option>
-            <option value="2">
-                Section 2: Calculate Perimeter
-            </option>
-            <option value="3">
-                Section 3: Calculate Volume
-            </option>
         </select>
-        <pre id="codeContent">function calculateArea(length, width) {
-            return length * width;
-        }
+        <pre id="codeContent">
         </pre>
     </div>
-
-    <!-- Circle Button to Show Code Viewer -->
-    <button id="showCodeButton" class="circle-button">
-        ⌨️
-    </button>
 </div>
 
 <!-- Student view placeholder -->
