@@ -3,6 +3,7 @@
  *
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
+var task_code;
 var FeedbackPlugin = (function () {
     // Grade categories are always treated as if they are selected, along with their tests.
     const g_grade_categories = ['functionality'];
@@ -30,6 +31,7 @@ var FeedbackPlugin = (function () {
         g_student = input_student;
         g_submission_url = input_submission_url;
         g_staff = true ? staff == 'True' : false;
+        task_code = {};
 
         console.debug('==========');
 
@@ -82,8 +84,12 @@ var FeedbackPlugin = (function () {
             // set tests associated with the category
             var all_tests_selected = true;
             category['tests'].forEach(test => {
+                var test_box = document.getElementById(test['taskid']);
                 var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
                 var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
+
+                // set click handler
+                test_box.addEventListener('click', set_task_code, false);
 
                 // set test name and message
                 test_name.innerHTML = test['name'];
@@ -353,6 +359,7 @@ var FeedbackPlugin = (function () {
                 var option = document.createElement("option");
                 option.text = test['taskid'];
                 codeSelector.add(option);    
+                task_code[test['taskid']] = test['code'];
             }
         }
 
@@ -983,6 +990,15 @@ var FeedbackPlugin = (function () {
         return element;
     }
 
+    //
+    function set_task_code() {
+        const codeSelector = document.getElementById('codeSectionSelector');
+        const codeContent = document.getElementById('codeContent');
+
+        codeSelector.value = this.id;
+        codeContent.textContent = task_code[this.id];
+    }
+
     return {
         init_manage_feedback_page: init_manage_feedback_page,
         update_step: update_step,
@@ -1010,19 +1026,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftPanel = document.getElementById('leftPanel');
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
-
-    // Mock Code Snippets for different sections
-    const codeSnippets = {
-        1: `function calculateArea(length, width) {
-    return length * width;
-}`,
-        2: `function calculatePerimeter(length, width) {
-    return 2 * (length + width);
-}`,
-        3: `function calculateVolume(length, width, height) {
-    return length * width * height;
-}`
-    };
 
     // Accordion functionality for main sections
     accordionItems.forEach(item => {
@@ -1063,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Change Code Viewer content based on dropdown selection
     codeSectionSelector.addEventListener('change', () => {
         const selectedSection = codeSectionSelector.value;
-        codeContent.textContent = codeSnippets[selectedSection] || 'No code available for this section.';
+        codeContent.textContent = task_code[selectedSection];
     });
 
     // Handle resizing between left panel and code viewer
