@@ -239,3 +239,7 @@
     flex-direction: column;
     overflow-y: auto;
 }
+
+.CodeMirror {
+    height: inherit;
+}
