@@ -205,7 +205,7 @@
 
 .container {
     display: flex;
-    width: 90%;
+    /* width: 90%; */
     height: 80vh;
     border: 1px solid #ddd;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
