@@ -230,6 +230,7 @@
     background-color: #ccc;
     cursor: col-resize;
     position: relative;
+    border-radius: 5px;
 }
 
 .resizable-panel {
@@ -243,4 +244,9 @@
 
 .CodeMirror {
     height: inherit;
+}
+
+#codeSectionSelector {
+    direction: rtl;
+    border-radius: 5px;
 }
