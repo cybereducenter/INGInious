@@ -13,6 +13,7 @@
     align-items: center;
     margin-bottom: 15px;
     padding: 10px 5px;
+    border-radius: 5px;
 }
 
 .page-actions-container {
@@ -248,5 +249,9 @@
 
 #codeSectionSelector {
     direction: rtl;
+    border-radius: 5px;
+}
+
+.btn-info {
     border-radius: 5px;
 }
