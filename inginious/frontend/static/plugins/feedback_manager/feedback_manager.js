@@ -1062,7 +1062,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const containerRect = document.querySelector('.container').getBoundingClientRect();
         const newLeftPanelWidth = e.pageX - containerRect.left;
 
-        console.log(newLeftPanelWidth);
         // Ensure minimum widths for both panels
         if (newLeftPanelWidth > 150 && newLeftPanelWidth < containerRect.width - 150) {
             leftPanel.style.width = newLeftPanelWidth + 'px';
