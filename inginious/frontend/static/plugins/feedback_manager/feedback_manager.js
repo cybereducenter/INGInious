@@ -105,7 +105,7 @@ var FeedbackPlugin = (function () {
 
                 // add test message
                 add_test_messages(test, true);
-
+       
                 // selected category/test
                 if (test['selected'] || g_grade_categories.includes(cat)) {
                     var test_checkbox_element = document.getElementById('checkBoxSelect-' + test['ui_id']);
@@ -183,7 +183,6 @@ var FeedbackPlugin = (function () {
         })
 
         var mode = CodeMirror.findModeByName('C');
-        console.log(mode);
         g_codemirror = document.getElementsByClassName('codemirror-textarea')[0];
         g_editor = CodeMirror.fromTextArea(g_codemirror, {
             lineNumbers: true,
@@ -192,6 +191,10 @@ var FeedbackPlugin = (function () {
             readOnly: true
         });
         CodeMirror.autoLoadMode(g_editor, mode["mode"]);
+    
+        // set initial value
+        var codeSelector = document.getElementById("codeSectionSelector");
+        g_editor.setValue(task_code[codeSelector.value], -1);
     }
 
     // this function is called when we get back to a feedback page that was already displayed in 
