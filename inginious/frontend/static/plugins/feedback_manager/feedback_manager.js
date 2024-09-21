@@ -364,17 +364,8 @@ var FeedbackPlugin = (function () {
         // set test code
         if (test['code']) {
             var codeSelector = document.getElementById("codeSectionSelector");
-            var options = codeSelector.options;
-            var found = false;
 
-            for (var i = 0; i < options.length; i++) {
-                var opt = options[i];
-                if (opt['text']  == 'תרגיל ' + test['taskid']) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
+            if (! ('תרגיל ' + test['taskid'] in task_code)) {
                 var option = document.createElement("option");
                 option.text = 'תרגיל ' + test['taskid'];
                 codeSelector.add(option);    
