@@ -4,6 +4,9 @@
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
 var task_code;
+var g_codemirror;
+var g_editor;
+
 var FeedbackPlugin = (function () {
     // Grade categories are always treated as if they are selected, along with their tests.
     const g_grade_categories = ['functionality'];
@@ -32,7 +35,7 @@ var FeedbackPlugin = (function () {
         g_submission_url = input_submission_url;
         g_staff = true ? staff == 'True' : false;
         task_code = {};
-
+    
         console.debug('==========');
 
         // get feedback data from storage, or fronm database if not there
@@ -84,12 +87,14 @@ var FeedbackPlugin = (function () {
             // set tests associated with the category
             var all_tests_selected = true;
             category['tests'].forEach(test => {
-                var test_box = document.getElementById(test['taskid']);
                 var test_name = document.getElementsByClassName(test['ui_id'] + '-name')[0];
                 var test_message = document.getElementsByClassName(test['ui_id'] + '-message')[0];
 
                 // set click handler
-                test_box.addEventListener('click', set_task_code, false);
+                var test_boxes = document.getElementsByClassName(test['taskid']);
+                [...test_boxes].forEach(box => {
+                    box.addEventListener('click', set_task_code, false);
+                });
 
                 // set test name and message
                 test_name.innerHTML = test['name'];
@@ -176,6 +181,17 @@ var FeedbackPlugin = (function () {
                 },
             });
         })
+
+        var mode = CodeMirror.findModeByName('C');
+        console.log(mode);
+        g_codemirror = document.getElementsByClassName('codemirror-textarea')[0];
+        g_editor = CodeMirror.fromTextArea(g_codemirror, {
+            lineNumbers: true,
+            mode: mode['mime'],
+            indentUnit: 4,
+            readOnly: true
+        });
+        CodeMirror.autoLoadMode(g_editor, mode["mode"]);
     }
 
     // this function is called when we get back to a feedback page that was already displayed in 
@@ -350,16 +366,16 @@ var FeedbackPlugin = (function () {
 
             for (var i = 0; i < options.length; i++) {
                 var opt = options[i];
-                if (opt['text']  == test['taskid']) {
+                if (opt['text']  == 'תרגיל ' + test['taskid']) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 var option = document.createElement("option");
-                option.text = test['taskid'];
+                option.text = 'תרגיל ' + test['taskid'];
                 codeSelector.add(option);    
-                task_code[test['taskid']] = test['code'];
+                task_code['תרגיל ' + test['taskid']] = test['code'];
             }
         }
 
@@ -993,10 +1009,11 @@ var FeedbackPlugin = (function () {
     //
     function set_task_code() {
         const codeSelector = document.getElementById('codeSectionSelector');
-        const codeContent = document.getElementById('codeContent');
+        const codeContent = document.getElementById('codeContent');     
+        var taskid = 'תרגיל ' + this.classList[0];
 
-        codeSelector.value = this.id;
-        codeContent.textContent = task_code[this.id];
+        codeSelector.value = taskid;
+        g_editor.setValue(task_code[taskid], -1);
     }
 
     return {
@@ -1019,54 +1036,15 @@ var FeedbackPlugin = (function () {
 
 // Roi's SPlit table changes
 document.addEventListener('DOMContentLoaded', () => {
-    const accordionItems = document.querySelectorAll('.accordion-item');
-    const subsections = document.querySelectorAll('.subsection-title');
-    const codeContent = document.getElementById('codeContent');
     const codeSectionSelector = document.getElementById('codeSectionSelector');
     const leftPanel = document.getElementById('leftPanel');
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
 
-    // Accordion functionality for main sections
-    accordionItems.forEach(item => {
-        const title = item.querySelector('.accordion-title');
-        const content = item.querySelector('.accordion-content');
-
-        title.addEventListener('click', () => {
-            const isActive = title.classList.contains('active');
-            // Close all accordion items
-            document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.accordion-title').forEach(t => t.classList.remove('active'));
-
-            if (!isActive) {
-                content.style.display = 'block';
-                title.classList.add('active');
-            }
-        });
-    });
-
-    // Subsection functionality
-    subsections.forEach(subsection => {
-        const title = subsection;
-        const content = subsection.nextElementSibling;
-
-        title.addEventListener('click', () => {
-            const isActive = title.classList.contains('active');
-            // Toggle visibility of subsection content
-            if (isActive) {
-                content.style.display = 'none';
-                title.classList.remove('active');
-            } else {
-                content.style.display = 'block';
-                title.classList.add('active');
-            }
-        });
-    });
-
     // Change Code Viewer content based on dropdown selection
     codeSectionSelector.addEventListener('change', () => {
-        const selectedSection = codeSectionSelector.value;
-        codeContent.textContent = task_code[selectedSection];
+        console.log(g_editor);
+        g_editor.setValue(task_code[codeSectionSelector.value], -1);
     });
 
     // Handle resizing between left panel and code viewer
@@ -1081,6 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const containerRect = document.querySelector('.container').getBoundingClientRect();
         const newLeftPanelWidth = e.pageX - containerRect.left;
 
+        console.log(newLeftPanelWidth);
         // Ensure minimum widths for both panels
         if (newLeftPanelWidth > 150 && newLeftPanelWidth < containerRect.width - 150) {
             leftPanel.style.width = newLeftPanelWidth + 'px';
@@ -1117,41 +1096,5 @@ document.addEventListener('DOMContentLoaded', () => {
             editButtons[index].style.display = 'block';                          // Show edit button again
             saveButtons[index].style.display = 'none';                           // Hide save button
         });
-    });
-    
-
-    // Save Feedback button
-    const saveFeedbackBtn = document.getElementById('saveFeedbackBtn');
-    const feedbackEditor = document.getElementById('feedback-editor');
-
-    saveFeedbackBtn.addEventListener('click', () => {
-        const feedback = feedbackEditor.value.trim();
-        if (feedback) {
-            alert(`Feedback saved: ${feedback}`);
-        } else {
-            alert('Please enter your feedback.');
-        }
-    });
-
-    // Modal elements
-    const previewBtn = document.querySelector('.preview-btn');
-    const modal = document.getElementById('myModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-
-    // Event listener for Preview button to open the modal
-    previewBtn.addEventListener('click', () => {
-        modal.style.display = 'block';
-    });
-
-    // Event listener for Close button inside the modal
-    closeModalBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    // Close the modal when clicking outside of the modal content
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
     });
 });

@@ -178,7 +178,7 @@
                             {% endif %}
 
                             <!--  -->
-                            <div id="{{test['taskid']}}">
+                            <div class="{{test['taskid']}}">
                                 <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" cout-name="{{test['cout_file']}}" 
                                     class="test-data displayed_test_feedback" data-result={{test['result']['text']}} style="border-color: {{ border_color }}">
                                     <div class="test-section">
@@ -270,13 +270,11 @@
 
     <!-- Right Side - Code Viewer (Initially Hidden) -->
     <div class="resizable-panel" id="codeViewer" style="display: flex;">
-        <h2>
-            Code Viewer
-        </h2>
-        <select id="codeSectionSelector">
+        <select id="codeSectionSelector" style="direction: rtl;">
         </select>
-        <pre id="codeContent">
-        </pre>
+        <textarea class="codemirror-textarea">
+
+        </textarea>
     </div>
 </div>
 
