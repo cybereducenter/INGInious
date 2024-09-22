@@ -126,7 +126,7 @@
                 {% endif %}       
                         <!-- Category box -->
                         <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)" 
-                            style="display: flex; margin: 5px; background-color: {{category_background_color}};">
+                            style="display: flex; margin: 10px; background-color: {{category_background_color}};">
                             <span class="title mr-auto" style="display: flex; color: #ffffff; font-weight: bold; padding-inline: 1.5rem">
                                 <!-- Category name -->
                                 <div>
@@ -157,8 +157,8 @@
 4. הערות חוזרות מתרגילים קודמים.
 5. הערה בחשיבות גבוהה יותר."
                         %}                
-                    <div class="test-container" style=" margin: 12px;">
-                        <div class="message-section message-feedback-{{category_en}} message" width: 100%;">
+                    <div class="test-container">
+                        <div class="message-section message-feedback-{{category_en}} message" width: 100%;" style=" margin: 12px;">
                             <textarea id="message-feedback-{{category_en}}" dir="rtl" rows="6" maxlength="500" placeholder="{{category_placeholder}}"">
                             </textarea>
                         </div>
@@ -272,8 +272,8 @@
     <div class="resizable-panel" id="codeViewer" style="display: flex;">
         <select id="codeSectionSelector">
         </select>
-        <textarea class="codemirror-textarea">
 
+        <textarea class="codemirror-textarea">
         </textarea>
     </div>
 </div>

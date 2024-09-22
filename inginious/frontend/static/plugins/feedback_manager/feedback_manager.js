@@ -362,14 +362,17 @@ var FeedbackPlugin = (function () {
         $("." + extra_text + test['ui_id'] + "-name").innerHTML = test['name'];       
 
         // set test code
-        if (test['code']) {
-            var codeSelector = document.getElementById("codeSectionSelector");
-
-            if (! ('תרגיל ' + test['taskid'] in task_code)) {
-                var option = document.createElement("option");
-                option.text = 'תרגיל ' + test['taskid'];
-                codeSelector.add(option);    
-                task_code['תרגיל ' + test['taskid']] = test['code'];
+        var codeSelector = document.getElementById("codeSectionSelector");
+        if (test['category'] == 'functionality' && !(test['taskid'] in task_code)) {
+            var option = document.createElement("option");
+            option.text = test['taskid'];
+            codeSelector.add(option);    
+            
+            if ('code' in test) {
+                task_code[test['taskid']] = test['code'];
+            }
+            else {
+                task_code[test['taskid']] = 'לא נמצא קוד לתרגיל זה בבסיס הנתונים';
             }
         }
 
@@ -1004,7 +1007,7 @@ var FeedbackPlugin = (function () {
     function set_task_code() {
         const codeSelector = document.getElementById('codeSectionSelector');
         const codeContent = document.getElementById('codeContent');     
-        var taskid = 'תרגיל ' + this.classList[0];
+        var taskid = this.classList[0];
 
         codeSelector.value = taskid;
         g_editor.setValue(task_code[taskid], -1);
@@ -1035,6 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
 
+    console.log(codeSectionSelector);
     // Change Code Viewer content based on dropdown selection
     codeSectionSelector.addEventListener('change', () => {
         console.log(g_editor);
