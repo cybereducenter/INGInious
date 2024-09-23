@@ -72,12 +72,6 @@ var FeedbackPlugin = (function () {
         for (const cat in g_feedback_categories) {
             // cat is the category name, in English. For example, coding, design...
             var category = g_feedback_categories[cat];
-            var category_checkbox_element = document.getElementById('checkBoxSelect-feedback-' + cat);
-
-            // disable checkbox of grade category (e.g., functionality)
-            if (g_grade_categories.includes(cat)) {
-                category_checkbox_element.disabled = true;
-            }
 
             // set category instructor message in UI
             if (category['feedback'] && category['feedback'].length > 0) {
@@ -121,9 +115,6 @@ var FeedbackPlugin = (function () {
                     all_tests_selected = false;
                 }
             })
-            if (all_tests_selected) {
-                category_checkbox_element.checked = true;
-            }
         }
 
         // set 'download' button
