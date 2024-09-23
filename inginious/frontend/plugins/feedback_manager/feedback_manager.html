@@ -88,7 +88,7 @@
                         <!-- Category box -->
                         <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)" 
                             style="display: flex; margin: 10px; background-color: {{category_background_color}};">
-                            <span class="title mr-auto" style="display: flex; margin-right: 0 !important; color: #ffffff; font-weight: bold;">
+                            <span class="title mr-auto" style="display: flex; direction: rtl; margin-right: 0 !important; color: #ffffff; font-weight: bold;">
                                 <!-- Category name -->
                                 <div>
                                     {{category["name_he"]}}
@@ -102,11 +102,8 @@
 
                             </span>
                             <!-- Expand/Collapse button -->
-                            <span style="font-size: 1.5rem; color: #ffffff; padding-inline: 1.5rem" class="dropdown_button fa fa-caret-left">
+                            <span style="font-size: 1.5rem; color: #ffffff; padding-inline-start: 1.5rem" class="dropdown_button fa fa-caret-left">
                             </span>
-                            <!-- Selection checkbox -->
-                            <input type="checkbox" id="checkBoxSelect-feedback-{{category_en}}" style="padding-inline: 1.5rem" value="feedback-{{category_en}}"
-                                onchange="FeedbackPlugin.select_category_or_test(this)">
                         </div>
                                         
                     <!-- Category tests -->
