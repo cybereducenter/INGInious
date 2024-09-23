@@ -23,8 +23,14 @@
     margin: 10px 2px;
 }
 
-.edit_btn {
+.info_btn {
+    color: blue;
+    border: none;
     padding-left: 15px;
+}
+
+.edit_btn {
+    padding-left: 0;
     border: none;
 }
 
