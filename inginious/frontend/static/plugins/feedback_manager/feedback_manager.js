@@ -758,7 +758,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(codeSectionSelector);
     // Change Code Viewer content based on dropdown selection
     codeSectionSelector.addEventListener('change', () => {
-        console.log(g_editor);
         g_editor.setValue(task_code[codeSectionSelector.value], -1);
     });
 

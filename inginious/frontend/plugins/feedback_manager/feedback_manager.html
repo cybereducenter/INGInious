@@ -85,13 +85,14 @@
 
                 <!-- Category box -->
                 {% if category['name'] == 'functionality' %}
-                    <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
+                    <div data-status={{category['status']['percent']}} id="feedback-{{category_en}}" class="displayed_feedback section category card"
+                         style="border:none; margin-bottom: 0;">
                 {% else %}
-                    <div id="feedback-{{category_en}}" class="displayed_feedback section category card mb-4">
+                    <div id="feedback-{{category_en}}" class="displayed_feedback section category card" style="border:none;">
                 {% endif %}       
                         <!-- Category box -->
                         <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)" 
-                            style="display: flex; margin: 10px; background-color: {{category_background_color}};">
+                            style="display: flex; margin-bottom: 10px; background-color: {{category_background_color}};">
                             <span class="title mr-auto" style="display: flex; direction: rtl; margin-right: 0 !important; color: #ffffff; font-weight: bold;">
                                 <!-- Category name -->
                                 <div>
@@ -111,7 +112,7 @@
                         </div>
                                         
                     <!-- Category tests -->
-                    <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none; ">
+                    <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none;">
                         <div class="test-container" style="margin: 12px;">
                         {%for test in category["tests"]%}
                             <!-- Determine border color -->
