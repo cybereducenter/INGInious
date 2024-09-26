@@ -140,15 +140,17 @@
                                                 <div class="row" style="display: block;">
                                                     <div>
                                                         <!-- Line I -->
-                                                        <div style="font-size: larger">
+                                                        <div style="font-size: larger; padding: 5px 0;">
                                                             <!-- Selction checkbox -->
                                                             <input type="checkbox" id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
-                                                            style="padding-inline: 1.5rem; vertical-align: middle; margin: 5px"
-                                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
-                                                            onchange="FeedbackPlugin.select_category_or_test(this)">
+                                                                   style="padding-inline: 1.5rem; vertical-align: middle;"
+                                                                   value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
+                                                                   onchange="FeedbackPlugin.select_category_or_test(this)">
                                                                                                                 
                                                             <!-- Task ID -->
-                                                            {{test["taskid"]}} : 
+                                                            <span style="color:white; background-color: black; font-weight: bold; margin:0 5px;";>
+                                                                {{test["taskid"]}}
+                                                            </span>
 
                                                             <!-- Test Name -->
                                                             <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> 
