@@ -12,7 +12,6 @@ var FeedbackPlugin = (function () {
     const g_grade_categories = ['functionality'];
 
     // Global variables for data stored in local storage
-    var g_currentStep = 1;
     var g_feedback_categories = [];
     var g_feedback_summary = "";
 
@@ -43,10 +42,6 @@ var FeedbackPlugin = (function () {
             load_from_storage();
             console.debug('Initial data from storage = %O', g_feedback_categories);
         } catch (e) {
-            // student view or final submission
-            if (!g_staff || (!database_feedback['draft'])) {
-                g_currentStep = 3; 
-            } 
             g_feedback_summary = database_feedback['feedback_summary'];
             g_feedback_categories = database_feedback['categories'];
             for (const cat in g_feedback_categories) {
@@ -122,9 +117,6 @@ var FeedbackPlugin = (function () {
         var download_btn = $(".download-btn");
         download_btn.attr('href', href);
 
-        // complete UI update
-        update_page(g_currentStep);
-
         // set 'next student' button functionality
         var next_student_btn = $(".next-student-btn");
         next_student_btn.click(function() {
@@ -188,147 +180,6 @@ var FeedbackPlugin = (function () {
         g_editor.setValue(task_code[codeSelector.value], -1);
     }
 
-    // this function is called when we get back to a feedback page that was already displayed in 
-    // the past
-    // ---
-    function update_page(currentStep) {
-        console.debug('==========')
-        console.debug('In function: update_page(%d)', currentStep);
-
-        // load data from storage
-        try {
-            load_from_storage();
-        } catch (e) {
-            console.debug("there is nothing in storage");
-        }
-
-        // set 'back' and 'next' buttons, based on current step
-        disable_button("back", currentStep === 1);
-        disable_button("next", currentStep === 3);
-
-        // highlight the associated step indicator, and dimm others
-        var _currentStep = currentStep + ""
-        $(".step-indicator").css('opacity', '0.3')
-        $("div[data-step=" + _currentStep + "]").css('opacity', '1')
-
-        // STEP-3 is using a different block of elements than 1 and 2
-        $(".step"+ _currentStep + "-view").css('display', 'initial');
-        $(".step-view").not(".step"+ _currentStep + "-view").css('display', 'none');
-
-        // collapse all categories
-        var dropdown_buttons = document.getElementsByClassName("dropdown_button");
-        [...dropdown_buttons].forEach(button => {
-            var section_header = button.parentElement;
-            if (button.classList.contains("fa-caret-down")) {
-                dropdown(section_header);
-            }
-        })
-
-        // STEP 1
-        // ------
-        if (currentStep === 1) {
-            // hide submit/save buttons
-            $("#submit-buttons")[0].style.display = 'none';
-
-            // hide test edit buttons
-            var buttons = document.getElementsByTagName('button');
-            [...buttons].forEach(button => {
-                if (button.classList.contains('edit_btn') ||
-                    button.classList.contains('save_btn') ||
-                    button.classList.contains('cancel_btn')) {
-                    button.style.display = 'none';
-                    }
-            })
-
-            // show category and test checkboxes
-            var checkboxes = $("#feedbacks input[type='checkbox']");
-            [...checkboxes].forEach(checkbox => {
-                checkbox.style.display = 'initial';
-            })
-
-            // show all tests
-            var page_tests = $("#feedbacks .displayed_test_feedback");
-            [...page_tests].forEach(test => {
-                test.style.display = 'flex';
-            })
-
-            // show all categories
-            var page_categories = $("#feedbacks .displayed_feedback");
-            [...page_categories].forEach(category => {
-                category.style.display = 'flex';
-
-                // hide instructor messages
-                var instructor_messages = $(".message-" + category.id);
-                [...instructor_messages].forEach(message => {
-                    message.style.display = 'none';
-                })
-            })
-
-            // hide summary comment
-            $(".total-feedback")[0].style.display = 'none';
-
-        // STEP 2
-        // ------
-        } else if (currentStep === 2) {
-            // hide submit/save draft buttons
-            $("#submit-buttons")[0].style.display = 'none';
-
-            // show edit buttons
-            var buttons = document.getElementsByTagName('button');
-            [...buttons].forEach(button => {
-                if (button.classList.contains('edit_btn') ||
-                    button.classList.contains('save_btn') ||
-                    button.classList.contains('cancel_btn')) {
-                    button.style.display = 'initial';
-                    }
-            })
-            
-            // hide category and test checkboxes
-            var checkboxes = $("#feedbacks input[type='checkbox']");
-            [...checkboxes].forEach(checkbox => {
-                checkbox.style.display = 'none';
-            })
-
-            // hide unselected  tests
-            for (const cat in g_feedback_categories) {
-                var category = g_feedback_categories[cat];
-                category['tests'].forEach(test => {
-                    if (!test['selected']) {
-                        var test_element = document.getElementById(test['ui_id']);
-                        test_element.style.display = 'none';
-                    }    
-                })
-            }
-
-            // show instructor comments box
-            var page_categories = $("#feedbacks .displayed_feedback");
-            [...page_categories].forEach(category => {
-                // hide instructor messages
-                var instructor_messages = $(".message-" + category.id);
-                [...instructor_messages].forEach(message => {
-                    message.style.display = 'initial';
-                })
-            })
-
-            // show summary comment
-            $(".total-feedback")[0].style.display = 'initial';
-
-        // STEP 3
-        // ------
-        } else if (currentStep === 3) {
-            // show submit/save draft buttons
-            $("#submit-buttons")[0].style.display = 'flex';
-
-            make_preview();
-
-        // Exexpected step number
-        } else {
-            console.log('Unexpected currentStep = %d', currentStep);
-        }
-
-        window.scrollTo(0,0);
-    }
-
     // this function changes the disable status of buttons (true/false), with a given name
     // for example: next_btn, back_btn.
     // ---
@@ -343,14 +194,11 @@ var FeedbackPlugin = (function () {
 
     // this function adds the message of a test
     // ---
-    function add_test_messages(test, is_draft) {
+    function add_test_messages(test) {
         // console.debug('In function: add_test_messages(%s, %s)', test['message'], is_draft);
         
-        // draft elements (step 3) have a different class name
-        var extra_text = is_draft ? "test-" : "";    
-
         // set test name
-        $("." + extra_text + test['ui_id'] + "-name").innerHTML = test['name'];       
+        $("." + test['ui_id'] + "-name").innerHTML = test['name'];       
 
         // set test code
         var codeSelector = document.getElementById("codeSectionSelector");
@@ -366,19 +214,6 @@ var FeedbackPlugin = (function () {
                 task_code[test['taskid']] = 'לא נמצא קוד לתרגיל זה בבסיס הנתונים';
             }
         }
-
-        // set test message
-        if (test['message']) {
-            var messages = test['message'].split("\n");
-
-            // insert message html
-            messages.forEach(message => {
-                message = message.replaceAll(/\"/g, '\\\"')
-                var line = $('<p style="margin: 0"></p>');
-                line.text(message);
-                $("." + extra_text + test['ui_id'] + "-message").append(line);
-            })
-        }
     }
 
     // this function creates the 'additional details' button
@@ -389,33 +224,6 @@ var FeedbackPlugin = (function () {
         if ((('cout_text' in test) && test['cout_text'] != 'N/A') || (('cout_file' in test) && test['cout_file'])) {
             $("." + test['ui_id'] + "-popup").css("display", "initial");
         }
-    }
-
-    // this functions updates the current step, and refreshes the page accordingly
-    // ---
-    function update_step(accumulator) {
-        console.debug('In function: update_step(%d)', accumulator);
-
-        // update curret step
-        g_currentStep += accumulator;
-        console.log('    currentStep = %d', g_currentStep);
-
-        // save summary feedback
-        g_feedback_summary = $("#total-feedback").val();
-
-        // save instructor comments and selected tests, for each visible category
-        for (const key in g_feedback_categories) {
-            var category = g_feedback_categories[key];
-
-            // instructor comments
-            category['feedback'] = $("#message-feedback-" + key).val();
-        }
-
-        // save data
-        save_to_storage();
-
-        // update page with new step
-        update_page(g_currentStep);
     }
 
     // this function is called when a user checks/unchecks a tests or category
@@ -499,49 +307,12 @@ var FeedbackPlugin = (function () {
 
         // find associated test
         const test_id = event.classList[0].split('-popup')[0];
-        var test = get_test_from_element_id(test_id);
 
         // get test cout 
         console.log(test_id);
-        var cout_text = test['cout_text'] || "";
-
-        if (cout_text) {
-            print_popup(cout_text);
-        } else {
-            // this (else) part should never happen - placeholder for future use
-            console.log('Unexpected empty test[cout_text]');
-            $.ajax({
-                    type: "GET",
-                    url: window.location.origin + '/feedback/' + g_courseid + "/" + g_taskid + "/" + g_submissionid + '/cout?cout=' + test['cout_file'],
-                    success: function(data) {
-                        console.log("success");
-                        print_popup(data);
-                    },
-                    error: function (e) {
-                        var line;
-                        console.log(e)
-                        line = $('<li></li>');
-                        line.text("Internal server error");
-                        $("#popup-text").append(line);
-                    },
-            })
-        }
 
         // display additional details popup
         $("#popup").css("display", "initial");
-    }
-
-    // this function prepares the text for display in popup
-    // ---
-    function print_popup(data) {
-        console.debug('In function: print_popup(%s)', data);
-
-        var line;
-        data.split("\n").forEach(text => {
-            line = $('<li></li>');
-            line.text(text);
-            $("#popup-text").append(line);
-        })
     }
 
     // this function closes the popup window.
@@ -571,7 +342,6 @@ var FeedbackPlugin = (function () {
 
             // prepare data for saving
             var data = {
-                "g_currentStep": g_currentStep,
                 "g_feedback_categories": g_feedback_categories,
                 "g_feedback_summary": g_feedback_summary,
                 "saveTime": new Date().toLocaleString(),
@@ -596,7 +366,6 @@ var FeedbackPlugin = (function () {
             var data = localStorage[g_submissionid];
             data = JSON.parse(data);
 
-            g_currentStep = data.g_currentStep ? data.g_currentStep : 1;
             g_feedback_categories = data.g_feedback_categories ? data.g_feedback_categories : [];
             g_feedback_summary = data.g_feedback_summary ? data.g_feedback_summary : '';
 
@@ -699,18 +468,6 @@ var FeedbackPlugin = (function () {
                 });
             }, 3000);
         }
-    }
-
-    // this function prepares a preview of the feedback (STEP 3)
-    // ---
-    function make_preview() {
-        console.debug('In function: make_preview()');
-
-        // send preview request
-        send_preview_request();
-
-        // save to local storage
-        save_to_storage();
     }
 
     // this function send a preview request
@@ -1006,7 +763,6 @@ var FeedbackPlugin = (function () {
 
     return {
         init_manage_feedback_page: init_manage_feedback_page,
-        update_step: update_step,
         select_category_or_test: select_category_or_test,
         save_to_storage: save_to_storage,
         load_from_storage: load_from_storage,
@@ -1028,6 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftPanel = document.getElementById('leftPanel');
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
+    const showCodeButton = document.getElementById('showCodeButton');
 
     console.log(codeSectionSelector);
     // Change Code Viewer content based on dropdown selection
@@ -1036,6 +793,18 @@ document.addEventListener('DOMContentLoaded', () => {
         g_editor.setValue(task_code[codeSectionSelector.value], -1);
     });
 
+    // Show the Code Viewer when the button is clicked
+    showCodeButton.addEventListener('click', () => {
+        codeViewer.style.display = 'flex'; // Show code viewer
+        showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
+    });
+
+    // Close the Code Viewer
+    closeCodeViewer.addEventListener('click', () => {
+        codeViewer.style.display = 'none'; // Hide code viewer
+        showCodeButton.style.display = 'block'; // Show the circular button again
+    });
+    
     // Handle resizing between left panel and code viewer
     let isResizing = false;
     divider.addEventListener('mousedown', (e) => {
