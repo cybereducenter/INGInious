@@ -138,42 +138,51 @@
                                         <div class="content black-text" style="padding: 10px 5px;">
                                             <div class="pull-left" style="padding-inline: 1.5rem">
                                                 <div class="row" style="display: block;">
-                                                    <!-- Line I: Test task id -->
-                                                    <div style="font-size: larger">
-                                                        {{test["taskid"]}}
-                                                    </div>
-                                                    <div style="color: #008cba">
-                                                        <!-- Line II: Test name -->
-                                                        <input type="checkbox" id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="col-md-3 col-xs-3 pull-right"
-                                                        style="padding-inline: 1.5rem; vertical-align: middle; margin-top: 8px"
-                                                        value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
-                                                        onchange="FeedbackPlugin.select_category_or_test(this)">
-        
-                                                        <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> 
-                                                            {{test["name"]}}
-                                                        </i>
-                                                        
-                                                        <!-- Line II: Info/Edit/Cancel/Save buttons -->
-                                                        <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.open_popup(this)">
-                                                            <i class="fa fa-info-circle">
+                                                    <div>
+                                                        <!-- Line I -->
+                                                        <div style="font-size: larger">
+                                                            <!-- Selction checkbox -->
+                                                            <input type="checkbox" id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
+                                                            style="padding-inline: 1.5rem; vertical-align: middle; margin: 5px"
+                                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
+                                                            onchange="FeedbackPlugin.select_category_or_test(this)">
+                                                                                                                
+                                                            <!-- Task ID -->
+                                                            {{test["taskid"]}} : 
 
+                                                            <!-- Test Name -->
+                                                            <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> 
+                                                                {{test["name"]}}
                                                             </i>
-                                                        </button>
-                                                        <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.edit_result(this)" title="" data-toggle="tooltip" style="display: none">
-                                                            <i class="fa fa-edit">
 
-                                                            </i>
-                                                        </button>
-                                                        <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.cancel_edit(this)" title="" data-toggle="tooltip" style="display: none">
-                                                            <i class="fa fa-close">
+                                                            <!-- Info button -->
+                                                            <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.open_popup(this)">
+                                                                <i class="fa fa-info-circle">
 
-                                                            </i>
-                                                        </button>
-                                                        <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.save_edit(this)" title="" data-toggle="tooltip" style="display: none">
-                                                            <i class="fa fa-check">
+                                                                </i>
+                                                            </button>
 
-                                                            </i>
-                                                        </button>
+                                                            <!-- Edit button -->
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.edit_result(this)" title="" data-toggle="tooltip">
+                                                                <i class="fa fa-edit">
+
+                                                                </i>
+                                                            </button>
+
+                                                            <!-- Close button -->
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.cancel_edit(this)" title="" data-toggle="tooltip">
+                                                                <i class="fa fa-close">
+
+                                                                </i>
+                                                            </button>
+
+                                                            <!-- Save button -->
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.save_edit(this)" title="" data-toggle="tooltip">
+                                                                <i class="fa fa-check">
+
+                                                                </i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <!-- Line III: test message -->

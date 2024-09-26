@@ -675,25 +675,6 @@ var FeedbackPlugin = (function () {
         test['message'] = test_message.innerHTML;
 
         save_to_storage();
-
-        // update buttons state
-        var elements = event.parentElement.children;
-        for (var el = 0; el < elements.length; el++) {
-            if (elements[el].type == 'button' && elements[el].classList) {
-                if (elements[el].classList.contains("edit_btn")) {
-                    elements[el].disabled = false;
-                    elements[el].classList.remove("disabled");
-                }
-                else if (elements[el].classList.contains("cancel_btn")) {
-                    elements[el].disabled = true;
-                    elements[el].classList.add("disabled");
-                }
-                else if (elements[el].classList.contains("save_btn")) {
-                    elements[el].disabled = true;
-                    elements[el].classList.add("disabled");
-                }
-            }
-        }
         
         test_name.removeAttribute("contenteditable");
         test_message.removeAttribute("contenteditable");
@@ -712,25 +693,6 @@ var FeedbackPlugin = (function () {
 
         test_name.removeAttribute("original_text");
         test_message.removeAttribute("original_text");
-
-        // update buttons state
-        var elements = event.parentElement.children;
-        for (var el = 0; el < elements.length; el++) {
-            if (elements[el].type == 'button' && elements[el].classList) {
-                if (elements[el].classList.contains("edit_btn")) {
-                    elements[el].disabled = false;
-                    elements[el].classList.remove("disabled");
-                }
-                else if (elements[el].classList.contains("cancel_btn")) {
-                    elements[el].disabled = true;
-                    elements[el].classList.add("disabled");
-                }
-                else if (elements[el].classList.contains("save_btn")) {
-                    elements[el].disabled = true;
-                    elements[el].classList.add("disabled");
-                }
-            }
-        }
 
         test_name.removeAttribute("contenteditable");
         test_message.removeAttribute("contenteditable");
