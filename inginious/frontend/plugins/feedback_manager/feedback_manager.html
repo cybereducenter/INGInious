@@ -52,13 +52,18 @@
 
 {% block content %}
 <!-- Title: course name, task name, student name -->
-<h3>
-    Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} / Student: {{student}} 
-</h3>
-<!-- Circle Button to Show Code Viewer -->
-<button id="showCodeButton" class="circle-button">
-    ⌨️
-</button>
+<div style="display: flex;">
+    <h3>
+        Course: {{course.get_name(user_manager.session_language())}} / Lesson: {{task.get_id()}} / Student: {{student}} 
+    </h3>
+
+    <!-- Circle Button to Show Code Viewer -->
+    <button id="showCodeButton" class="circle-button">
+        <h3>
+            ⌨️
+        </h3>
+    </button>
+</div>
 
 <!-- Main feedback by categories area -->
 
@@ -113,7 +118,7 @@
                                         
                     <!-- Category tests -->
                     <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none;">
-                        <div class="test-container" style="margin: 12px;">
+                        <div class="test-container" >
                         {%for test in category["tests"]%}
                             <!-- Determine border color -->
                             {% if test['result']['text'] == 'passed' %}
@@ -228,10 +233,14 @@
 
     <!-- Right Side - Code Viewer (Initially Hidden) -->
     <div class="resizable-panel" id="codeViewer" style="display: none;">
-        <button class="close-button" id="closeCodeViewer">X</button>
-        <select id="codeSectionSelector">
-        </select>
-
+        <div style="display: flex; align-items: center; flex-direction: row-reverse; margin-bottom: 10px;">        
+            <button class="close-button" id="closeCodeViewer">
+                X
+            </button>
+            <h4 style="margin-bottom: 0; margin-left: 10px;">תרגיל</h4>
+            <select id="codeSectionSelector">
+            </select>
+        </div>
         <textarea class="codemirror-textarea">
         </textarea>
     </div>
