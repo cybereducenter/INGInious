@@ -776,8 +776,8 @@ var FeedbackPlugin = (function () {
      * @param header: the header on which we click
      */
     function task_dropdown(header) {
-        const content_div = $(header).children('.content');
-        const button = $(header).children().children(".dropdown_button");
+        const content_div = $(header).siblings(".content");
+        const button = $(header).children(".dropdown_button");
 
         if ($(button).hasClass("fa-caret-down")) {
             $(button).removeClass("fa-caret-down").addClass("fa-caret-left");

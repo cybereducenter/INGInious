@@ -143,9 +143,9 @@
                                 </div>
                                 {% endif %}
 
-                                <div onclick="FeedbackPlugin.task_dropdown(this)" style="margin-bottom: 5px; border: gray solid 1px; border-radius: 5px; display:flex; flex-direction: column; {{ alignment }}"> 
+                                <div style="margin-bottom: 5px; border: gray solid 1px; border-radius: 5px; display:flex; flex-direction: column; {{ alignment }}"> 
                                         <!-- Expand/Collapse button -->
-                                    <div style="align-items: center;">
+                                    <div onclick="FeedbackPlugin.task_dropdown(this)" style="align-items: center;">
                                         <span style="font-size: 1.5rem; color: black; padding-inline-start: 1.5rem; margin-left: 15px;" class="dropdown_button fa fa-caret-left">
                                         </span>
                                         <span> {{ test['taskid'] }}</span>
