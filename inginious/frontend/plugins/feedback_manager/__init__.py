@@ -131,6 +131,19 @@ class FeedbackManagerPage(INGIniousAuthPage):
             category['name_he'] = FEEDBACK_TEST_CATEGORIES[category['name']]
             total += len(category['tests'])
             passed += len([t for t in category['tests'] if t['result']['bool']])
+            current_taskid = ''
+            for test in category['tests']:
+                if test['taskid'] != current_taskid:
+                    if current_taskid == '':
+                        test['is_first_task'] = True
+                    else:
+                        test['is_first_task'] = False
+
+                    test['is_first_test'] = True
+                    current_taskid = test['taskid']
+                else:
+                    test['is_first_test'] = False
+
 
         self.logger.info(f"submission_feedback = {submission_feedback['categories']}")
         self.database.submissions.update_one({"_id": ObjectId(submission_id)},

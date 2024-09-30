@@ -118,8 +118,8 @@
                                         
                     <!-- Category tests -->
                     <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" style="display:none;">
-                        <div class="test-container" >
-                        {%for test in category["tests"]%}
+                        <div class="test-container">
+                        {% for test in category["tests"] %}
                             <!-- Determine border color -->
                             {% if test['result']['text'] == 'passed' %}
                                 {% set border_color = 'green' %}
@@ -134,6 +134,25 @@
                                 {% set alignment = 'direction: rtl; text-align: right;' %}
                             {% else %}
                                 {% set alignment = 'direction: ltr; text-align: left;' %}
+                            {% endif %}
+
+                            <!-- Determine if new task -->
+                            {% if test['is_first_test'] %}
+                                {% if not test['is_first_task'] %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div onclick="FeedbackPlugin.task_dropdown(this)" style="margin-bottom: 5px; border: gray solid 1px; border-radius: 5px; display:flex; flex-direction: column; {{ alignment }}"> 
+                                        <!-- Expand/Collapse button -->
+                                    <div style="align-items: center;">
+                                        <span style="font-size: 1.5rem; color: black; padding-inline-start: 1.5rem; margin-left: 15px;" class="dropdown_button fa fa-caret-left">
+                                        </span>
+                                        <span> {{ test['taskid'] }}</span>
+                                    </div>
+
+                                    <div style="display: none;" class="content"> 
+                                        
                             {% endif %}
 
                             <!--  -->
@@ -153,11 +172,6 @@
                                                                    value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
                                                                    onchange="FeedbackPlugin.select_category_or_test(this)">
                                                                                                                 
-                                                            <!-- Task ID -->
-                                                            <span style="color:white; background-color: black; font-weight: bold; margin:0 5px;";>
-                                                                {{test["taskid"]}}
-                                                            </span>
-
                                                             <!-- Test Name -->
                                                             <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> 
                                                                 {{test["name"]}}
@@ -204,6 +218,8 @@
                             </div>
                         <!-- End tests loop -->
                         {%endfor%}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

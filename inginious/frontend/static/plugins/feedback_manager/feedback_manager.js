@@ -771,6 +771,23 @@ var FeedbackPlugin = (function () {
         g_editor.setValue(task_code[taskid], -1);
     }
 
+    /**
+     * Show and hide the section when click on dropdown button
+     * @param header: the header on which we click
+     */
+    function task_dropdown(header) {
+        const content_div = $(header).children('.content');
+        const button = $(header).children().children(".dropdown_button");
+
+        if ($(button).hasClass("fa-caret-down")) {
+            $(button).removeClass("fa-caret-down").addClass("fa-caret-left");
+            content_div.slideUp('fast')
+        } else {
+            $(button).removeClass("fa-caret-left").addClass("fa-caret-down");
+            content_div.slideDown('fast')
+        }
+    }
+
     return {
         init_manage_feedback_page: init_manage_feedback_page,
         select_category_or_test: select_category_or_test,
@@ -783,7 +800,8 @@ var FeedbackPlugin = (function () {
         render_student_feedback: render_student_feedback,
         edit_result: edit_result,
         save_edit: save_edit,
-        cancel_edit: cancel_edit
+        cancel_edit: cancel_edit,
+        task_dropdown: task_dropdown
     }
 
 })(jQuery);
