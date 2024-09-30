@@ -174,11 +174,7 @@ var FeedbackPlugin = (function () {
             readOnly: true
         });
         CodeMirror.autoLoadMode(g_editor, mode["mode"]);
-    
-        // set initial value
-        var codeSelector = document.getElementById("codeSectionSelector");
-        g_editor.setValue(task_code[codeSelector.value], -1);
-    }
+        }
 
     // this function changes the disable status of buttons (true/false), with a given name
     // for example: next_btn, back_btn.
@@ -765,6 +761,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showCodeButton.addEventListener('click', () => {
         codeViewer.style.display = 'flex'; // Show code viewer
         showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
+
+        // set initial value
+        var codeSelector = document.getElementById("codeSectionSelector");
+        g_editor.setValue(task_code[codeSelector.value], -1);
     });
 
     // Close the Code Viewer
