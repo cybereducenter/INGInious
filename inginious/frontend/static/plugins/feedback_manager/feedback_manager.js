@@ -633,10 +633,16 @@ var FeedbackPlugin = (function () {
         console.log("edit_result - %O", event);
 
         // update buttons state
-        let el = event.nextSibling;
-        while (el) {
+        let siblings = event.parentElement.children;
+        for (var i = 0; i < siblings.length; i++) {
+            var el = siblings[i];
+            console.log("el = %O", el);
             if (el.type == 'button' && el.classList) {
-                if (el.classList.contains("cancel_btn")) {
+                if (el.classList.contains("edit_btn")) {
+                    el.disabled = true;
+                    el.classList.add("disabled");
+                }
+                else if (el.classList.contains("cancel_btn")) {
                     el.disabled = false;
                     el.classList.remove("disabled");
                 }
@@ -645,10 +651,7 @@ var FeedbackPlugin = (function () {
                     el.classList.remove("disabled");
                 }
             }
-            el = el.nextSibling;
-        }
-        event.disabled = true;
-        event.classList.add("disabled");
+        };
         
         // make name and message editable
         var test_name = document.getElementsByClassName(event.value + '-name')[0];
@@ -671,6 +674,27 @@ var FeedbackPlugin = (function () {
         var test_message = document.getElementsByClassName(event.value + '-message')[0];
         var test = get_test_from_element_id(event.value);
 
+        // update buttons state
+        let siblings = event.parentElement.children;
+        for (var i = 0; i < siblings.length; i++) {
+            var el = siblings[i];
+            console.log("el = %O", el);
+            if (el.type == 'button' && el.classList) {
+                if (el.classList.contains("edit_btn")) {
+                    el.disabled = false;
+                    el.classList.remove("disabled");
+                }
+                else if (el.classList.contains("cancel_btn")) {
+                    el.disabled = true;
+                    el.classList.add("disabled");
+                }
+                else if (el.classList.contains("save_btn")) {
+                    el.disabled = true;
+                    el.classList.add("disabled");
+                }
+            }
+        };
+        
         test_name.removeAttribute("original_text");
         test_message.removeAttribute("original_text");
 
@@ -690,6 +714,27 @@ var FeedbackPlugin = (function () {
 
         var test_name = document.getElementsByClassName(event.value + '-name')[0];
         var test_message = document.getElementsByClassName(event.value + '-message')[0];
+
+        // update buttons state
+        let siblings = event.parentElement.children;
+        for (var i = 0; i < siblings.length; i++) {
+            var el = siblings[i];
+            console.log("el = %O", el);
+            if (el.type == 'button' && el.classList) {
+                if (el.classList.contains("edit_btn")) {
+                    el.disabled = false;
+                    el.classList.remove("disabled");
+                }
+                else if (el.classList.contains("cancel_btn")) {
+                    el.disabled = true;
+                    el.classList.add("disabled");
+                }
+                else if (el.classList.contains("save_btn")) {
+                    el.disabled = true;
+                    el.classList.add("disabled");
+                }
+            }
+        };
 
         test_name.innerHTML = test_name.getAttribute("original_text");
         test_message.innerHTML = test_message.getAttribute("original_text");
