@@ -21,6 +21,7 @@ var FeedbackPlugin = (function () {
     var g_student = "";
     var g_submission_url = "";
     var g_staff = true;
+    var g_current_step = 1;
 
     // this function is called from feedback_manager.html
     // ---
@@ -33,7 +34,7 @@ var FeedbackPlugin = (function () {
         g_student = input_student;
         g_submission_url = input_submission_url;
         g_staff = true ? staff == 'True' : false;
-        task_code = {};
+        g_current_step = 1;
     
         console.debug('==========');
 
@@ -175,6 +176,26 @@ var FeedbackPlugin = (function () {
         });
         CodeMirror.autoLoadMode(g_editor, mode["mode"]);
         }
+
+    function update_step(step) {
+        var next_btn = document.getElementById("next");
+        var prev_btn = document.getElementById("prev");
+
+        g_current_step = g_current_step + step;
+        console.log("current step = %d", g_current_step);
+        if (g_current_step == 1) {
+            next_btn.disabled = false;
+            prev_btn.disabled = true;
+        }
+        else if (g_current_step == 2) {
+            next_btn.disabled = true;
+            prev_btn.disabled = false;
+        }
+        else {
+            console.error("unexpected current step = %d", g_current_step);
+        }
+        
+    }
 
     // this function changes the disable status of buttons (true/false), with a given name
     // for example: next_btn, back_btn.
@@ -790,6 +811,7 @@ var FeedbackPlugin = (function () {
 
     return {
         init_manage_feedback_page: init_manage_feedback_page,
+        update_step: update_step,
         select_category_or_test: select_category_or_test,
         save_to_storage: save_to_storage,
         load_from_storage: load_from_storage,

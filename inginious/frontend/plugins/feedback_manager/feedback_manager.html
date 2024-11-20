@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
-    
+
 {% block column %}
     <!-- Sidebar buttons -->
     <div style="margin: 10px; display: flex; flex-direction: column; align-items: center;">
@@ -239,7 +239,16 @@
                     {{feedback['total_feedback']}}
                 </textarea>
             </div>
-        </div>
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <button id="prev" class="prev-btn" onclick="FeedbackPlugin.update_step(-1)" disabled>
+                    <i class="fa fa-arrow-left"></i> Previous
+                </button>
+                <button id="next" class="next-btn" onclick="FeedbackPlugin.update_step(1)">
+                    Next <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>        
     </div>
 
     <!-- Divider for Draggable Resizing -->

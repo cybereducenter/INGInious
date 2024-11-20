@@ -296,3 +296,52 @@
 .close-button:active {
     background-color: #4E0110; /* Even darker blue on click */
 }
+/* Navigation Buttons */
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.nav-buttons button {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nav-buttons button i {
+    margin-left: 10px;
+}
+
+.nav-buttons button.prev-btn i {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+.nav-buttons button.preview-btn i {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+/* Hover effects for buttons */
+.nav-buttons button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-buttons button:active {
+    background-color: #004494;
+}
+
+.nav-buttons button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
