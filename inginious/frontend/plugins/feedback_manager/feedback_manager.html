@@ -241,9 +241,15 @@
             </div>
             <!-- Navigation Buttons -->
             <div class="nav-buttons">
-                <button id="prev" class="prev-btn" onclick="FeedbackPlugin.update_step(-1)" disabled>
+                <button id="prev" class="prev-btn disabled" onclick="FeedbackPlugin.update_step(-1)" disabled>
                     <i class="fa fa-arrow-left"></i> Previous
                 </button>
+                <div style="display: flex;">
+                    <button id="preview" class="preview-btn disabled" disabled>
+                        <i class="fa fa-eye"></i> Preview
+                    </button>
+                    <button id="saveFeedback" class="save-feedback-btn disabled" disabled>Save Feedback</button>
+                </div>
                 <button id="next" class="next-btn" onclick="FeedbackPlugin.update_step(1)">
                     Next <i class="fa fa-arrow-right"></i>
                 </button>

@@ -186,12 +186,16 @@ var FeedbackPlugin = (function () {
         if (g_current_step == 1) {
             // STEP 1
             next_btn.disabled = false;
+            next_btn.classList.remove("disabled");
             prev_btn.disabled = true;
+            prev_btn.classList.add("disabled");
         }
         else if (g_current_step == 2) {
             // STEP 2
             next_btn.disabled = true;
+            next_btn.classList.add("disabled");
             prev_btn.disabled = false;
+            prev_btn.classList.remove("disabled");
         }
         else {
             console.error("unexpected current step = %d", g_current_step);
