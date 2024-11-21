@@ -3,7 +3,7 @@
  *
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
-var task_code;
+var g_task_code = {};
 var g_codemirror;
 var g_editor;
 
@@ -184,10 +184,12 @@ var FeedbackPlugin = (function () {
         g_current_step = g_current_step + step;
         console.log("current step = %d", g_current_step);
         if (g_current_step == 1) {
+            // STEP 1
             next_btn.disabled = false;
             prev_btn.disabled = true;
         }
         else if (g_current_step == 2) {
+            // STEP 2
             next_btn.disabled = true;
             prev_btn.disabled = false;
         }
@@ -219,16 +221,16 @@ var FeedbackPlugin = (function () {
 
         // set test code
         var codeSelector = document.getElementById("codeSectionSelector");
-        if (test['category'] == 'functionality' && !(test['taskid'] in task_code)) {
+        if (test['category'] == 'functionality' && !(test['taskid'] in g_task_code)) {
             var option = document.createElement("option");
             option.text = test['taskid'];
             codeSelector.add(option);    
             
             if ('code' in test) {
-                task_code[test['taskid']] = test['code'];
+                g_task_code[test['taskid']] = test['code'];
             }
             else {
-                task_code[test['taskid']] = 'לא נמצא קוד לתרגיל זה בבסיס הנתונים';
+                g_task_code[test['taskid']] = 'לא נמצא קוד לתרגיל זה בבסיס הנתונים';
             }
         }
     }
@@ -789,7 +791,7 @@ var FeedbackPlugin = (function () {
         var taskid = this.classList[0];
 
         codeSelector.value = taskid;
-        g_editor.setValue(task_code[taskid], -1);
+        g_editor.setValue(g_task_code[taskid], -1);
     }
 
     /**
@@ -839,7 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(codeSectionSelector);
     // Change Code Viewer content based on dropdown selection
     codeSectionSelector.addEventListener('change', () => {
-        g_editor.setValue(task_code[codeSectionSelector.value], -1);
+        g_editor.setValue(g_task_code[codeSectionSelector.value], -1);
     });
 
     // Show the Code Viewer when the button is clicked
@@ -849,7 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // set initial value
         var codeSelector = document.getElementById("codeSectionSelector");
-        g_editor.setValue(task_code[codeSelector.value], -1);
+        g_editor.setValue(g_task_code[codeSelector.value], -1);
     });
 
     // Close the Code Viewer

@@ -133,7 +133,7 @@
                             {% if category_en == 'functionality' %}
                                 {% set alignment = 'direction: rtl; text-align: right;' %}
                             {% else %}
-                                {% set alignment = 'direction: ltr; text-align: left;' %}
+                                {% set alignment = 'direction: rtl; text-align: right;' %}
                             {% endif %}
 
                             <!-- Determine if new task -->
@@ -162,7 +162,7 @@
                                     <div class="test-section" style="{{ alignment }}">
                                         <div class="content black-text" style="padding: 10px 5px;">
                                             <div class="pull-left" style="padding-inline: 1.5rem">
-                                                <div class="row" style="display: block;">
+                                                <div class="row" style="display: block; direction: rtl; text-align: right;">
                                                     <div>
                                                         <!-- Line I -->
                                                         <div style="font-size: larger; padding: 5px 0;">
