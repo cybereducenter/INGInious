@@ -180,22 +180,52 @@ var FeedbackPlugin = (function () {
     function update_step(step) {
         var next_btn = document.getElementById("next");
         var prev_btn = document.getElementById("prev");
+        var preview_btn = document.getElementById("preview");
+        var save_feedback_btn = document.getElementById("saveFeedback");
+        var checkboxes = $("input[type='checkbox']")
 
         g_current_step = g_current_step + step;
-        console.log("current step = %d", g_current_step);
+        
         if (g_current_step == 1) {
             // STEP 1
+            // buttons
             next_btn.disabled = false;
             next_btn.classList.remove("disabled");
             prev_btn.disabled = true;
             prev_btn.classList.add("disabled");
+            preview_btn.disabled = true;
+            preview_btn.classList.add("disabled");
+            save_feedback_btn.disabled = true;
+            save_feedback_btn.classList.add("disabled");
+            // checkboxes
+            [...checkboxes].forEach(checkbox => {
+                checkbox.style.display = 'inline-block';
+
+                var test_element = document.getElementById(checkbox.value);
+                test_element.style.display = 'flex';
+            })
         }
         else if (g_current_step == 2) {
             // STEP 2
+            // buttons
             next_btn.disabled = true;
             next_btn.classList.add("disabled");
             prev_btn.disabled = false;
             prev_btn.classList.remove("disabled");
+            preview_btn.disabled = false;
+            preview_btn.classList.remove("disabled");
+            save_feedback_btn.disabled = false;
+            save_feedback_btn.classList.remove("disabled");
+            // checkboxes
+            [...checkboxes].forEach(checkbox => {
+                var test_element = document.getElementById(checkbox.value);
+                if (checkbox.checked) {
+                    test_element.style.display = 'flex';
+                }
+                else {
+                    test_element.style.display = 'none';
+                }
+            })
         }
         else {
             console.error("unexpected current step = %d", g_current_step);

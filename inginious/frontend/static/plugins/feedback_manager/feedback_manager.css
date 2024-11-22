@@ -333,15 +333,16 @@
 
 /* Hover effects for buttons */
 .nav-buttons button:hover {
-    background-color: #0056b3;
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    /* background-color: #0056b3; */
+    /* box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); */
+    border: solid black 1px;
 }
 
-.nav-buttons button:active {
+/* .nav-buttons button:active {
     background-color: #004494;
 }
 
 .nav-buttons button:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
-}
+} */
