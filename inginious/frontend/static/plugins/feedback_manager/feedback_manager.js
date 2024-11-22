@@ -221,6 +221,7 @@ var FeedbackPlugin = (function () {
                 var test_element = document.getElementById(checkbox.value);
                 if (checkbox.checked) {
                     test_element.style.display = 'flex';
+                    checkbox.style.display = 'none';
                 }
                 else {
                     test_element.style.display = 'none';

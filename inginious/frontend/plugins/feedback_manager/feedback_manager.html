@@ -143,12 +143,12 @@
                                 </div>
                                 {% endif %}
 
-                                <div style="margin-bottom: 5px; border: gray solid 1px; border-radius: 5px; display:flex; flex-direction: column; {{ alignment }}"> 
+                                <div style="margin-bottom: 5px; display:flex; flex-direction: column; {{ alignment }}"> 
                                         <!-- Expand/Collapse button -->
-                                    <div onclick="FeedbackPlugin.task_dropdown(this)" style="align-items: center;">
-                                        <span style="font-size: 1.5rem; color: black; padding-inline-start: 1.5rem; margin-left: 15px;" class="dropdown_button fa fa-caret-left">
+                                    <div onclick="FeedbackPlugin.task_dropdown(this)" style="display: flex">
+                                        <span style="font-size: 1.5rem; color: black; padding-inline-start: 15px; margin-left: 5px;" class="dropdown_button fa fa-caret-left">
                                         </span>
-                                        <span> {{ test['taskid'] }}</span>
+                                        <span style="align-self: center;">תרגיל {{ test['taskid'] }}</span>
                                     </div>
 
                                     <div style="display: none;" class="content"> 
