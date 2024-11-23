@@ -170,7 +170,7 @@
                                                             <input type="checkbox" id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
                                                                    style="padding-inline: 1.5rem; vertical-align: middle;"
                                                                    value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
-                                                                   onchange="FeedbackPlugin.select_category_or_test(this)">
+                                                                   onchange="FeedbackPlugin.test_checkbox_handler(this)">
                                                                                                                 
                                                             <!-- Test Name -->
                                                             <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false"> 
@@ -178,28 +178,28 @@
                                                             </i>
 
                                                             <!-- Info button -->
-                                                            <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.open_popup(this)">
+                                                            <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.additional_info_open_handler(this)">
                                                                 <i class="fa fa-info-circle">
 
                                                                 </i>
                                                             </button>
 
                                                             <!-- Edit button -->
-                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.edit_result(this)" title="" data-toggle="tooltip">
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip">
                                                                 <i class="fa fa-edit">
 
                                                                 </i>
                                                             </button>
 
                                                             <!-- Close button -->
-                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.cancel_edit(this)" title="" data-toggle="tooltip">
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.test_edit_cancel_handler(this)" title="" data-toggle="tooltip">
                                                                 <i class="fa fa-close">
 
                                                                 </i>
                                                             </button>
 
                                                             <!-- Save button -->
-                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.save_edit(this)" title="" data-toggle="tooltip">
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.test_edit_save_handler(this)" title="" data-toggle="tooltip">
                                                                 <i class="fa fa-check">
 
                                                                 </i>
@@ -325,7 +325,7 @@
 <!-- Additional details popup window -->
 <div id="popup" class="cout-popup">
     <div class="cout-shell scrollable-container">
-        <button type="button" class="close close-feedback-modal close-btn" onclick="FeedbackPlugin.close_popup(this)">
+        <button type="button" class="close close-feedback-modal close-btn" onclick="FeedbackPlugin.additional_info_close_handler(this)">
             &times;
         </button>
         <ul id="popup-text" class="shell-body cout-shell-body" >
