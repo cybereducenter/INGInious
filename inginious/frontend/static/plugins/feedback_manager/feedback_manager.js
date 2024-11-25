@@ -455,6 +455,24 @@ var FeedbackPlugin = (function () {
     function taskid_select_handler(event) {
         console.log("event = %O", event);
         g_current_taskid = event.id;
+        
+        // set tab appearacnce
+        let siblings = event.parentElement.children;
+        
+        console.log(siblings);
+        for (var i = 0; i < siblings.length; i++) {
+            var button_element = siblings[i];
+
+            if (button_element.id == g_current_taskid) {
+                button_element.style.background = "black";
+                button_element.style.color = "white";
+            } else {
+                button_element.style.background = "white";
+                button_element.style.color = "black";                
+            }
+        }
+
+
         g_editor.setValue(g_task_code[g_current_taskid], -1);
         update_step(0);
     }
