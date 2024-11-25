@@ -65,6 +65,21 @@
     </button>
 </div>
 
+<!-- TASKID tab selectors -->
+<div>
+    {% set taskids = [] %}
+    {% for category_en, category in feedback['categories'].items() %}
+        {% if category["name"] == "functionality" %} 
+            {% for test in category["tests"] %}
+                {% if test['taskid'] not in taskids %}
+                    {{ taskids.append(test['taskid']) or "" }}
+                    <button id="{{test['taskid']}}" class="btn" onclick="FeedbackPlugin.taskid_select_handler(this)">{{test['taskid']}}</button>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+</div>
+
 <!-- Main feedback by categories area -->
 
 <div class="container" style="margin-top: 1.0rem;">
@@ -145,13 +160,7 @@
 
                                 <div style="margin-bottom: 5px; display:flex; flex-direction: column; {{ alignment }}"> 
                                         <!-- Expand/Collapse button -->
-                                    <div onclick="FeedbackPlugin.task_dropdown(this)" style="display: flex">
-                                        <span style="font-size: 1.5rem; color: black; padding-inline-start: 15px; margin-left: 5px;" class="dropdown_button fa fa-caret-left">
-                                        </span>
-                                        <span style="align-self: center;">תרגיל {{ test['taskid'] }}</span>
-                                    </div>
-
-                                    <div style="display: none;" class="content"> 
+                                    <div style="display: block;" class="content"> 
                                         
                             {% endif %}
 
@@ -274,9 +283,6 @@
             <button class="close-button" id="closeCodeViewer">
                 X
             </button>
-            <h4 style="margin-bottom: 0; margin-left: 10px;">תרגיל</h4>
-            <select id="codeSectionSelector">
-            </select>
         </div>
         <textarea class="codemirror-textarea">
         </textarea>

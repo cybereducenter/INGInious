@@ -6,6 +6,7 @@
 var g_task_code = {};
 var g_codemirror_element;
 var g_editor;
+var g_current_taskid = "";
 
 var FeedbackPlugin = (function () {
     // Grade categories are always treated as if they are selected, along with their tests.
@@ -82,12 +83,6 @@ var FeedbackPlugin = (function () {
                 var test_name_element = document.getElementsByClassName(test['element'] + '-name')[0];
                 var test_message_element = document.getElementsByClassName(test['element'] + '-message')[0];
 
-                // set click handler (for selection of the relevant code)
-                var test_box_elements = document.getElementsByClassName(test['taskid']);
-                [...test_box_elements].forEach(test_box_element => {
-                    test_box_element.addEventListener('click', set_task_code, false);
-                });
-
                 // set test name and message
                 test_name_element.innerHTML = test['name'];
                 test_message_element.innerHTML = test['message'];
@@ -98,11 +93,7 @@ var FeedbackPlugin = (function () {
                 }
 
                 // add test code
-                if (test['category'] == 'functionality' && !(test['taskid'] in g_task_code)) {
-                    var option_element = document.createElement("option");
-                    option_element.text = test['taskid'];
-                    codeSelector_element.add(option_element);    
-                    
+                if (test['category'] == 'functionality' && !(test['taskid'] in g_task_code)) {                    
                     if ('code' in test) {
                         g_task_code[test['taskid']] = test['code'];
                     }
@@ -195,10 +186,17 @@ var FeedbackPlugin = (function () {
                 },
             });
         })
+
+        // select initial taskid
+        var initial_taskid = g_feedback_categories['functionality']['tests'][0]['taskid'];
+        var taskid_element = document.getElementById(initial_taskid);
+        taskid_element.click();
     }
 
     // This function is called when moving between steps (previous/next)
     function update_step(step) {
+        console.log("current step = %d, step = %d", g_current_step, step);
+
         var next_element = document.getElementById("next");
         var previous_element = document.getElementById("prev");
         var preview_element = document.getElementById("preview");
@@ -223,7 +221,11 @@ var FeedbackPlugin = (function () {
                 checkbox_element.style.display = 'inline-block';
 
                 var test_element = document.getElementById(checkbox_element.value);
-                test_element.style.display = 'flex';
+                if (checkbox_element.value.includes(g_current_taskid)) {
+                    test_element.style.display = 'flex';
+                } else {
+                    test_element.style.display = 'none';
+                }
             })
         }
         else if (g_current_step == 2) {
@@ -240,7 +242,7 @@ var FeedbackPlugin = (function () {
             // checkboxes
             [...checkbox_elements].forEach(checkbox_element => {
                 var test_element = document.getElementById(checkbox_element.value);
-                if (checkbox_element.checked) {
+                if (checkbox_element.checked && checkbox_element.value.includes(g_current_taskid)) {
                     test_element.style.display = 'flex';
                     checkbox_element.style.display = 'none';
                 }
@@ -269,7 +271,6 @@ var FeedbackPlugin = (function () {
                 test['selected'] = test_checkbox.checked;
             });
         }
-
         save_to_storage();
     }
 
@@ -304,82 +305,84 @@ var FeedbackPlugin = (function () {
         $("#popup-text").empty();
     }
 
+    // Handlers for test edit buttons
+
     function test_edit_handler(event) {
         console.log("test_edit_handler - %O", event);
 
         // update buttons state
         let siblings = event.parentElement.children;
         for (var i = 0; i < siblings.length; i++) {
-            var el = siblings[i];
-            console.log("el = %O", el);
-            if (el.type == 'button' && el.classList) {
-                if (el.classList.contains("edit_btn")) {
-                    el.disabled = true;
-                    el.classList.add("disabled");
+            var element = siblings[i];
+            console.log("el = %O", element);
+            if (element.type == 'button' && element.classList) {
+                if (element.classList.contains("edit_btn")) {
+                    element.disabled = true;
+                    element.classList.add("disabled");
                 }
-                else if (el.classList.contains("cancel_btn")) {
-                    el.disabled = false;
-                    el.classList.remove("disabled");
+                else if (element.classList.contains("cancel_btn")) {
+                    element.disabled = false;
+                    element.classList.remove("disabled");
                 }
-                else if (el.classList.contains("save_btn")) {
-                    el.disabled = false;
-                    el.classList.remove("disabled");
+                else if (element.classList.contains("save_btn")) {
+                    element.disabled = false;
+                    element.classList.remove("disabled");
                 }
             }
         };
         
         // make name and message editable
-        var test_name = document.getElementsByClassName(event.value + '-name')[0];
-        var test_message = document.getElementsByClassName(event.value + '-message')[0];
+        var test_name_element = document.getElementsByClassName(event.value + '-name')[0];
+        var test_message_element = document.getElementsByClassName(event.value + '-message')[0];
         
-        test_name.setAttribute("contenteditable", "");
-        test_name.setAttribute("original_text", test_name.innerHTML);
+        test_name_element.setAttribute("contenteditable", "");
+        test_name_element.setAttribute("original_text", test_name_element.innerHTML);
 
-        test_message.setAttribute("contenteditable", "");
-        test_message.setAttribute("original_text", test_message.innerHTML);
+        test_message_element.setAttribute("contenteditable", "");
+        test_message_element.setAttribute("original_text", test_message_element.innerHTML);
 
         // set focus to message
-        test_message.focus();
+        test_message_element.focus();
     }
 
     function test_edit_save_handler(event) {
-        console.log("test__edit_save_handler - %O", event);
+        console.log("test_edit_save_handler - %O", event);
 
-        var test_name = document.getElementsByClassName(event.value + '-name')[0];
-        var test_message = document.getElementsByClassName(event.value + '-message')[0];
+        var test_name_element = document.getElementsByClassName(event.value + '-name')[0];
+        var test_message_element = document.getElementsByClassName(event.value + '-message')[0];
         var test = get_test_from_element_id(event.value);
 
         // update buttons state
         let siblings = event.parentElement.children;
         for (var i = 0; i < siblings.length; i++) {
-            var el = siblings[i];
-            console.log("el = %O", el);
-            if (el.type == 'button' && el.classList) {
-                if (el.classList.contains("edit_btn")) {
-                    el.disabled = false;
-                    el.classList.remove("disabled");
+            var element = siblings[i];
+            console.log("el = %O", element);
+            if (element.type == 'button' && element.classList) {
+                if (element.classList.contains("edit_btn")) {
+                    element.disabled = false;
+                    element.classList.remove("disabled");
                 }
-                else if (el.classList.contains("cancel_btn")) {
-                    el.disabled = true;
-                    el.classList.add("disabled");
+                else if (element.classList.contains("cancel_btn")) {
+                    element.disabled = true;
+                    element.classList.add("disabled");
                 }
-                else if (el.classList.contains("save_btn")) {
-                    el.disabled = true;
-                    el.classList.add("disabled");
+                else if (element.classList.contains("save_btn")) {
+                    element.disabled = true;
+                    element.classList.add("disabled");
                 }
             }
         };
         
-        test_name.removeAttribute("original_text");
-        test_message.removeAttribute("original_text");
+        test_name_element.removeAttribute("original_text");
+        test_message_element.removeAttribute("original_text");
 
-        test['name'] = test_name.innerHTML;
-        test['message'] = test_message.innerHTML;
+        test['name'] = test_name_element.innerHTML;
+        test['message'] = test_message_element.innerHTML;
 
         save_to_storage();
         
-        test_name.removeAttribute("contenteditable");
-        test_message.removeAttribute("contenteditable");
+        test_name_element.removeAttribute("contenteditable");
+        test_message_element.removeAttribute("contenteditable");
 
         document.activeElement.blur();
     }
@@ -387,43 +390,41 @@ var FeedbackPlugin = (function () {
     function test_edit_cancel_handler(event) {
         console.log("test_edit_cancel_handler - %O", event);
 
-        var test_name = document.getElementsByClassName(event.value + '-name')[0];
-        var test_message = document.getElementsByClassName(event.value + '-message')[0];
+        var test_name_element = document.getElementsByClassName(event.value + '-name')[0];
+        var test_message_element = document.getElementsByClassName(event.value + '-message')[0];
 
         // update buttons state
         let siblings = event.parentElement.children;
         for (var i = 0; i < siblings.length; i++) {
-            var el = siblings[i];
-            console.log("el = %O", el);
-            if (el.type == 'button' && el.classList) {
-                if (el.classList.contains("edit_btn")) {
-                    el.disabled = false;
-                    el.classList.remove("disabled");
+            var element = siblings[i];
+            console.log("el = %O", element);
+            if (element.type == 'button' && element.classList) {
+                if (element.classList.contains("edit_btn")) {
+                    element.disabled = false;
+                    element.classList.remove("disabled");
                 }
-                else if (el.classList.contains("cancel_btn")) {
-                    el.disabled = true;
-                    el.classList.add("disabled");
+                else if (element.classList.contains("cancel_btn")) {
+                    element.disabled = true;
+                    element.classList.add("disabled");
                 }
-                else if (el.classList.contains("save_btn")) {
-                    el.disabled = true;
-                    el.classList.add("disabled");
+                else if (element.classList.contains("save_btn")) {
+                    element.disabled = true;
+                    element.classList.add("disabled");
                 }
             }
         };
 
-        test_name.innerHTML = test_name.getAttribute("original_text");
-        test_message.innerHTML = test_message.getAttribute("original_text");
+        test_name_element.innerHTML = test_name_element.getAttribute("original_text");
+        test_message_element.innerHTML = test_message_element.getAttribute("original_text");
 
-        test_name.removeAttribute("original_text");
-        test_message.removeAttribute("original_text");
+        test_name_element.removeAttribute("original_text");
+        test_message_element.removeAttribute("original_text");
 
-        test_name.removeAttribute("contenteditable");
-        test_message.removeAttribute("contenteditable");
+        test_name_element.removeAttribute("contenteditable");
+        test_message_element.removeAttribute("contenteditable");
  
         document.activeElement.blur();
     }
-
-    // =========================================================================================== //
 
     // this function send a request to fetch another student feedback, following pushing
     // the next/previous student button
@@ -450,7 +451,44 @@ var FeedbackPlugin = (function () {
             console.log("no more students made submission for this task")
         }
     }
-    
+
+    function taskid_select_handler(event) {
+        console.log("event = %O", event);
+        g_current_taskid = event.id;
+        g_editor.setValue(g_task_code[g_current_taskid], -1);
+        update_step(0);
+    }
+
+    // =========================================================================================== //
+
+    // this function displays a message to the user, and hides it after 3 seconds
+    function studio_display_feedback_submit_message(title, content, type, dismissible)
+    {
+        console.debug('In function: studio_display_feedback_submit_message(\n    %s,\n    %s,\n    %s,\n    %s)', 
+                    title, content, type, dismissible);
+
+        // get message html code
+        var code = getAlertCode(title, content, type, dismissible);
+
+        // insert html code
+        $('#feedback_submit_status').html(code);
+
+        // scroll to top
+        window.scrollTo(0,0);
+
+        // remove message after set timeout (3 sec)
+        if(dismissible)
+        {
+            window.setTimeout(function()
+            {
+                $("#feedback_submit_status").children().fadeTo(1000, 0).slideUp(1000, function()
+                {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+    }
+
     // this function save page content to local storage
     // ---
     function save_to_storage() {
@@ -567,34 +605,6 @@ var FeedbackPlugin = (function () {
                     studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: " + error_message, "", "danger", true);
                 },
         });
-    }
-
-    // this function displays a message to the user, and hides it after 3 seconds
-    function studio_display_feedback_submit_message(title, content, type, dismissible)
-    {
-        console.debug('In function: studio_display_feedback_submit_message(\n    %s,\n    %s,\n    %s,\n    %s)', 
-                    title, content, type, dismissible);
-
-        // get message html code
-        var code = getAlertCode(title, content, type, dismissible);
-
-        // insert html code
-        $('#feedback_submit_status').html(code);
-
-        // scroll to top
-        window.scrollTo(0,0);
-
-        // remove message after set timeout (3 sec)
-        if(dismissible)
-        {
-            window.setTimeout(function()
-            {
-                $("#feedback_submit_status").children().fadeTo(1000, 0).slideUp(1000, function()
-                {
-                    $(this).remove();
-                });
-            }, 3000);
-        }
     }
 
     // this function send a preview request
@@ -766,16 +776,6 @@ var FeedbackPlugin = (function () {
         return element;
     }
 
-    //
-    function set_task_code() {
-        const codeSelector = document.getElementById('codeSectionSelector');
-        const codeContent = document.getElementById('codeContent');     
-        var taskid = this.classList[0];
-
-        codeSelector.value = taskid;
-        g_editor.setValue(g_task_code[taskid], -1);
-    }
-
     /**
      * Show and hide the section when click on dropdown button
      * @param header: the header on which we click
@@ -803,6 +803,7 @@ var FeedbackPlugin = (function () {
         save_to_storage: save_to_storage,
         submit: submit,
         task_dropdown: task_dropdown,
+        taskid_select_handler: taskid_select_handler,
         test_checkbox_handler: test_checkbox_handler,
         test_edit_handler: test_edit_handler,
         test_edit_cancel_handler: test_edit_cancel_handler,        
@@ -820,19 +821,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const divider = document.getElementById('divider');
     const showCodeButton = document.getElementById('showCodeButton');
 
-    // Change Code Viewer content based on dropdown selection
-    codeSectionSelector.addEventListener('change', () => {
-        g_editor.setValue(g_task_code[codeSectionSelector.value], -1);
-    });
-
     // Show the Code Viewer when the button is clicked
     showCodeButton.addEventListener('click', () => {
         codeViewer.style.display = 'flex'; // Show code viewer
         showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
 
         // set initial value
-        var codeSelector = document.getElementById("codeSectionSelector");
-        g_editor.setValue(g_task_code[codeSelector.value], -1);
+        g_editor.setValue(g_task_code[g_current_taskid], -1);
     });
 
     // Close the Code Viewer

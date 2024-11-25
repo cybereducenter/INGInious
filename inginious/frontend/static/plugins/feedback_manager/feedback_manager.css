@@ -300,21 +300,17 @@
 .nav-buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
 }
 
 .nav-buttons button {
     display: flex;
     align-items: center;
     padding: 10px 20px;
-    /* background-color: #007bff; */
-    /* color: white; */
     border: none;
     border-radius: 25px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
 }
 
 .nav-buttons button i {
