@@ -195,8 +195,6 @@ var FeedbackPlugin = (function () {
 
     // This function is called when moving between steps (previous/next)
     function update_step(step) {
-        console.log("current step = %d, step = %d", g_current_step, step);
-
         var next_element = document.getElementById("next");
         var previous_element = document.getElementById("prev");
         var preview_element = document.getElementById("preview");
@@ -453,13 +451,11 @@ var FeedbackPlugin = (function () {
     }
 
     function taskid_select_handler(event) {
-        console.log("event = %O", event);
         g_current_taskid = event.id;
-        
+
         // set tab appearacnce
         let siblings = event.parentElement.children;
         
-        console.log(siblings);
         for (var i = 0; i < siblings.length; i++) {
             var button_element = siblings[i];
 
