@@ -58,11 +58,7 @@
     </h3>
 
     <!-- Circle Button to Show Code Viewer -->
-    <button id="showCodeButton" class="circle-button">
-        <h3>
-            ⌨️
-        </h3>
-    </button>
+
 </div>
 
 <div id="feedback_submit_status">
@@ -70,23 +66,34 @@
 </div>
 
 <!-- TASKID tab selectors -->
-<div>
-    {% set taskids = [] %}
-    {% for category_en, category in feedback['categories'].items() %}
-        {% if category["name"] == "functionality" %} 
-            {% for test in category["tests"] %}
-                {% if test['taskid'] not in taskids %}
-                    {{ taskids.append(test['taskid']) or "" }}
-                    <button id="{{test['taskid']}}" class="btn tab" onclick="FeedbackPlugin.taskid_select_handler(this)">{{test['taskid']}}</button>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-    {% endfor %}
+<div style="display: flex; justify-content: space-between;">
+    <div>
+        {% set taskids = [] %}
+        {% for category_en, category in feedback['categories'].items() %}
+            {% if category["name"] == "functionality" %} 
+                {% for test in category["tests"] %}
+                    {% if test['taskid'] not in taskids %}
+                        {{ taskids.append(test['taskid']) or "" }}
+                        <button id="{{test['taskid']}}" class="btn tab" onclick="FeedbackPlugin.taskid_select_handler(this)">{{test['taskid']}}</button>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div style="display: flex; flex-direction: row;">
+        <button id="showCodeButton" class="circle-button">
+            C
+        </button>
+
+        <button class="close-button" id="closeCodeButton" style="display:none">
+            X
+        </button>
+    </div>
 </div>
 
 <!-- Main feedback by categories area -->
 
-<div class="container">
+<div class="feedback-container">
     <!-- Left Side - Feedback and Comments -->
     <div class="left-panel" id="leftPanel">
         <div id="feedbacks" class="test-result-table">
@@ -283,11 +290,6 @@
 
     <!-- Right Side - Code Viewer (Initially Hidden) -->
     <div class="resizable-panel" id="codeViewer" style="display: none;">
-        <div style="display: flex; align-items: center; flex-direction: row-reverse; margin-bottom: 10px;">        
-            <button class="close-button" id="closeCodeViewer">
-                X
-            </button>
-        </div>
         <textarea class="codemirror-textarea">
         </textarea>
     </div>

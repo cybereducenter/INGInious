@@ -154,7 +154,7 @@ var FeedbackPlugin = (function () {
                     if (response) {
                         send_request_for_another_student(response);
                     } else {
-                        studio_display_feedback_submit_message("No more students made submission for this course", "", "danger", true);
+                        display_user_message("No more students made submission for this course", "", "danger", true);
                     }
                 },
                 error: function (e) {
@@ -178,7 +178,7 @@ var FeedbackPlugin = (function () {
                     if (response) {
                         send_request_for_another_student(response);
                     } else {
-                        studio_display_feedback_submit_message("No more students made submission for this course", "", "danger", true);
+                        display_user_message("No more students made submission for this course", "", "danger", true);
                     }
                 },
                 error: function (e) {
@@ -473,12 +473,10 @@ var FeedbackPlugin = (function () {
         update_step(0);
     }
 
-    // =========================================================================================== //
-
     // this function displays a message to the user, and hides it after 3 seconds
-    function studio_display_feedback_submit_message(title, content, type, dismissible)
+    function display_user_message(title, content, type, dismissible)
     {
-        console.debug('In function: studio_display_feedback_submit_message(\n    %s,\n    %s,\n    %s,\n    %s)', 
+        console.debug('In function: display_user_message(\n    %s,\n    %s,\n    %s,\n    %s)', 
                     title, content, type, dismissible);
 
         // get message html code
@@ -554,6 +552,8 @@ var FeedbackPlugin = (function () {
         }
     }
 
+    // =========================================================================================== //
+
     // this function saves a draft of the feedback manager page
     // ---
     function save_draft() {
@@ -609,14 +609,14 @@ var FeedbackPlugin = (function () {
 
                     // display message to user
                     var message = is_draft ? "Feedback draft was saved for student " + g_student : "Final feedback was submitted for student " + g_student;
-                    studio_display_feedback_submit_message(message, "", "success", true);
+                    display_user_message(message, "", "success", true);
                 },
                 error: function (e) {
                     console.log("save: " + e.toString());
 
                     // display message to user
                     error_message = "An internal error occurred";
-                    studio_display_feedback_submit_message("Some error(s) occurred when saving the feedback: " + error_message, "", "danger", true);
+                    display_user_message("Some error(s) occurred when saving the feedback: " + error_message, "", "danger", true);
                 },
         });
     }
@@ -834,20 +834,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
     const showCodeButton = document.getElementById('showCodeButton');
+    const closeCodeButton = document.getElementById('closeCodeButton');
 
     // Show the Code Viewer when the button is clicked
     showCodeButton.addEventListener('click', () => {
         codeViewer.style.display = 'flex'; // Show code viewer
         showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
+        closeCodeButton.style.display = 'flex';
 
         // set initial value
         g_editor.setValue(g_task_code[g_current_taskid], -1);
     });
 
     // Close the Code Viewer
-    closeCodeViewer.addEventListener('click', () => {
-        codeViewer.style.display = 'none'; // Hide code viewer
-        showCodeButton.style.display = 'block'; // Show the circular button again
+    closeCodeButton.addEventListener('click', () => {
+        codeViewer.style.display = 'none'; 
+        closeCodeButton.style.display = 'none'; // Hide code viewer
+        showCodeButton.style.display = 'flex'; // Show the circular button again
     });
     
     // Handle resizing between left panel and code viewer
@@ -859,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousemove', (e) => {
         if (!isResizing) return;
 
-        const containerRect = document.querySelector('.container').getBoundingClientRect();
+        const containerRect = document.querySelector('.feedback-container').getBoundingClientRect();
         const newLeftPanelWidth = e.pageX - containerRect.left;
 
         // Ensure minimum widths for both panels
