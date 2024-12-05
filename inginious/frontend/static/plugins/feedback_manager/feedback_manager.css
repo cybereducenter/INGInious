@@ -283,6 +283,7 @@
 
 .circle-button:hover {
     background-color: #3E4C5E; /* Darker blue on hover */
+    color: white;
 }
 
 .circle-button:active {
@@ -304,6 +305,7 @@
 }
 
 .close-button:hover {
+    color: white;
     background-color: #881600; /* Darker blue on hover */
 }
 
