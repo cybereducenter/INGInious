@@ -799,10 +799,10 @@ var FeedbackPlugin = (function () {
         const button = $(header).children(".dropdown_button");
 
         if ($(button).hasClass("fa-caret-down")) {
-            $(button).removeClass("fa-caret-down").addClass("fa-caret-left");
+            $(button).removeClass("fa-caret-down").addClass("fa-caret-right");
             content_div.slideUp('fast')
         } else {
-            $(button).removeClass("fa-caret-left").addClass("fa-caret-down");
+            $(button).removeClass("fa-caret-right").addClass("fa-caret-down");
             content_div.slideDown('fast')
         }
     }
@@ -840,7 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showCodeButton.addEventListener('click', () => {
         codeViewer.style.display = 'flex'; // Show code viewer
         showCodeButton.style.display = 'none'; // Hide the show button when viewer is visible
-        closeCodeButton.style.display = 'flex';
+        closeCodeButton.style.display = 'initial';
 
         // set initial value
         g_editor.setValue(g_task_code[g_current_taskid], -1);
@@ -850,7 +850,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeCodeButton.addEventListener('click', () => {
         codeViewer.style.display = 'none'; 
         closeCodeButton.style.display = 'none'; // Hide code viewer
-        showCodeButton.style.display = 'flex'; // Show the circular button again
+        showCodeButton.style.display = 'initial'; // Show the circular button again
     });
     
     // Handle resizing between left panel and code viewer

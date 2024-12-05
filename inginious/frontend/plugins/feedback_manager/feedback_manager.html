@@ -82,11 +82,11 @@
     </div>
     <div style="display: flex; flex-direction: row;">
         <button id="showCodeButton" class="circle-button">
-            C
+            <i class="fa fa-code"></i>
         </button>
 
         <button class="close-button" id="closeCodeButton" style="display:none">
-            X
+            <i class="fa fa-window-close"></i>
         </button>
     </div>
 </div>
@@ -122,23 +122,21 @@
                     <div id="feedback-{{category_en}}" class="displayed_feedback section category card" style="border:none;">
                 {% endif %}       
                         <!-- Category box -->
-                        <div class="section_header category-header justify-content-end pr-3" onclick="dropdown(this)" 
+                        <div class="section_header category-header pr-3" onclick="task_dropdown(this)" 
                             style="display: flex; margin-bottom: 5px; background-color: {{category_background_color}};">
-                            <span class="title mr-auto" style="display: flex; direction: rtl; margin-right: 0 !important; color: #ffffff; font-weight: bold;">
+
+                            <!-- Expand/Collapse button -->
+                            <span style="font-size: 1.5rem; color: #ffffff; padding-inline-start: 0.5rem" class="dropdown_button fa fa-caret-right">
+                            </span>
+
+                            <span class="title mr-auto" style="margin-left: 5px; color: #ffffff; font-weight: bold;">
                                 <!-- Category name -->
                                 <div>
-                                    {{category["name_he"]}}
-                                </div>
-                            {% if category["name"] == "functionality" %}
-                                <!-- Category status: successful tests and grade -->
-                                <div>
-                                    &nbsp;- {{category['status']['passed']}}/{{category['status']['total']}}  {{category['status']['percent']}}%
-                                </div>
-                            {% endif %}
-
-                            </span>
-                            <!-- Expand/Collapse button -->
-                            <span style="font-size: 1.5rem; color: #ffffff; padding-inline-start: 1.5rem" class="dropdown_button fa fa-caret-left">
+                                    {{category["name_he"]}} 
+                                    {% if category["name"] == "functionality" %}
+                                        &nbsp;- {{category['status']['passed']}}/{{category['status']['total']}} - {{category['status']['percent']}}%
+                                    {% endif %}       
+                                </div>                                
                             </span>
                         </div>
                                         
