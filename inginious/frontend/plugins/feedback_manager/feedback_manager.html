@@ -145,12 +145,12 @@
                         <div class="test-container">
                         {% for test in category["tests"] %}
                             <!-- Determine border color -->
-                            {% if test['result']['text'] == 'passed' %}
-                                {% set border_color = 'green' %}
-                            {% elif test['result']['text'] == 'failed' %} 
-                                {% set border_color = 'red' %}
+                            {% if test['category'] == 'functionality' and test['result']['text'] == 'passed' %}
+                                {% set background_color = 'palegreen' %}
+                            {% elif test['category'] == 'functionality' and test['result']['text'] == 'failed' %} 
+                                {% set background_color = 'lightcoral' %}
                             {% else %} 
-                                {% set border_color = 'black' %}
+                                {% set background_color = 'white' %}
                             {% endif %}
 
                             <!-- Determine if new task -->
@@ -169,7 +169,7 @@
                             <!--  -->
                             <div class="{{test['taskid']}}">
                                 <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" cout-name="{{test['cout_file']}}" 
-                                    class="test-data displayed_test_feedback" data-result={{test['result']['text']}} style="border-color: {{ border_color }}">
+                                    class="test-data displayed_test_feedback" data-result={{test['result']['text']}} style="background-color: {{background_color}};">
                                     <div class="test-section"">
                                         <div class="content black-text">
                                             <div class="pull-left" style="padding-inline: 1.5rem">
@@ -189,28 +189,28 @@
                                                             </i>
 
                                                             <!-- Info button -->
-                                                            <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.additional_info_open_handler(this)">
+                                                            <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.additional_info_open_handler(this)" style="background-color: {{background_color}};">
                                                                 <i class="fa fa-info-circle">
 
                                                                 </i>
                                                             </button>
 
                                                             <!-- Edit button -->
-                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip">
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip" style="background-color: {{background_color}};">
                                                                 <i class="fa fa-edit">
 
                                                                 </i>
                                                             </button>
 
                                                             <!-- Close button -->
-                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.test_edit_cancel_handler(this)" title="" data-toggle="tooltip">
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.test_edit_cancel_handler(this)" title="" data-toggle="tooltip"  style="background-color: {{background_color}};">
                                                                 <i class="fa fa-close">
 
                                                                 </i>
                                                             </button>
 
                                                             <!-- Save button -->
-                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.test_edit_save_handler(this)" title="" data-toggle="tooltip">
+                                                            <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.test_edit_save_handler(this)" title="" data-toggle="tooltip" style="background-color: {{background_color}};">
                                                                 <i class="fa fa-check">
 
                                                                 </i>
@@ -219,7 +219,12 @@
                                                     </div>
                                                 </div>
                                                 <!-- Line III: test message -->
-                                                <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" style="font-style: italic;">
+                                                {% if category['name'] == 'functionality' %}
+                                                    {% set align = 'right' %}
+                                                {% else %}
+                                                    {% set align = 'left' %}
+                                                {% endif %}
+                                                <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" style="font-style: italic; text-align: {{ align }};">
 
                                                 </div>
                                             </div>

@@ -5,15 +5,14 @@
 }
 
 .test-data {
-    border: 2.5px solid black;
-    /* background-color: #ececec; */
+    border: solid 1px;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
     padding: 0 5px;
-    border-radius: 5px;
 }
 
 .page-actions-container {
