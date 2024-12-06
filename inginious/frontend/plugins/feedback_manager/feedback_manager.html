@@ -67,7 +67,7 @@
 
 <!-- TASKID tab selectors -->
 <div style="display: flex; justify-content: space-between;">
-    <div>
+    <div id="task-tabs">
         {% set taskids = [] %}
         {% for category_en, category in feedback['categories'].items() %}
             {% if category["name"] == "functionality" %} 
@@ -131,7 +131,7 @@
 
                             <span class="title mr-auto" style="margin-left: 5px; color: #ffffff; font-weight: bold;">
                                 <!-- Category name -->
-                                <div>
+                                <div class="category-name" id="{{category["name"]}}">
                                     {{category["name_he"]}} 
                                     {% if category["name"] == "functionality" %}
                                         &nbsp;- {{category['status']['passed']}}/{{category['status']['total']}} - {{category['status']['percent']}}%
@@ -168,8 +168,8 @@
 
                             <!--  -->
                             <div class="{{test['taskid']}}">
-                                <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" cout-name="{{test['cout_file']}}" 
-                                    class="test-data displayed_test_feedback" data-result={{test['result']['text']}} style="background-color: {{background_color}};">
+                                <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" data-taskid="{{test['taskid']}}"
+                                    class="test-data displayed_test_feedback" data-result={{test['result']['text']}} style="background-color: {{background_color}};" onclick="FeedbackPlugin.test_select_handler(this)">
                                     <div class="test-section"">
                                         <div class="content black-text">
                                             <div class="pull-left" style="padding-inline: 1.5rem">

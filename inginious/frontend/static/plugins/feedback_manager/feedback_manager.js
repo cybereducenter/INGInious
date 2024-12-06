@@ -200,6 +200,9 @@ var FeedbackPlugin = (function () {
         var preview_element = document.getElementById("preview");
         var save_feedback_element = document.getElementById("saveFeedback");
         var checkbox_elements = $("input[type='checkbox']")
+        var summary_feedback = document.getElementById("total-feedback");
+        var task_tab_elements = document.getElementById("task-tabs").children;
+        var category_name_elements = document.getElementsByClassName("category-name");
 
         g_current_step = g_current_step + step;
         
@@ -214,17 +217,39 @@ var FeedbackPlugin = (function () {
             preview_element.classList.add("disabled");
             save_feedback_element.disabled = true;
             save_feedback_element.classList.add("disabled");
+            summary_feedback.style.display = 'none';
+            
+            [...task_tab_elements].forEach(task_tab_element => {
+                task_tab_element.disabled = false;
+                if (task_tab_element.id == g_current_taskid) {
+                    task_tab_element.style.color = 'white';
+                    task_tab_element.style.background = 'black';
+                } else {
+                    task_tab_element.style.color = 'black';
+                    task_tab_element.style.background = 'white';
+                }
+                task_tab_element.style.border = 'solid 1px #ccc';
+            });
+
+            [...category_name_elements].forEach(category_name_element => {
+                category_name_element.innerHTML = category_name_element.innerHTML.split(' (')[0];
+            });
+
             // checkboxes
             [...checkbox_elements].forEach(checkbox_element => {
                 checkbox_element.style.display = 'inline-block';
 
                 var test_element = document.getElementById(checkbox_element.value);
+                var test_name_element = document.getElementsByClassName(checkbox_element.value + '-name')[0];
+                var test = get_test_from_element_id(checkbox_element.value);
+
                 if (checkbox_element.value.includes(g_current_taskid)) {
+                    test_name_element.innerHTML = test['name'];
                     test_element.style.display = 'flex';
                 } else {
                     test_element.style.display = 'none';
                 }
-            })
+            });
         }
         else if (g_current_step == 2) {
             // STEP 2
@@ -237,17 +262,40 @@ var FeedbackPlugin = (function () {
             preview_element.classList.remove("disabled");
             save_feedback_element.disabled = false;
             save_feedback_element.classList.remove("disabled");
+            summary_feedback.style.display = 'initial';
+            
+            [...task_tab_elements].forEach(task_tab_element => {
+                task_tab_element.disabled = true;
+                task_tab_element.style.color = 'white';
+                task_tab_element.style.background = 'white';
+                task_tab_element.style.border = 'none';
+            });
+
+
+            // selected counter
+            [...category_name_elements].forEach(category_name_element => {
+                var selected_count = 0;
+                [...checkbox_elements].forEach(checkbox_element => {
+                    if (checkbox_element.checked && checkbox_element.value.startsWith(category_name_element.id))
+                        selected_count++;
+                });
+                category_name_element.innerHTML = category_name_element.innerHTML.split(' (')[0] + '(' + selected_count + ')';
+            });
+
             // checkboxes
             [...checkbox_elements].forEach(checkbox_element => {
                 var test_element = document.getElementById(checkbox_element.value);
-                if (checkbox_element.checked && checkbox_element.value.includes(g_current_taskid)) {
+                var test_name_element = document.getElementsByClassName(checkbox_element.value + '-name')[0];
+                var test = get_test_from_element_id(checkbox_element.value);
+                if (checkbox_element.checked) {
                     test_element.style.display = 'flex';
-                    checkbox_element.style.display = 'none';
+                    test_name_element.innerHTML = test['taskid'] + ': ' + test['name'];
+                    // checkbox_element.style.display = 'none';
                 }
                 else {
                     test_element.style.display = 'none';
                 }
-            })
+            });
         }
         else {
             console.error("unexpected current step = %d", g_current_step);
@@ -270,6 +318,7 @@ var FeedbackPlugin = (function () {
             });
         }
         save_to_storage();
+        update_step(0);
     }
 
     // this function is called when the 'additional details' button is pressed
@@ -468,6 +517,12 @@ var FeedbackPlugin = (function () {
             }
         }
 
+        g_editor.setValue(g_task_code[g_current_taskid], -1);
+        update_step(0);
+    }
+
+    function test_select_handler(event) {
+        g_current_taskid = event.dataset.taskid;
 
         g_editor.setValue(g_task_code[g_current_taskid], -1);
         update_step(0);
@@ -822,6 +877,7 @@ var FeedbackPlugin = (function () {
         test_edit_handler: test_edit_handler,
         test_edit_cancel_handler: test_edit_cancel_handler,        
         test_edit_save_handler: test_edit_save_handler,
+        test_select_handler: test_select_handler,
         update_step: update_step
     }
 
