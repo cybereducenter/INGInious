@@ -1,3 +1,102 @@
+/* SIDE BAR */
+#fm-sidebar {
+    margin: 10px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+}
+
+.nav-btn {
+    margin-block: 10px;
+    width: 90%
+}
+
+.btn-info {
+    font-weight: 500;
+}
+
+/* NAVIGATION BAR */
+
+/* TASK TABS ROW */
+#task-tabs-row {
+    display: flex; 
+    justify-content: space-between;
+}
+
+#code-btns {
+    display: flex; 
+    flex-direction: row;
+}
+
+.circle-button {
+    color: black;
+    background-color: white;
+    border: #ccc solid 1px;
+    border-style: solid solid none solid;
+    font-size: 18px;
+    cursor: pointer;
+    align-self: flex-end;
+    border-radius: 5px 5px 0 0;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.circle-button:hover {
+    background-color: #3E4C5E; /* Darker blue on hover */
+    color: white;
+}
+
+.circle-button:active {
+    background-color: #2C3D55; /* Even darker blue on click */
+}
+
+.close-button {
+    color: red;
+    background-color: white;
+    border: #ccc solid 1px;
+    border-style: solid solid none solid;
+    font-size: 18px;
+    cursor: pointer;
+    align-self: flex-end;
+    border-radius: 5px 5px 0 0;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.close-button:hover {
+    color: white;
+    background-color: #881600; /* Darker blue on hover */
+}
+
+.close-button:active {
+    background-color: #4E0110; /* Even darker blue on click */
+}
+
+/* CATEGORIES */
+
+.category-header {
+    display: flex; 
+    margin-bottom: 5px;
+    padding: 10px 0px;
+    border-radius: 5px;
+}
+
+.category-dropdown-btn {
+    font-size: 1.5rem; 
+    color: #ffffff; 
+    padding-inline-start: 0.5rem
+}
+
+.category-name {
+    margin-left: 5px; 
+    color: #ffffff; 
+    font-weight: bold;
+}
+
+/* */
+
 .test-result-table {
     overflow-x: auto;
     overflow-y: visible;
@@ -109,14 +208,7 @@
     margin-left: 5px
 }
 
-.btn-info {
-    font-weight: 500;
-}
 
-.category-header {
-    padding: 10px 0px;
-    border-radius: 5px;
-}
 
 .cout-popup {
     display: none;
@@ -183,10 +275,6 @@
     margin: 10px;
 }
 
-.nav-btn {
-    margin-block: 10px;
-    width: 90%
-}
 
 .save_feedback_btn Div {
     padding: 0 5px;
@@ -265,52 +353,8 @@
 }
 
 /* Circle Button to Toggle Code Viewer */
-.circle-button {
-    color: black;
-    background-color: white;
-    border: #ccc solid 1px;
-    border-style: solid solid none solid;
-    font-size: 18px;
-    cursor: pointer;
-    align-self: flex-end;
-    border-radius: 5px 5px 0 0;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 5px;
-    padding-top: 5px;
-}
-
-.circle-button:hover {
-    background-color: #3E4C5E; /* Darker blue on hover */
-    color: white;
-}
-
-.circle-button:active {
-    background-color: #2C3D55; /* Even darker blue on click */
-}
 
 /* Close Button in the Code Viewer */
-.close-button {
-    color: red;
-    background-color: white;
-    border: #ccc solid 1px;
-    border-style: solid solid none solid;
-    font-size: 18px;
-    cursor: pointer;
-    align-self: flex-end;
-    border-radius: 5px 5px 0 0;
-    padding-bottom: 5px;
-    padding-top: 5px;
-}
-
-.close-button:hover {
-    color: white;
-    background-color: #881600; /* Darker blue on hover */
-}
-
-.close-button:active {
-    background-color: #4E0110; /* Even darker blue on click */
-}
 /* Navigation Buttons */
 .nav-buttons {
     display: flex;

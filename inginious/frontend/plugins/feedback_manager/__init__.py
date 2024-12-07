@@ -145,6 +145,11 @@ class FeedbackManagerPage(INGIniousAuthPage):
                     test['is_first_test'] = False
 
 
+        taskids = set()
+        for test in submission_feedback['categories']['functionality']['tests']:
+            taskids.add(test['taskid'])
+        taskids = list(taskids)
+
         self.logger.info(f"submission_feedback = {submission_feedback['categories']}")
         self.database.submissions.update_one({"_id": ObjectId(submission_id)},
                                              {"$set": {"custom": {"feedback_data": submission_feedback},
@@ -155,6 +160,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
                                            template_folder='frontend/plugins/feedback_manager',
                                            course=course,
                                            task=task,
+                                           taskids=taskids,
                                            student=student_userdata['realname'],
                                            feedback=submission_feedback,
                                            user=manager_userdata,
