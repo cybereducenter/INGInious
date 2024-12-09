@@ -3,6 +3,10 @@
  *
  * @type {{onClickSave, onSubmitAllBtn, onCloseWindow, getDefaultFeedbacksValue, onClickArrowBtn, onChangeOverallGrade, initManualTask}}
  */
+
+const CODE_SELECTOR_ID = "codeSectionSelector";
+const LEFT_PANEL_ID = 'leftPanel';
+
 var g_task_code = {};
 var g_codemirror_element;
 var g_editor;
@@ -72,7 +76,7 @@ var FeedbackPlugin = (function () {
         }
         
         // set categories and tests
-        var codeSelector_element = document.getElementById("codeSectionSelector");
+        var codeSelector_element = document.getElementById(CODE_SELECTOR_ID);
         for (const cat in g_feedback_categories) {
 
             // cat is the category name, in English. For example, coding, design...
@@ -279,7 +283,7 @@ var FeedbackPlugin = (function () {
                     if (checkbox_element.checked && checkbox_element.value.startsWith(category_name_element.id))
                         selected_count++;
                 });
-                category_name_element.innerHTML = category_name_element.innerHTML.split(' (')[0] + '(' + selected_count + ')';
+                category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0] + '(' + selected_count + ')';
             });
 
             // checkboxes
@@ -305,10 +309,8 @@ var FeedbackPlugin = (function () {
 
     // this function is called when a user checks/unchecks a test
     // ---
-    function test_checkbox_handler(event) {
-        console.debug('In function: test_checkbox_handler(%O)', event);
-
-        // update test selection in memory
+    function test_checkbox_handler() {
+        // update all tests, based on checkboxes
         for (const c in g_feedback_categories) {
             var category = g_feedback_categories[c];
             category['tests'].forEach(test => {
@@ -325,13 +327,14 @@ var FeedbackPlugin = (function () {
     // for a specific tests. it prepares the cout text and shows it in a popup.
     // ---
     function additional_info_open_handler(event) {
-
         // find associated test
         const test_id = event.classList[0].split('-popup')[0];
         var test = get_test_from_element_id(test_id);
+        var modal = document.getElementsByClassName('test-modal')[0];
         var cout_text = test['cout_text'] || "";
 
         // get test cout 
+        $("#popup-text").empty();
         var line;
         cout_text.split("\n").forEach(text => {
             line = $('<li></li>');
@@ -339,17 +342,17 @@ var FeedbackPlugin = (function () {
             $("#popup-text").append(line);
         })
 
-        // display additional details popup
-        $("#popup").css("display", "initial");
+        // display additional details popup      
+        modal.showModal();
+        document.activeElement.blur();
     }
     
     // this function closes the popup window.
     // ---
     function additional_info_close_handler (event) {
-        console.debug('In function: additional_info_close_handler(%O)', event);
+        var modal = document.getElementsByClassName('test-modal')[0];
 
-        $("#popup").css("display", "none");
-        $("#popup-text").empty();
+        modal.close();
     }
 
     // Handlers for test edit buttons
@@ -523,6 +526,8 @@ var FeedbackPlugin = (function () {
 
     function test_select_handler(event) {
         g_current_taskid = event.dataset.taskid;
+
+        // TODO mark test as in-focus
 
         g_editor.setValue(g_task_code[g_current_taskid], -1);
         update_step(0);
@@ -853,6 +858,7 @@ var FeedbackPlugin = (function () {
         const content_div = $(header).siblings(".content");
         const button = $(header).children(".category-dropdown-btn");
 
+        console.log("content = %O", content_div);
         if ($(button).hasClass("fa-caret-down")) {
             $(button).removeClass("fa-caret-down").addClass("fa-caret-right");
             content_div.slideUp('fast')
@@ -885,8 +891,8 @@ var FeedbackPlugin = (function () {
 
 // Roi's SPlit table changes
 document.addEventListener('DOMContentLoaded', () => {
-    const codeSectionSelector = document.getElementById('codeSectionSelector');
-    const leftPanel = document.getElementById('leftPanel');
+    const codeSectionSelector = document.getElementById(CODE_SELECTOR_ID);
+    const leftPanel = document.getElementById(LEFT_PANEL_ID);
     const codeViewer = document.getElementById('codeViewer');
     const divider = document.getElementById('divider');
     const showCodeButton = document.getElementById('showCodeButton');

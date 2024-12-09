@@ -105,11 +105,11 @@
 {###############}
 <div id="task-tabs-row">
     <div id="task-tabs">
-        {% for taskid in taskids %}
-            <button id="{{taskid}}" class="btn tab" onclick="FeedbackPlugin.taskid_select_handler(this)">
-                {{taskid}}
-            </button>
-        {% endfor %}
+{% for taskid in taskids %}
+        <button id="{{taskid}}" class="btn tab" onclick="FeedbackPlugin.taskid_select_handler(this)">
+            {{taskid}}
+        </button>
+{% endfor %}
     </div>
 
 {# CODE BUTTONS #}
@@ -132,66 +132,77 @@
         <div id="feedbacks" class="test-result-table">
 {%for category_en, category in feedback['categories'].items()%}
             <!-- Category box -->
-            <div class="category-header" onclick="FeedbackPlugin.task_dropdown(this)" 
-                     style="background-color: {{category_color(category)}};">
+            <div>
+                <div class="category-header" onclick="FeedbackPlugin.task_dropdown(this)" 
+                        style="background-color: {{category_color(category)}};">
 
-                    <!-- Expand/Collapse button -->
-                    <span class="category-dropdown-btn dropdown_button fa fa-caret-right"></span>
-                    <!-- Category name -->
-                    <span class="category-name" id="{{category['name']}}"> {{ category_title(category) }}</span>                                
-            </div>
-                                
-            <!-- Category tests -->
-            <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" 
-                 style="display:none;">
-{% for test in category['tests'] %}
-                <div class="{{test['taskid']}}" style="display:flex; flex-direction: column;"> 
-                    <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="test-data displayed_test_feedback" 
-                         data-taskid="{{test['taskid']}}" data-result={{test['result']['text']}} 
-                         style="background-color: {{test_border_color(test)}};" onclick="FeedbackPlugin.test_select_handler(this)">
-                        <div class="test-section"">
-                            <div class="content black-text">
-                                <div class="pull-left" style="padding-inline: 1.5rem">
-                                    <!-- Line I -->
-                                    <div style="font-size: larger; padding: 5px 0;">
-                                        <!-- SelEction checkbox -->
-                                        <input id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
-                                                type="checkbox" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
-                                                style="padding-inline: 1.5rem; vertical-align: middle; margin-right: 5px;" onchange="FeedbackPlugin.test_checkbox_handler(this)">
-                                                                                                
-                                        <!-- Test Name -->
-                                        <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" spellcheck="false">{{test["name"]}}</i>
+                        <!-- Expand/Collapse button -->
+                        <span class="category-dropdown-btn dropdown_button fa fa-caret-right"></span>
+                        <!-- Category name -->
+                        <span class="category-name" id="{{category['name']}}"> {{ category_title(category) }}</span>                                
+                </div>
+                                    
+                <!-- Category tests -->
+                <div id="feedback-{{category_en}}-data" class="content list-group list-group-flush task-feedback" 
+                    style="display:none;">
+    {% for test in category['tests'] %}
+                    <div class="{{test['taskid']}}" style="display:flex; flex-direction: column;"> 
+                        <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="test-data displayed_test_feedback" 
+                            data-taskid="{{test['taskid']}}" data-result={{test['result']['text']}} 
+                            style="background-color: {{test_border_color(test)}};" onclick="FeedbackPlugin.test_select_handler(this)">
+                            <div class="test-section">
+                                <div style="font-size: larger; padding: 5px 0;">
+                                    <!-- Selection checkbox -->
+                                    <input id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
+                                            type="checkbox" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
+                                            style="padding-inline: 1.5rem; vertical-align: middle; margin-right: 5px;" 
+                                            onchange="FeedbackPlugin.test_checkbox_handler()">
+                                                                                            
+                                    <!-- Test Name -->
+                                    <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" 
+                                       spellcheck="false">{{test["name"]}}</i>
 
-                                        <!-- Info button -->
-                                        <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" data-original-title="פרטים נוספים" title="" data-toggle="tooltip" onclick="FeedbackPlugin.additional_info_open_handler(this)" style="background-color: {{background_color}};">
-                                            <i class="fa fa-info-circle"></i>
-                                        </button>
+                                    <!-- Info button -->
+                                    <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" 
+                                            data-original-title="פרטים נוספים" title="" data-toggle="tooltip" 
+                                            onclick="FeedbackPlugin.additional_info_open_handler(this)" 
+                                            style="background-color: {{test_border_color(test)}};">
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
 
-                                        <!-- Edit button -->
-                                        <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="edit_btn" data-original-title="עריכה" onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip" style="background-color: {{background_color}};">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
+                                    <!-- Edit button -->
+                                    <button type="button" class="edit_btn" data-original-title="עריכה" 
+                                            onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip" 
+                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"         
+                                            style="background-color: {{test_border_color(test)}};">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
 
-                                        <!-- Close button -->
-                                        <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="cancel_btn disabled"  data-original-title="ביטול" onclick="FeedbackPlugin.test_edit_cancel_handler(this)" title="" data-toggle="tooltip"  style="background-color: {{background_color}};">
-                                            <i class="fa fa-close"></i>
-                                        </button>
+                                    <!-- Close button -->
+                                    <button type="button" disabled class="cancel_btn disabled"  data-original-title="ביטול" 
+                                            onclick="FeedbackPlugin.test_edit_cancel_handler(this)" title="" data-toggle="tooltip"  
+                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"         
+                                            style="background-color: {{test_border_color(test)}};">
+                                        <i class="fa fa-close"></i>
+                                    </button>
 
-                                        <!-- Save button -->
-                                        <button type="button" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}" disabled class="save_btn disabled"  data-original-title="שמירה" onclick="FeedbackPlugin.test_edit_save_handler(this)" title="" data-toggle="tooltip" style="background-color: {{background_color}};">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </div>
-                                    <!-- Line III: test message -->
-                                    <div class="row {{category_en}}-{{test['taskid']}}-{{test['id']}}-message" 
-                                         style="font-style: italic; text-align: LEFT;">
-                                    </div>
+                                    <!-- Save button -->
+                                    <button type="button" disabled class="save_btn disabled"  data-original-title="שמירה" 
+                                            onclick="FeedbackPlugin.test_edit_save_handler(this)" title="" data-toggle="tooltip" 
+                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"         
+                                            style="background-color: {{test_border_color(test)}};">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+                                </div>
+
+                                <!-- test message -->
+                                <div class="test-message {{category_en}}-{{test['taskid']}}-{{test['id']}}-message">
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 {%endfor%}
+                </div>
             </div>
 {%endfor%}
         </div>
@@ -205,18 +216,18 @@
 
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
-                <button id="prev" class="prev-btn disabled" onclick="FeedbackPlugin.update_step(-1)" disabled>
-                    <i class="fa fa-arrow-left"></i> Previous
+            <button id="prev" class="prev-btn disabled" onclick="FeedbackPlugin.update_step(-1)" disabled>
+                <i class="fa fa-arrow-left"></i> Previous
+            </button>
+            <div style="display: flex;">
+                <button id="preview" class="preview-btn disabled" disabled style="margin-right: 20px;">
+                    <i class="fa fa-eye"></i> Preview
                 </button>
-                <div style="display: flex;">
-                    <button id="preview" class="preview-btn disabled" disabled style="margin-right: 20px;">
-                        <i class="fa fa-eye"></i> Preview
-                    </button>
-                    <button id="saveFeedback" class="save-feedback-btn disabled" disabled>Save Feedback</button>
-                </div>
-                <button id="next" class="next-btn" onclick="FeedbackPlugin.update_step(1)">
-                    Next <i class="fa fa-arrow-right"></i>
-                </button>
+                <button id="saveFeedback" class="save-feedback-btn disabled" disabled>Save Feedback</button>
+            </div>
+            <button id="next" class="next-btn" onclick="FeedbackPlugin.update_step(1)">
+                Next <i class="fa fa-arrow-right"></i>
+            </button>
         </div>
     </div>
 
@@ -240,49 +251,18 @@
     </div>
 </div>
 
-<!-- Bottom action buttons -->
-<div class="page-actions-container">
-    <div id="submit-buttons" style="display: none; flex-wrap: nowrap;">
-        <div class="btn-group submit-buttons" >
-            <!-- save draft -->
-            <button id="save_draft_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
-                    onclick="FeedbackPlugin.save_draft()">
-                <i class="fa fa-save">
-
-                </i> 
-                <div class="d-none d-sm-inline">
-                    Save as draft
-                </div>
-            </button>
-            
-            <!-- Submit -->
-            <button id="submit_feedback_btn" class="btn btn-primary btn-success btn-sm save_feedback_btn page-actions-container" type="button"
-                    onclick="FeedbackPlugin.submit()">
-                <i class="fa fa-save">
-
-                </i> 
-                <div class="d-none d-sm-inline">
-                    Submit for student
-                </div>
-            </button>
-        </div>
-    </div>
-    <h3>
-        ...
-    </h3>
-</div>
-
 <!-- Additional details popup window -->
-<div id="popup" class="cout-popup">
-    <div class="cout-shell scrollable-container">
-        <button type="button" class="close close-feedback-modal close-btn" onclick="FeedbackPlugin.additional_info_close_handler(this)">
+<dialog id="popup" class="test-modal">
+    <div class="">
+        <button type="button" class="close close-feedback-modal close-btn" 
+                onclick="FeedbackPlugin.additional_info_close_handler(this)">
             &times;
         </button>
         <ul id="popup-text" class="shell-body cout-shell-body" >
 
         </ul>
     </div>
-</div>
+</dialog>
 
 <script type="text/javascript">
     var staff = '{{ staff }}';
