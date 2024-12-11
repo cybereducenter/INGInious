@@ -207,6 +207,7 @@ var FeedbackPlugin = (function () {
         var checkbox_elements = $("input[type='checkbox']")
         var top_summary_feedback = document.getElementById("top-total-feedback");
         var bottom_summary_feedback = document.getElementById("bottom-total-feedback");
+        var top_summary_feedback_label = document.getElementById('top-total-feedback-label');
         var task_tab_elements = document.getElementById("task-tabs").children;
         var category_name_elements = document.getElementsByClassName("category-name");
 
@@ -226,7 +227,8 @@ var FeedbackPlugin = (function () {
             
             top_summary_feedback.style.display = 'none';
             bottom_summary_feedback.style.display = 'none';
-            
+            top_summary_feedback_label.style.display = 'none';
+
             [...task_tab_elements].forEach(task_tab_element => {
                 task_tab_element.disabled = false;
                 if (task_tab_element.id == g_current_taskid) {
@@ -279,6 +281,7 @@ var FeedbackPlugin = (function () {
             
             top_summary_feedback.style.display = 'none';
             bottom_summary_feedback.style.display = 'initial';
+            top_summary_feedback_label.style.display = 'none';
             
             [...task_tab_elements].forEach(task_tab_element => {
                 task_tab_element.disabled = true;
@@ -333,6 +336,7 @@ var FeedbackPlugin = (function () {
             top_summary_feedback.value = bottom_summary_feedback.value;
             top_summary_feedback.style.display = 'initial';
             bottom_summary_feedback.style.display = 'none';
+            top_summary_feedback_label.style.display = 'initial';
 
             [...task_tab_elements].forEach(task_tab_element => {
                 task_tab_element.disabled = true;
