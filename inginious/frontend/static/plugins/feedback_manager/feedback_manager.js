@@ -235,11 +235,18 @@ var FeedbackPlugin = (function () {
                 task_tab_element.style.border = 'solid 1px #ccc';
             });
 
+            // selected counter
             [...category_name_elements].forEach(category_name_element => {
-                category_name_element.innerHTML = category_name_element.innerHTML.split(' (')[0];
-            });
-
-            // checkboxes
+                var selected_count = 0;
+                [...checkbox_elements].forEach(checkbox_element => {
+                    if (checkbox_element.checked && checkbox_element.value.startsWith(category_name_element.id) &&
+                        checkbox_element.dataset.taskid == g_current_taskid)
+                        selected_count++;
+                });
+                    category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0] + '(' + selected_count + ')'
+            });            
+            
+                        // checkboxes
             [...checkbox_elements].forEach(checkbox_element => {
                 checkbox_element.style.display = 'inline-block';
 
@@ -254,7 +261,7 @@ var FeedbackPlugin = (function () {
                     test_element.style.display = 'none';
                 }
             });
-        }
+                    }
         else if (g_current_step == 2) {
             // STEP 2
             // buttons
@@ -283,7 +290,7 @@ var FeedbackPlugin = (function () {
                     if (checkbox_element.checked && checkbox_element.value.startsWith(category_name_element.id))
                         selected_count++;
                 });
-                category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0] + '(' + selected_count + ')';
+                    category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0] + '(' + selected_count + ')'
             });
 
             // checkboxes
