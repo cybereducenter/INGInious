@@ -135,7 +135,8 @@ var FeedbackPlugin = (function () {
         CodeMirror.autoLoadMode(g_editor, mode["mode"]);
         
         // set feedback summary element
-        $("#total-feedback").val(g_feedback_summary)
+        $("#top-total-feedback").val(g_feedback_summary)
+        $("#bottom-total-feedback").val(g_feedback_summary)
 
         // set 'download' button
         // TODO check the functionality of this button
@@ -204,7 +205,8 @@ var FeedbackPlugin = (function () {
         var preview_element = document.getElementById("preview");
         var save_feedback_element = document.getElementById("saveFeedback");
         var checkbox_elements = $("input[type='checkbox']")
-        var summary_feedback = document.getElementById("total-feedback");
+        var top_summary_feedback = document.getElementById("top-total-feedback");
+        var bottom_summary_feedback = document.getElementById("bottom-total-feedback");
         var task_tab_elements = document.getElementById("task-tabs").children;
         var category_name_elements = document.getElementsByClassName("category-name");
 
@@ -213,15 +215,17 @@ var FeedbackPlugin = (function () {
         if (g_current_step == 1) {
             // STEP 1
             // buttons
-            next_element.disabled = false;
-            next_element.classList.remove("disabled");
+            next_element.style.display = 'initial';
+            preview_element.style.display = 'none';
+
             previous_element.disabled = true;
-            previous_element.classList.add("disabled");
-            preview_element.disabled = true;
-            preview_element.classList.add("disabled");
+            previous_element.classList.add("disabled");          
+
             save_feedback_element.disabled = true;
             save_feedback_element.classList.add("disabled");
-            summary_feedback.style.display = 'none';
+            
+            top_summary_feedback.style.display = 'none';
+            bottom_summary_feedback.style.display = 'none';
             
             [...task_tab_elements].forEach(task_tab_element => {
                 task_tab_element.disabled = false;
@@ -246,7 +250,7 @@ var FeedbackPlugin = (function () {
                     category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0] + '(' + selected_count + ')'
             });            
             
-                        // checkboxes
+            // checkboxes
             [...checkbox_elements].forEach(checkbox_element => {
                 checkbox_element.style.display = 'inline-block';
 
@@ -265,15 +269,16 @@ var FeedbackPlugin = (function () {
         else if (g_current_step == 2) {
             // STEP 2
             // buttons
-            next_element.disabled = true;
-            next_element.classList.add("disabled");
+            next_element.style.display = 'none';
+            preview_element.style.display = 'initial';
+
             previous_element.disabled = false;
             previous_element.classList.remove("disabled");
-            preview_element.disabled = false;
-            preview_element.classList.remove("disabled");
             save_feedback_element.disabled = false;
             save_feedback_element.classList.remove("disabled");
-            summary_feedback.style.display = 'initial';
+            
+            top_summary_feedback.style.display = 'none';
+            bottom_summary_feedback.style.display = 'initial';
             
             [...task_tab_elements].forEach(task_tab_element => {
                 task_tab_element.disabled = true;
@@ -282,6 +287,16 @@ var FeedbackPlugin = (function () {
                 task_tab_element.style.border = 'none';
             });
 
+
+            for (let element of document.getElementsByClassName("edit_btn")){
+                element.style.display="initial";
+             }
+             for (let element of document.getElementsByClassName("save_btn")){
+                element.style.display="initial";
+             }
+             for (let element of document.getElementsByClassName("cancel_btn")){
+                element.style.display="initial";
+             }
 
             // selected counter
             [...category_name_elements].forEach(category_name_element => {
@@ -307,6 +322,81 @@ var FeedbackPlugin = (function () {
                     test_element.style.display = 'none';
                 }
             });
+        }
+        else if (g_current_step == 3) {
+            // STEP 3
+            // buttons
+            next_element.style.display = 'none';
+            preview_element.style.display = 'initial';
+            preview_element.style.display = 'none';
+
+            top_summary_feedback.value = bottom_summary_feedback.value;
+            top_summary_feedback.style.display = 'initial';
+            bottom_summary_feedback.style.display = 'none';
+
+            [...task_tab_elements].forEach(task_tab_element => {
+                task_tab_element.disabled = true;
+                task_tab_element.style.color = 'white';
+                task_tab_element.style.background = 'white';
+                task_tab_element.style.border = 'none';
+            });
+
+            [...category_name_elements].forEach(category_name_element => {
+                category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0];
+                if (category_name_element.id == 'functionality') {
+                    
+                } else {
+                    
+                }
+            });
+
+            // categories    
+            for (var cat in g_feedback_categories) {
+                var category_element = document.getElementById('feedback-' + cat + '-data');
+                var category_btn_element = document.getElementById(cat + '-dropdown-btn');
+
+                if (cat == 'functionality') {
+                    category_element.style.display = 'none';
+                    if (category_btn_element.classList.contains("fa-caret-down")) {
+                        category_btn_element.classList.remove("fa-caret-down")
+                        category_btn_element.classList.add("fa-caret-right");
+                    }
+                } else {
+                    category_element.style.display = 'flex';
+                    if (category_btn_element.classList.contains("fa-caret-right")) {
+                        category_btn_element.classList.remove("fa-caret-right")
+                        category_btn_element.classList.add("fa-caret-down");
+                    }
+                }
+            }
+
+            for (let element of document.getElementsByClassName("edit_btn")){
+                element.style.display="none";
+             }
+             for (let element of document.getElementsByClassName("save_btn")){
+                element.style.display="none";
+             }
+             for (let element of document.getElementsByClassName("cancel_btn")){
+                element.style.display="none";
+             }
+
+
+            // checkboxes
+            [...checkbox_elements].forEach(checkbox_element => {
+                var test_element = document.getElementById(checkbox_element.value);
+                var test_name_element = document.getElementsByClassName(checkbox_element.value + '-name')[0];
+                var test = get_test_from_element_id(checkbox_element.value);
+
+                if (checkbox_element.checked) {
+                    test_element.style.display = 'flex';
+                    test_name_element.innerHTML = test['taskid'] + ': ' + test['name'];
+                    checkbox_element.style.display = 'none';
+                }
+                else {
+                    test_element.style.display = 'none';
+                }
+            });
+            
         }
         else {
             console.error("unexpected current step = %d", g_current_step);

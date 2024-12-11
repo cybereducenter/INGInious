@@ -319,7 +319,7 @@ dialog {
 .feedback-container {
     display: flex;
     /* width: 100%; */
-    height: 80vh;
+    height: 60vh;
     border: 1px solid #ddd;
     /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
     border-radius: 0 0 15px 15px;
@@ -375,12 +375,13 @@ dialog {
 .nav-buttons button {
     display: flex;
     align-items: center;
-    padding: 10px 20px;
+    /* padding: 10px 20px; */
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 5px;
 }
 
 .nav-buttons button i {

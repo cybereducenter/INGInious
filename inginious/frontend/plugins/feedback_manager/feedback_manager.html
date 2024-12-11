@@ -129,6 +129,13 @@
 
 <div class="feedback-container">
     <div id="leftPanel" class="left-panel">
+        <!-- Instructor's summary text feedback -->
+        <div class="total-feedback message">
+            <textarea id="top-total-feedback" dir="rtl" rows="5" maxlength="1000" placeholder="{{ total_feedback_placeholder }}">
+                {{feedback['total_feedback']}}
+            </textarea>
+        </div>
+
         <div id="feedbacks" class="test-result-table">
 {%for category_en, category in feedback['categories'].items()%}
             <!-- Category box -->
@@ -137,7 +144,7 @@
                         style="background-color: {{category_color(category)}};">
 
                         <!-- Expand/Collapse button -->
-                        <span class="category-dropdown-btn dropdown_button fa fa-caret-right"></span>
+                        <span id="{{category['name']}}-dropdown-btn" class="category-dropdown-btn dropdown_button fa fa-caret-right"></span>
                         <!-- Category name -->
                         <span class="category-name" id="{{category['name']}}"> {{ category_title(category) }}</span>                                
                 </div>
@@ -155,7 +162,7 @@
                                     <!-- Selection checkbox -->
                                     <input id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
                                             type="checkbox" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
-                                            data-taskid="{{test['taskid']}}"
+                                            data-taskid="{{test['taskid']}}" data-category="{{category_en}}"
                                             style="padding-inline: 1.5rem; vertical-align: middle; margin-right: 5px;" 
                                             onchange="FeedbackPlugin.test_checkbox_handler()">
                                                                                             
@@ -210,25 +217,9 @@
 
         <!-- Instructor's summary text feedback -->
         <div class="total-feedback message">
-                <textarea id="total-feedback" dir="rtl" rows="8" maxlength="1000" placeholder="{{ total_feedback_placeholder }}">
+                <textarea id="bottom-total-feedback" dir="rtl" rows="5" maxlength="1000" placeholder="{{ total_feedback_placeholder }}">
                     {{feedback['total_feedback']}}
                 </textarea>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <div class="nav-buttons">
-            <button id="prev" class="prev-btn disabled" onclick="FeedbackPlugin.update_step(-1)" disabled>
-                <i class="fa fa-arrow-left"></i> Previous
-            </button>
-            <div style="display: flex;">
-                <button id="preview" class="preview-btn disabled" disabled style="margin-right: 20px;">
-                    <i class="fa fa-eye"></i> Preview
-                </button>
-                <button id="saveFeedback" class="save-feedback-btn disabled" disabled>Save Feedback</button>
-            </div>
-            <button id="next" class="next-btn" onclick="FeedbackPlugin.update_step(1)">
-                Next <i class="fa fa-arrow-right"></i>
-            </button>
         </div>
     </div>
 
@@ -241,9 +232,25 @@
     <div class="resizable-panel" id="codeViewer" style="display: none;">
         <textarea class="codemirror-textarea">
         </textarea>
-    </div>
-    
+    </div>   
 </div>
+
+<!-- Navigation Buttons -->
+<div class="nav-buttons">
+    <button id="prev" class="prev-btn disabled" onclick="FeedbackPlugin.update_step(-1)" disabled>
+        <i class="fa fa-arrow-left"></i> הקודם
+    </button>
+    <button id="saveFeedback" class="save-feedback-btn disabled" disabled>Save Feedback</button>
+    <div style="display: flex;">
+        <button id="preview" class="preview-btn" onclick="FeedbackPlugin.update_step(1)">
+            <i class="fa fa-eye"></i> תצוגת חניך
+        </button>
+        <button id="next" class="next-btn" onclick="FeedbackPlugin.update_step(1)">
+            הבא <i class="fa fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
 
 <!-- Student view placeholder -->
 <div id="" style="display: none">
