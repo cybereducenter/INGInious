@@ -200,6 +200,7 @@ var FeedbackPlugin = (function () {
 
     // This function is called when moving between steps (previous/next)
     function update_step(step) {
+        var container_element = document.getElementById("leftPanel");
         var next_element = document.getElementById("next");
         var previous_element = document.getElementById("prev");
         var preview_element = document.getElementById("preview");
@@ -210,11 +211,13 @@ var FeedbackPlugin = (function () {
         var top_summary_feedback_label = document.getElementById('top-total-feedback-label');
         var task_tab_elements = document.getElementById("task-tabs").children;
         var category_name_elements = document.getElementsByClassName("category-name");
+        var student_view_title_element = document.getElementById("student-view-title");
 
         g_current_step = g_current_step + step;
         
         if (g_current_step == 1) {
             // STEP 1
+            student_view_title_element.style.display = 'none';
             // buttons
             next_element.style.display = 'initial';
             preview_element.style.display = 'none';
@@ -270,6 +273,8 @@ var FeedbackPlugin = (function () {
                     }
         else if (g_current_step == 2) {
             // STEP 2
+            student_view_title_element.style.display = 'none';
+            container_element.style.background = 'none';
             // buttons
             next_element.style.display = 'none';
             preview_element.style.display = 'initial';
@@ -319,7 +324,7 @@ var FeedbackPlugin = (function () {
                 if (checkbox_element.checked) {
                     test_element.style.display = 'flex';
                     test_name_element.innerHTML = test['taskid'] + ': ' + test['name'];
-                    // checkbox_element.style.display = 'none';
+                    checkbox_element.style.display = 'initial';
                 }
                 else {
                     test_element.style.display = 'none';
@@ -328,6 +333,8 @@ var FeedbackPlugin = (function () {
         }
         else if (g_current_step == 3) {
             // STEP 3
+            student_view_title_element.style.display = 'initial';
+            container_element.style.background = 'aliceblue';
             // buttons
             next_element.style.display = 'none';
             preview_element.style.display = 'initial';
