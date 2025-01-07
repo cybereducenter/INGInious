@@ -47,7 +47,11 @@ var FeedbackPlugin = (function () {
         g_student = input_student;
         g_submission_url = input_submission_url;
         g_staff = true ? staff == 'True' : false;
-        g_current_step = 1;
+        if (g_staff) {
+            g_current_step = 1;
+        } else {
+            g_current_step = 3;
+        }
     
         console.debug('==========');
 
@@ -60,11 +64,14 @@ var FeedbackPlugin = (function () {
             // load initial data from submission
             g_feedback_summary = database_feedback['feedback_summary'];
             g_feedback_categories = database_feedback['categories'];
+            
             for (const cat in g_feedback_categories) {
+                var test_num = 1;
                 g_feedback_categories[cat]['tests'].forEach(test => {
                     // set test UI id
-                    test['element'] = test['category'] + '-' + test['taskid'] + '-' + test['id'];
-
+                    test['element'] = test['category'] + '-' + test['taskid'] + '-' + String(test_num);
+                    test_num++;
+                    console.log(test['element']);
                     // Force selection of grade category (e.g., functionality) tests
                     if (g_grade_categories.includes(test['category'])) {
                         test['selected'] = true
@@ -196,6 +203,8 @@ var FeedbackPlugin = (function () {
         var initial_taskid = g_feedback_categories['functionality']['tests'][0]['taskid'];
         var taskid_element = document.getElementById(initial_taskid);
         taskid_element.click();
+
+        update_step(0);
     }
 
     // This function is called when moving between steps (previous/next)
@@ -205,6 +214,7 @@ var FeedbackPlugin = (function () {
         var previous_element = document.getElementById("prev");
         var preview_element = document.getElementById("preview");
         var save_feedback_element = document.getElementById("saveFeedback");
+        var submit_feedback_element = document.getElementById("submitFeedback");
         var checkbox_elements = $("input[type='checkbox']")
         var top_summary_feedback = document.getElementById("top-total-feedback");
         var bottom_summary_feedback = document.getElementById("bottom-total-feedback");
@@ -227,6 +237,8 @@ var FeedbackPlugin = (function () {
 
             save_feedback_element.disabled = true;
             save_feedback_element.classList.add("disabled");
+            submit_feedback_element.disabled = true;
+            submit_feedback_element.classList.add("disabled");
             
             top_summary_feedback.style.display = 'none';
             bottom_summary_feedback.style.display = 'none';
@@ -283,6 +295,9 @@ var FeedbackPlugin = (function () {
             previous_element.classList.remove("disabled");
             save_feedback_element.disabled = false;
             save_feedback_element.classList.remove("disabled");
+            submit_feedback_element.disabled = false;
+            submit_feedback_element.classList.remove("disabled");
+
             
             top_summary_feedback.style.display = 'none';
             bottom_summary_feedback.style.display = 'initial';
@@ -333,12 +348,25 @@ var FeedbackPlugin = (function () {
         }
         else if (g_current_step == 3) {
             // STEP 3
-            student_view_title_element.style.display = 'initial';
-            container_element.style.background = 'aliceblue';
+            if (g_staff) {
+                student_view_title_element.style.display = 'initial';
+                container_element.style.background = 'aliceblue';
+                next_element.style.display = 'none';
+                previous_element.style.display = 'initial';
+                preview_element.style.display = 'none';
+            } else {
+                student_view_title_element.style.display = 'none';
+                container_element.style.background = 'white';
+                var nav_btns = document.getElementsByClassName('nav-buttons')[0];
+                nav_btns.style.display = 'none';
+                var sidebar = document.getElementById('fm-sidebar');
+                sidebar.style.display = 'none';
+            }
+
             // buttons
-            next_element.style.display = 'none';
-            preview_element.style.display = 'initial';
-            preview_element.style.display = 'none';
+
+            submit_feedback_element.disabled = false;
+            submit_feedback_element.classList.remove("disabled");
 
             top_summary_feedback.value = bottom_summary_feedback.value;
             top_summary_feedback.style.display = 'initial';
@@ -728,7 +756,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: save_draft()');
 
         // send save request
-        send_save_request(false);
+        send_save_request(is_draft=true);
 
         // save to local storage
         save_to_storage();
@@ -740,7 +768,7 @@ var FeedbackPlugin = (function () {
         console.debug('In function: submit()');
 
         // send save request
-        send_save_request(true);
+        send_save_request(is_draft=false);
 
         // if saved in local storge, remove draft
         if (typeof (Storage) !== "undefined") {

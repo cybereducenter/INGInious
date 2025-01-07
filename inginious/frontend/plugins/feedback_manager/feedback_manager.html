@@ -136,7 +136,7 @@
             </div>        
             <label id="top-total-feedback-label" style="margin-bottom: 0px;">:משוב מסכם</label>
             <div class="total-feedback message">
-                <textarea id="top-total-feedback" dir="rtl" rows="5" maxlength="1000" placeholder="{{ total_feedback_placeholder }}">
+                <textarea readonly id="top-total-feedback" dir="rtl" rows="5" maxlength="1000" placeholder="{{ total_feedback_placeholder }}">
                     {{feedback['total_feedback']}}
                 </textarea>
             </div>
@@ -160,24 +160,24 @@
                     style="display:none;">
     {% for test in category['tests'] %}
                     <div class="{{test['taskid']}}" style="display:flex; flex-direction: column;"> 
-                        <div id="{{category_en}}-{{test['taskid']}}-{{test['id']}}" class="test-data displayed_test_feedback" 
+                        <div id="{{category_en}}-{{test['taskid']}}-{{loop.index}}" class="test-data displayed_test_feedback" 
                             data-taskid="{{test['taskid']}}" data-result={{test['result']['text']}} 
                             style="background-color: {{test_border_color(test)}};" onclick="FeedbackPlugin.test_select_handler(this)">
                             <div class="test-section">
                                 <div style="font-size: larger; padding: 5px 0;">
                                     <!-- Selection checkbox -->
-                                    <input id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{test['id']}}" 
-                                            type="checkbox" value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"
+                                    <input id="checkBoxSelect-{{category_en}}-{{test['taskid']}}-{{loop.index}}" 
+                                            type="checkbox" value="{{category_en}}-{{test['taskid']}}-{{loop.index}}"
                                             data-taskid="{{test['taskid']}}" data-category="{{category_en}}"
                                             style="padding-inline: 1.5rem; vertical-align: middle; margin-right: 5px;" 
                                             onchange="FeedbackPlugin.test_checkbox_handler()">
                                                                                             
                                     <!-- Test Name -->
-                                    <i class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-name" 
+                                    <i class="{{category_en}}-{{test['taskid']}}-{{loop.index}}-name test-name" 
                                        spellcheck="false">{{test["name"]}}</i>
 
                                     <!-- Info button -->
-                                    <button type="button" class="{{category_en}}-{{test['taskid']}}-{{test['id']}}-popup info_btn" 
+                                    <button type="button" class="{{category_en}}-{{test['taskid']}}-{{loop.index}}-popup info_btn" 
                                             data-original-title="פרטים נוספים" title="" data-toggle="tooltip" 
                                             onclick="FeedbackPlugin.additional_info_open_handler(this)" 
                                             style="background-color: {{test_border_color(test)}};">
@@ -187,7 +187,7 @@
                                     <!-- Edit button -->
                                     <button type="button" class="edit_btn" data-original-title="עריכה" 
                                             onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip" 
-                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"         
+                                            value="{{category_en}}-{{test['taskid']}}-{{loop.index}}"         
                                             style="background-color: {{test_border_color(test)}};">
                                         <i class="fa fa-edit"></i>
                                     </button>
@@ -195,7 +195,7 @@
                                     <!-- Close button -->
                                     <button type="button" disabled class="cancel_btn disabled"  data-original-title="ביטול" 
                                             onclick="FeedbackPlugin.test_edit_cancel_handler(this)" title="" data-toggle="tooltip"  
-                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"         
+                                            value="{{category_en}}-{{test['taskid']}}-{{loop.index}}"         
                                             style="background-color: {{test_border_color(test)}};">
                                         <i class="fa fa-close"></i>
                                     </button>
@@ -203,19 +203,19 @@
                                     <!-- Save button -->
                                     <button type="button" disabled class="save_btn disabled"  data-original-title="שמירה" 
                                             onclick="FeedbackPlugin.test_edit_save_handler(this)" title="" data-toggle="tooltip" 
-                                            value="{{category_en}}-{{test['taskid']}}-{{test['id']}}"         
+                                            value="{{category_en}}-{{test['taskid']}}-{{loop.index}}"         
                                             style="background-color: {{test_border_color(test)}};">
                                         <i class="fa fa-check"></i>
                                     </button>
                                 </div>
 
                                 <!-- test message -->
-                                <div class="test-message {{category_en}}-{{test['taskid']}}-{{test['id']}}-message">
+                                <div class="test-message {{category_en}}-{{test['taskid']}}-{{loop.index}}-message">
                                 </div>
                             </div>
                         </div>
                     </div>
-{%endfor%}
+    {%endfor%}
                 </div>
             </div>
 {%endfor%}
@@ -246,7 +246,11 @@
     <button id="prev" class="prev-btn disabled" onclick="FeedbackPlugin.update_step(-1)" disabled>
         <i class="fa fa-arrow-left"></i> הקודם
     </button>
-    <button id="saveFeedback" class="save-feedback-btn disabled" disabled>Save Feedback</button>
+    <div style="display: flex;">
+        <button id="saveFeedback" class="save-feedback-btn disabled" onclick="FeedbackPlugin.save_draft()" 
+                style="margin-right: 5px;">שמור טיוטת משוב</button>
+        <button id="submitFeedback" class="submit-feedback-btn disabled" onclick="FeedbackPlugin.submit()">אשר משוב סופי</button>
+    </div>
     <div style="display: flex;">
         <button id="preview" class="preview-btn" onclick="FeedbackPlugin.update_step(1)">
             <i class="fa fa-eye"></i> תצוגת חניך
