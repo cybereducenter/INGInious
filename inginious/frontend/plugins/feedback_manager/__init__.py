@@ -148,9 +148,9 @@ class FeedbackManagerPage(INGIniousAuthPage):
         taskids = set()
         for test in submission_feedback['categories']['functionality']['tests']:
             taskids.add(test['taskid'])
-        taskids = list(taskids)
+        taskids = sorted(list(taskids))
 
-        self.logger.info(f"submission_feedback = {submission_feedback['categories']}")
+        # self.logger.info(f"submission_feedback = {submission_feedback['categories']}")
         self.database.submissions.update_one({"_id": ObjectId(submission_id)},
                                              {"$set": {"custom": {"feedback_data": submission_feedback},
                                                        "grade": int(100 * passed / total)}})
