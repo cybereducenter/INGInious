@@ -71,7 +71,7 @@ var FeedbackPlugin = (function () {
                     // set test UI id
                     test['element'] = test['category'] + '-' + test['taskid'] + '-' + String(test_num);
                     test_num++;
-                    console.log(test['element']);
+
                     // Force selection of grade category (e.g., functionality) tests
                     if (g_grade_categories.includes(test['category'])) {
                         test['selected'] = true
@@ -712,8 +712,6 @@ var FeedbackPlugin = (function () {
             // save version for debug purposes
             var footer_element = document.getElementById("footer");
             var version =  footer_element.innerHTML.split('INGInious ')[1].split(' ')[0];
-            var feedback_summary_element = document.getElementById("bottom-total-feedback");
-            g_feedback_summary = feedback_summary_element.value;
 
             // prepare data for saving
             var data = {
@@ -788,6 +786,8 @@ var FeedbackPlugin = (function () {
         // save version for debug purposes
         var footer_element = document.getElementById("footer");
         var version =  footer_element.innerHTML.split('INGInious ')[1].split(' ')[0];
+        var feedback_summary_element = document.getElementById("bottom-total-feedback");
+        g_feedback_summary = feedback_summary_element.value;
         
         console.debug("g_feedback_categories = %O", g_feedback_categories);
         // send save request
