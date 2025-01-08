@@ -303,12 +303,12 @@ var FeedbackPlugin = (function () {
             bottom_summary_feedback.style.display = 'initial';
             top_summary_feedback_label.style.display = 'none';
             
-            [...task_tab_elements].forEach(task_tab_element => {
-                task_tab_element.disabled = true;
-                task_tab_element.style.color = 'white';
-                task_tab_element.style.background = 'white';
-                task_tab_element.style.border = 'none';
-            });
+            // [...task_tab_elements].forEach(task_tab_element => {
+            //     task_tab_element.disabled = true;
+            //     task_tab_element.style.color = 'white';
+            //     task_tab_element.style.background = 'white';
+            //     task_tab_element.style.border = 'none';
+            // });
 
 
             for (let element of document.getElementsByClassName("edit_btn")){
@@ -373,12 +373,12 @@ var FeedbackPlugin = (function () {
             bottom_summary_feedback.style.display = 'none';
             top_summary_feedback_label.style.display = 'initial';
 
-            [...task_tab_elements].forEach(task_tab_element => {
-                task_tab_element.disabled = true;
-                task_tab_element.style.color = 'white';
-                task_tab_element.style.background = 'white';
-                task_tab_element.style.border = 'none';
-            });
+            // [...task_tab_elements].forEach(task_tab_element => {
+            //     task_tab_element.disabled = true;
+            //     task_tab_element.style.color = 'white';
+            //     task_tab_element.style.background = 'white';
+            //     task_tab_element.style.border = 'none';
+            // });
 
             [...category_name_elements].forEach(category_name_element => {
                 category_name_element.innerHTML = category_name_element.innerHTML.split('(')[0];
@@ -500,7 +500,7 @@ var FeedbackPlugin = (function () {
         let siblings = event.parentElement.children;
         for (var i = 0; i < siblings.length; i++) {
             var element = siblings[i];
-            console.log("el = %O", element);
+            
             if (element.type == 'button' && element.classList) {
                 if (element.classList.contains("edit_btn")) {
                     element.disabled = true;
@@ -521,10 +521,10 @@ var FeedbackPlugin = (function () {
         var test_name_element = document.getElementsByClassName(event.value + '-name')[0];
         var test_message_element = document.getElementsByClassName(event.value + '-message')[0];
         
-        test_name_element.setAttribute("contenteditable", "");
+        test_name_element.setAttribute("contenteditable", "true");
         test_name_element.setAttribute("original_text", test_name_element.innerHTML);
 
-        test_message_element.setAttribute("contenteditable", "");
+        test_message_element.setAttribute("contenteditable", "true");
         test_message_element.setAttribute("original_text", test_message_element.innerHTML);
 
         // set focus to message

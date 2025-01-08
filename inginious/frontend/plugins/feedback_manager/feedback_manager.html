@@ -162,7 +162,7 @@
                     <div class="{{test['taskid']}}" style="display:flex; flex-direction: column;"> 
                         <div id="{{category_en}}-{{test['taskid']}}-{{loop.index}}" class="test-data displayed_test_feedback" 
                             data-taskid="{{test['taskid']}}" data-result={{test['result']['text']}} 
-                            style="background-color: {{test_border_color(test)}};" onclick="FeedbackPlugin.test_select_handler(this)">
+                            style="background-color: {{test_border_color(test)}};" >
                             <div class="test-section">
                                 <div style="font-size: larger; padding: 5px 0;">
                                     <!-- Selection checkbox -->
@@ -173,7 +173,7 @@
                                             onchange="FeedbackPlugin.test_checkbox_handler()">
                                                                                             
                                     <!-- Test Name -->
-                                    <i class="{{category_en}}-{{test['taskid']}}-{{loop.index}}-name test-name" 
+                                    <i class="{{category_en}}-{{test['taskid']}}-{{loop.index}}-name" 
                                        spellcheck="false">{{test["name"]}}</i>
 
                                     <!-- Info button -->
