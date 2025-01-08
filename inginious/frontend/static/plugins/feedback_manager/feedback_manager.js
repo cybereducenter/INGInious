@@ -479,7 +479,7 @@ var FeedbackPlugin = (function () {
         })
 
         // display additional details popup      
-        modal.showModal();
+        modal.show();
         document.activeElement.blur();
     }
     
