@@ -275,7 +275,7 @@ var FeedbackPlugin = (function () {
                 var test_name_element = document.getElementsByClassName(checkbox_element.value + '-name')[0];
                 var test = get_test_from_element_id(checkbox_element.value);
 
-                if (checkbox_element.value.includes(g_current_taskid)) {
+                if (checkbox_element.dataset.taskid == g_current_taskid) {
                     test_name_element.innerHTML = test['name'];
                     test_element.style.display = 'flex';
                 } else {
@@ -712,6 +712,8 @@ var FeedbackPlugin = (function () {
             // save version for debug purposes
             var footer_element = document.getElementById("footer");
             var version =  footer_element.innerHTML.split('INGInious ')[1].split(' ')[0];
+            var feedback_summary_element = document.getElementById("bottom-total-feedback");
+            g_feedback_summary = feedback_summary_element.value;
 
             // prepare data for saving
             var data = {
