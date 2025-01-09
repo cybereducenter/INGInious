@@ -104,12 +104,12 @@
 }
 
 .test-name {
-    direction: rtl;
+    direction: ltr;
 }
 
 .test-message {
     font-style: italic;
-    direction: rtl;
+    direction: ltr;
 }
 
 /* CODE */
