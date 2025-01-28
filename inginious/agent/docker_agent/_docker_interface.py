@@ -125,6 +125,7 @@ class DockerInterface(object):  # pragma: no cover
         :param ports: dictionary in the form {docker_port: external_port}
         :return: the container id
         """
+        log_path = '/var/www/inginious/log'
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
         course_common_path = os.path.abspath(course_common_path)
@@ -144,6 +145,7 @@ class DockerInterface(object):  # pragma: no cover
             network_mode=("bridge" if (network_grading or len(ports) > 0) else 'none'),
             ports=ports,
             volumes={
+                log_path: {'bind': '/log'},
                 task_path: {'bind': '/task'},
                 sockets_path: {'bind': '/sockets'},
                 course_common_path: {'bind': '/course/common', 'mode': 'ro'},
@@ -172,6 +174,7 @@ class DockerInterface(object):  # pragma: no cover
         :param ports: dictionary in the form {docker_port: external_port}
         :return: the container id
         """
+        log_path = '/var/www/inginious/log'
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
@@ -201,6 +204,7 @@ class DockerInterface(object):  # pragma: no cover
             network_mode=net_mode,
             ports=ports,
             volumes={
+                log_path: {'bind': '/log'},
                 student_path: {'bind': '/task/student'},
                 secured_scripts_path: {'bind': '/task/student/scripts'},
                 socket_path: {'bind': '/__parent.sock'},
