@@ -26,14 +26,14 @@
 <div id="feedback_submit_status"></div>
 <h2>Matrix</h2>
 
-    {% set course_has_feedback_tasks = False %}
+    {% set course_has_feedback_tasks = false %}
     {% for task in order_tasks %}
         {% if task._data.get("feedback") %}
-            {% set course_has_feedback_tasks = True %}
+            {% set course_has_feedback_tasks = true %}
         {% endif %}
     {% endfor %}
 
-    {% if course_has_feedback_tasks %}
+    {% if course_has_feedback_tasks == true %}
     <div id="final_submission">
 
         <select id="select_lesson" class="btn btn-default select_feedback" style="margin-right:15px">
