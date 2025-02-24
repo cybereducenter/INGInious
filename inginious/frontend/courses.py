@@ -61,7 +61,7 @@ class Course(object):
         _migrate_from_v_0_6(content, self._task_factory.get_all_tasks(self))
 
         try:
-            self._feedback_mode = self._content.get('feedback_mode', None)
+            self._feedback_mode = self._content.get('feedback_mode', False)
             self._admins = self._content.get('admins', [])
             self._tutors = self._content.get('tutors', [])
             self._description = self._content.get('description', '')

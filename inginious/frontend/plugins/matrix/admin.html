@@ -26,7 +26,7 @@
 <div id="feedback_submit_status"></div>
 <h2>Matrix</h2>
 
-    {% if course.get_feedback_mode() and course.get_feedback_mode() != 'None' %}
+    {% if course.get_feedback_mode() %}
     <div id="final_submission">
 
         <select id="select_lesson" class="btn btn-default select_feedback" style="margin-right:15px">
