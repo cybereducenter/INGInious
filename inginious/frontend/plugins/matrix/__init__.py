@@ -205,7 +205,6 @@ class MatrixPage(INGIniousAdminPage):
                         has_feedback_data = (feeddback_data is not None) or (extra_feeddback_data is not None)
                         if feeddback_data is not None:
                             draft = feeddback_data['draft'] if 'draft' in feeddback_data.keys() else False
-                            logging.info(f'draft= {draft}')
 
                     # has_feedback_data = (bool(user_task_latest_submission.get('custom'))
                     #                      and bool(user_task_latest_submission['custom'].get("feedback_data")

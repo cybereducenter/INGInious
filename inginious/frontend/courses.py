@@ -61,6 +61,7 @@ class Course(object):
         _migrate_from_v_0_6(content, self._task_factory.get_all_tasks(self))
 
         try:
+            self._feedback_mode = self._content.get('feedback_mode', None)
             self._admins = self._content.get('admins', [])
             self._tutors = self._content.get('tutors', [])
             self._description = self._content.get('description', '')
@@ -139,6 +140,9 @@ class Course(object):
         """ Returns a list containing the usernames of the tutors assigned to this course """
         return self._tutors
 
+    def get_feedback_mode(self):
+        return self._feedback_mode
+    
     def is_open_to_non_staff(self):
         """ Returns true if the course is accessible by users that are not administrator of this course """
         return self.get_accessibility().is_open()
