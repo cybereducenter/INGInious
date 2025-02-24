@@ -177,13 +177,15 @@
                                        spellcheck="false">{{test["name"]}}</i>
 
                                     <!-- Info button -->
+                                    {% if test['cout_text'] != 'N/A' %}
                                     <button type="button" class="{{category_en}}-{{test['taskid']}}-{{loop.index}}-popup info_btn" 
                                             data-original-title="פרטים נוספים" title="" data-toggle="tooltip" 
                                             onclick="FeedbackPlugin.additional_info_open_handler(this)" 
                                             style="background-color: {{test_border_color(test)}};">
                                         <i class="fa fa-info-circle"></i>
                                     </button>
-
+                                    {% endif %}
+                                    
                                     <!-- Edit button -->
                                     <button type="button" class="edit_btn" data-original-title="עריכה" 
                                             onclick="FeedbackPlugin.test_edit_handler(this)" title="" data-toggle="tooltip" 
