@@ -89,6 +89,12 @@
     padding-inline-start: 0.5rem
 }
 
+.category-add-btn {
+    font-size: 1.5rem; 
+    color: #ffffff; 
+    padding-inline-start: 0.5rem
+}
+
 .category-name {
     margin-left: 5px; 
     color: #ffffff; 

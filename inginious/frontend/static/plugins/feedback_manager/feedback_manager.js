@@ -993,22 +993,30 @@ var FeedbackPlugin = (function () {
      * @param header: the header on which we click
      */
     function task_dropdown(header) {
-        const content_div = $(header).siblings(".content");
-        const button = $(header).children(".category-dropdown-btn");
+        const content_div = $(header.parentElement).siblings(".content");
+        const dropdown_button = $(header).children(".category-dropdown-btn");
+        const category_add = $(header.parentElement).children(".category-add")[0];
 
-        console.log("content = %O", content_div);
-        if ($(button).hasClass("fa-caret-down")) {
-            $(button).removeClass("fa-caret-down").addClass("fa-caret-right");
-            content_div.slideUp('fast')
+        if ($(dropdown_button).hasClass("fa-caret-down")) {
+            $(dropdown_button).removeClass("fa-caret-down").addClass("fa-caret-right");
+            content_div.slideUp('fast');
+            category_add.style.display = 'none';
         } else {
-            $(button).removeClass("fa-caret-right").addClass("fa-caret-down");
-            content_div.slideDown('fast')
+            $(dropdown_button).removeClass("fa-caret-right").addClass("fa-caret-down");
+            content_div.slideDown('fast');
+            category_add.style.display = 'initial';
         }
     }
 
+    function category_add(header) {
+        console.log("add header = %O", header);
+    }
+
+
     return {
         additional_info_close_handler: additional_info_close_handler,
-        additional_info_open_handler: additional_info_open_handler,       
+        additional_info_open_handler: additional_info_open_handler,      
+        category_add: category_add, 
         init_manage_feedback_page: init_manage_feedback_page,
         load_from_storage: load_from_storage,
         render_student_feedback: render_student_feedback,
