@@ -656,6 +656,9 @@ var FeedbackPlugin = (function () {
             }
         }
 
+        // set category add button state
+
+        // set code
         g_editor.setValue(g_task_code[g_current_taskid], -1);
         update_step(0);
     }
@@ -794,7 +797,7 @@ var FeedbackPlugin = (function () {
         var error_message = "";
         $.ajax({
                 type: "POST",
-                url: window.location.href + "?submit=" + is_draft,
+                url: window.location.href + "?draft=" + is_draft,
                 contentType: 'application/json',
                 data: JSON.stringify({
                     "categories": g_feedback_categories,
@@ -1009,7 +1012,29 @@ var FeedbackPlugin = (function () {
     }
 
     function category_add(header) {
-        console.log("add header = %O", header);
+        var category = header.dataset.category;
+        var tests = g_feedback_categories[category]['tests'];
+        var hide_all = true;
+
+        for (i = 0; i < tests.length; i++) {
+            var test_element = document.getElementById(tests[i].element);
+
+            if (tests[i].taskid == g_current_taskid && test_element.style.display == 'none') {
+                test_element.style.display = 'initial';
+                hide_all = false;
+                break;
+            }
+        }
+        if (hide_all) {
+            for (i = 0; i < tests.length; i++) {
+                var test_element = document.getElementById(tests[i].element);
+                if (tests[i].taskid == g_current_taskid) {
+                    test_element.style.display = 'none';
+                }    
+            }
+        }
+
+        save_to_storage();
     }
 
 

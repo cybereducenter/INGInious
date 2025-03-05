@@ -178,7 +178,8 @@ class FeedbackManagerPage(INGIniousAuthPage):
             raise APIInvalidArguments()
 
         feedback_html = submission.get('text')
-        if flask.request.args.to_dict().get('submit', 'false') == 'true':
+        updated_feedback['draft'] = flask.request.args.to_dict().get('draft', 'false')
+        if  updated_feedback['draft'] == 'true':
             categories = {}
             for key in FEEDBACK_TEST_CATEGORIES.keys():
                 if key in updated_feedback['categories'].keys():
