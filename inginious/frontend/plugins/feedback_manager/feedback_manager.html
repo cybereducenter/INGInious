@@ -16,17 +16,12 @@
 
 {% macro category_color(category) %}
     {% if category['name'] == 'functionality' %} 
-        {% if category['status']['percent'] == 100 %} 
-            {{ '#318331' }}
-        {% elif category['status']['percent'] > 80 %} 
-            {{ '#e4e729' }}
-        {% elif category['status']['percent'] > 50 %} 
-            {{ '#ffbc40' }}
-        {% else %} 
-            {{ '#fd4242' }}
+        {% if category['status']['percent'] == 100 %} {{ '#318331' }}
+        {% elif category['status']['percent'] > 80 %} {{ '#e4e729' }}
+        {% elif category['status']['percent'] > 50 %} {{ '#ffbc40' }}
+        {% else %} {{ '#fd4242' }}
         {% endif %}
-    {% else %}
-        {{ '#5bc0de' }}
+    {% else %} {{ '#5bc0de' }}
     {% endif %}
 {% endmacro %}
 
@@ -146,14 +141,14 @@
 {%for category_en, category in feedback['categories'].items()%}
             <!-- Category box -->
             <div>
-                <div id="{{category['name']}}-header" style="display:flex; justify-content: space-between; background-color: {{category_color(category)}};">
-                    <div class="category-header" onclick="FeedbackPlugin.task_dropdown(this)">
+                <div class="category-header" id="{{category['name']}}-header" style="display:flex; margin-bottom: 2px; justify-content: space-between; background-color: {{category_color(category)}};">
+                    <div class="category-title" onclick="FeedbackPlugin.task_dropdown(this)">
                         <!-- Expand/Collapse button -->
                         <span id="{{category['name']}}-dropdown-btn" class="category-dropdown-btn dropdown_button fa fa-caret-right"></span>
                         <!-- Category name -->
                         <span class="category-name" id="{{category['name']}}"> {{ category_title(category) }}</span>                                
                     </div>
-                    <div class="category-add" style="display: none; margin-bottom: 5px; padding: 10px;">
+                    <div class="category-add" style="display: none; padding-right: 5px;">
                         <!-- Category add button -->
                         <span id="{{category['name']}}-add-btn" class="category-add-btn fa fa-plus" onclick="FeedbackPlugin.category_add(this)"></span>                                
                     </div>
