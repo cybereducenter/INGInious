@@ -211,7 +211,7 @@
                                 </div>
 
                                 <!-- test message -->
-                                {% if test['name'] == 'Positive Overall Feedback' %}
+                                {% if test['name'] == 'Positive Overall Feedback' or test['category'] == 'functionality' %}
                                 <div class="test-message {{category_en}}-{{test['taskid']}}-{{loop.index}}-message" style="direction: rtl; text-align: right;">
                                 {% else %}
                                 <div class="test-message {{category_en}}-{{test['taskid']}}-{{loop.index}}-message">
