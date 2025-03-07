@@ -39,6 +39,7 @@ class MatrixPage(INGIniousAdminPage):
         """ Reorder course tasks according to deadline from past to future, no deadline and passed deadline """
         future_tasks, first_past_task, past_tasks = self._get_ordered_task_simplified(course)
         order_tasks = future_tasks + past_tasks
+        taskids = sorted([task.get_id() for task in order_tasks])
 
         # Special task categories, to be highlighted on the column header row
         inspected_tasks = len([t for t in order_tasks if "inspected" in t.get_categories()]) > 0
@@ -59,7 +60,8 @@ class MatrixPage(INGIniousAdminPage):
                                            template_folder='frontend/plugins/matrix',
                                            course=course, 
                                            course_type=course_type,
-                                           data_users=data_users, 
+                                           data_users=data_users,
+                                           taskids=taskids, 
                                            order_tasks=order_tasks,
                                            past_tasks=past_tasks, 
                                            future_tasks=future_tasks,
