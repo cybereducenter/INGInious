@@ -148,10 +148,12 @@
                         <!-- Category name -->
                         <span class="category-name" id="{{category['name']}}"> {{ category_title(category) }}</span>                                
                     </div>
+    {%if category['name'] != 'functionality' %}
                     <div class="category-add" style="display: none; padding-right: 5px;">
                         <!-- Category add button -->
                         <span id="{{category['name']}}-add-btn" class="category-add-btn fa fa-plus" onclick="FeedbackPlugin.category_add(this)"></span>                                
                     </div>
+    {% endif %}
                 </div>
                                     
                 <!-- Category tests -->
