@@ -22,6 +22,7 @@ var FeedbackPlugin = (function () {
 
     var g_courseid = "";
     var g_taskid = "";
+    var g_feedback_mode = "";
     var g_submissionid = "";
     var g_student = "";
     var g_submission_url = "";
@@ -33,6 +34,7 @@ var FeedbackPlugin = (function () {
     function init_manage_feedback_page(
         input_courseid, 
         input_taskid, 
+        input_feedback_mode,
         input_submissionid, 
         input_student, 
         staff, 
@@ -43,6 +45,7 @@ var FeedbackPlugin = (function () {
 
         g_courseid = input_courseid;
         g_taskid = input_taskid;
+        g_feedback_mode = input_feedback_mode
         g_submissionid = input_submissionid;
         g_student = input_student;
         g_submission_url = input_submission_url;
@@ -1000,14 +1003,19 @@ var FeedbackPlugin = (function () {
         const dropdown_button = $(header).children(".category-dropdown-btn");
         const category_add = $(header.parentElement).children(".category-add")[0];
 
+        console.log("g_feedback_mode = %s", g_feedback_mode);
         if ($(dropdown_button).hasClass("fa-caret-down")) {
             $(dropdown_button).removeClass("fa-caret-down").addClass("fa-caret-right");
             content_div.slideUp('fast');
-            category_add.style.display = 'none';
+            if (g_feedback_mode == 'manual') {
+                category_add.style.display = 'none';
+            }
         } else {
             $(dropdown_button).removeClass("fa-caret-right").addClass("fa-caret-down");
             content_div.slideDown('fast');
-            category_add.style.display = 'initial';
+            if (g_feedback_mode == 'manual') {
+                category_add.style.display = 'initial';
+            }
         }
     }
 

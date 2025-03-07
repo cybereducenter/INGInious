@@ -294,6 +294,7 @@
     var student = '{{ student }}';
     var courseid = '{{ course.get_id() }}';
     var taskid = '{{ task.get_id() }}';
+    var feedback_mode = '{{ task.is_feedback_task() }}';
     var submissionid = '{{ submission_id }}';
     var submission_url = '{{ submission_url }}';
     var feedback_manager = {{ feedback | tojson }};
@@ -330,6 +331,7 @@
         $(document).ready(function () {
             FeedbackPlugin.init_manage_feedback_page(courseid, 
                                                      taskid, 
+                                                     feedback_mode,
                                                      submissionid, 
                                                      student, 
                                                      staff, 
