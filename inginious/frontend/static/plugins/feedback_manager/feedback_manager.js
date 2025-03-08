@@ -1021,28 +1021,42 @@ var FeedbackPlugin = (function () {
 
     function category_add(header) {
         var category = header.dataset.category;
-        var tests = g_feedback_categories[category]['tests'];
-        var hide_all = true;
+        var taskid = g_current_taskid;
+        var tests;
 
-        for (i = 0; i < tests.length; i++) {
-            var test_element = document.getElementById(tests[i].element);
+        console.log('category = %s', category);
+        console.log('taskid = %s', taskid);
 
-            if (tests[i].taskid == g_current_taskid && test_element.style.display == 'none') {
-                test_element.style.display = 'initial';
-                hide_all = false;
-                break;
-            }
+        if (!('tests' in g_feedback_categories[category])) {
+            g_feedback_categories[category]['tests'] = [];
         }
-        if (hide_all) {
-            for (i = 0; i < tests.length; i++) {
-                var test_element = document.getElementById(tests[i].element);
-                if (tests[i].taskid == g_current_taskid) {
-                    test_element.style.display = 'none';
-                }    
-            }
-        }
+        tests = g_feedback_categories[category]['tests'];
+        new_test_num = tests.length + 1;
 
-        save_to_storage();
+        var new_test = {
+            'category': category,
+            'name': 'Type name here...',
+            'id': 'ManualTest' + new_test_num,
+            'taskid': taskid,
+            'message': 'Type message here...',
+            'status': 'passed',
+            'message_code': 0,
+            'cout_text': 'N/A',
+            'result': {'bool': true}
+        }
+        console.log('add manual test to category %s = %O', category, new_test);
+
+        g_feedback_categories[category]['tests'].push(new_test);
+        send_save_request(is_draft=false);
+        // if saved in local storge, remove draft
+        if (typeof (Storage) !== "undefined") {
+            localStorage.removeItem([g_submissionid]);
+        } else {
+            alert("Your browser doesn't support web storage");
+        }
+        
+        
+        location.reload();
     }
 
 

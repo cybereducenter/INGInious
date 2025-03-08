@@ -144,14 +144,14 @@
                 <div class="category-header" id="{{category['name']}}-header" style="display:flex; margin-bottom: 2px; justify-content: space-between; background-color: {{category_color(category)}};">
                     <div class="category-title" onclick="FeedbackPlugin.task_dropdown(this)">
                         <!-- Expand/Collapse button -->
-                        <span id="{{category['name']}}-dropdown-btn" class="category-dropdown-btn dropdown_button fa fa-caret-right"></span>
+                        <span id="{{category['name']}}-dropdown-btn" class="category-dropdown-btn dropdown_button fa fa-caret-right" style="width:15px;"></span>
                         <!-- Category name -->
                         <span class="category-name" id="{{category['name']}}"> {{ category_title(category) }}</span>                                
                     </div>
     {%if category['name'] != 'functionality' %}
                     <div class="category-add" style="display: none; padding-right: 5px;">
                         <!-- Category add button -->
-                        <span id="{{category['name']}}-add-btn" class="category-add-btn fa fa-plus" onclick="FeedbackPlugin.category_add(this)"></span>                                
+                        <span id="{{category['name']}}-add-btn" class="category-add-btn fa fa-plus" data-category="{{category['name']}}" onclick="FeedbackPlugin.category_add(this)"></span>                                
                     </div>
     {% endif %}
                 </div>
