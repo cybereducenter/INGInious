@@ -1056,10 +1056,10 @@ var FeedbackPlugin = (function () {
 
         var new_test = {
             'category': category,
-            'name': `Type ${category} title here...`,
+            'name': `Type ${category} title, for task ${taskid}, here...`,
             'id': 'ManualTest' + new_test_num,
             'taskid': taskid,
-            'message': `Type ${category} comment here...`,
+            'message': `Type ${category} comment, for task ${taskid}, here...`,
             'status': 'passed',
             'message_code': 0,
             'cout_text': 'N/A',
