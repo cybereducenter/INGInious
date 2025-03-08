@@ -202,7 +202,14 @@ var FeedbackPlugin = (function () {
         })
 
         // select initial taskid
-        var initial_taskid = g_feedback_categories['functionality']['tests'][0]['taskid'];
+        console.log('g_feedback_categories = %O', g_feedback_categories);
+        var initial_taskid;
+        if ('current_taskid' in g_feedback_categories['functionality']) {
+            initial_taskid = g_feedback_categories['functionality']['current_taskid'];
+        }
+        else {
+            initial_taskid = g_feedback_categories['functionality']['tests'][0]['taskid'];
+        }
         var taskid_element = document.getElementById(initial_taskid);
         taskid_element.click();
 
@@ -1013,7 +1020,7 @@ var FeedbackPlugin = (function () {
         const category_add = $(header.parentElement).children(".category-add")[0];
         const category = header.dataset.category
 
-        console.log("category = %s", category);
+        g_feedback_categories['functionality']['current_taskid'] = g_current_taskid;
         if ($(dropdown_button).hasClass("fa-caret-down")) {
             // close
             g_feedback_categories[category]['is_open'] = false;
