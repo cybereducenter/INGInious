@@ -88,7 +88,6 @@ var FeedbackPlugin = (function () {
         // set categories and tests
         var codeSelector_element = document.getElementById(CODE_SELECTOR_ID);
         for (const cat in g_feedback_categories) {
-
             // cat is the category name, in English. For example, coding, design...
             var category = g_feedback_categories[cat];
 
@@ -207,6 +206,14 @@ var FeedbackPlugin = (function () {
         var taskid_element = document.getElementById(initial_taskid);
         taskid_element.click();
 
+        // check for open categories
+        for (const cat in g_feedback_categories) {
+            if ('is_open' in g_feedback_categories[cat] && g_feedback_categories[cat]['is_open']) {
+                var dropdown_btn = document.getElementById(`${cat}-dropdown-btn`)
+                dropdown_btn.click();
+            }
+        }
+        
         update_step(0);
     }
 
@@ -285,7 +292,7 @@ var FeedbackPlugin = (function () {
                     test_element.style.display = 'none';
                 }
             });
-                    }
+        }
         else if (g_current_step == 2) {
             // STEP 2
             student_view_title_element.style.display = 'none';
@@ -443,7 +450,7 @@ var FeedbackPlugin = (function () {
         else {
             console.error("unexpected current step = %d", g_current_step);
         }
-        
+
     }
 
     // this function is called when a user checks/unchecks a test
@@ -786,7 +793,7 @@ var FeedbackPlugin = (function () {
 
     // this function sends a request to save feedback in the database (draft or final)
     // ---
-    function send_save_request(is_draft) {
+    function send_save_request(is_draft, show_message=true) {
         console.debug('In function: send_save_request(%s)', is_draft);
 
         // save version for debug purposes
@@ -812,8 +819,10 @@ var FeedbackPlugin = (function () {
                     console.log("save: success");
 
                     // display message to user
-                    var message = is_draft ? "Feedback draft was saved for student " + g_student : "Final feedback was submitted for student " + g_student;
-                    display_user_message(message, "", "success", true);
+                    if (show_message) {
+                        var message = is_draft ? "Feedback draft was saved for student " + g_student : "Final feedback was submitted for student " + g_student;
+                        display_user_message(message, "", "success", true);
+                    }
                 },
                 error: function (e) {
                     console.log("save: " + e.toString());
@@ -1002,18 +1011,23 @@ var FeedbackPlugin = (function () {
         const content_div = $(header.parentElement).siblings(".content");
         const dropdown_button = $(header).children(".category-dropdown-btn");
         const category_add = $(header.parentElement).children(".category-add")[0];
+        const category = header.dataset.category
 
-        console.log("g_feedback_mode = %s", g_feedback_mode);
+        console.log("category = %s", category);
         if ($(dropdown_button).hasClass("fa-caret-down")) {
+            // close
+            g_feedback_categories[category]['is_open'] = false;
             $(dropdown_button).removeClass("fa-caret-down").addClass("fa-caret-right");
             content_div.slideUp('fast');
-            if (g_feedback_mode == 'manual') {
+            if (g_feedback_mode == 'manual' && category != 'functionality') {
                 category_add.style.display = 'none';
             }
         } else {
+            // open
+            g_feedback_categories[category]['is_open'] = true;
             $(dropdown_button).removeClass("fa-caret-right").addClass("fa-caret-down");
             content_div.slideDown('fast');
-            if (g_feedback_mode == 'manual') {
+            if (g_feedback_mode == 'manual' && category != 'functionality') {
                 category_add.style.display = 'initial';
             }
         }
@@ -1035,10 +1049,10 @@ var FeedbackPlugin = (function () {
 
         var new_test = {
             'category': category,
-            'name': 'Type name here...',
+            'name': `Type ${category} title here...`,
             'id': 'ManualTest' + new_test_num,
             'taskid': taskid,
-            'message': 'Type message here...',
+            'message': `Type ${category} comment here...`,
             'status': 'passed',
             'message_code': 0,
             'cout_text': 'N/A',
@@ -1047,14 +1061,13 @@ var FeedbackPlugin = (function () {
         console.log('add manual test to category %s = %O', category, new_test);
 
         g_feedback_categories[category]['tests'].push(new_test);
-        send_save_request(is_draft=false);
-        // if saved in local storge, remove draft
+        send_save_request(is_draft=false, show_message=false);
+        // if saved in local storge, remove draft to force reload from database
         if (typeof (Storage) !== "undefined") {
             localStorage.removeItem([g_submissionid]);
         } else {
             alert("Your browser doesn't support web storage");
         }
-        
         
         location.reload();
     }

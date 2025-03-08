@@ -142,7 +142,7 @@
             <!-- Category box -->
             <div>
                 <div class="category-header" id="{{category['name']}}-header" style="display:flex; margin-bottom: 2px; justify-content: space-between; background-color: {{category_color(category)}};">
-                    <div class="category-title" onclick="FeedbackPlugin.task_dropdown(this)">
+                    <div class="category-title" data-category="{{category['name']}}" onclick="FeedbackPlugin.task_dropdown(this)">
                         <!-- Expand/Collapse button -->
                         <span id="{{category['name']}}-dropdown-btn" class="category-dropdown-btn dropdown_button fa fa-caret-right" style="width:15px;"></span>
                         <!-- Category name -->
