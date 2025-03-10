@@ -1017,7 +1017,6 @@ var FeedbackPlugin = (function () {
     function task_dropdown(header) {
         const content_div = $(header.parentElement).siblings(".content");
         const dropdown_button = $(header).children(".category-dropdown-btn");
-        const category_add = $(header.parentElement).children(".category-add")[0];
         const category = header.dataset.category
 
         g_feedback_categories['functionality']['current_taskid'] = g_current_taskid;
@@ -1026,17 +1025,11 @@ var FeedbackPlugin = (function () {
             g_feedback_categories[category]['is_open'] = false;
             $(dropdown_button).removeClass("fa-caret-down").addClass("fa-caret-right");
             content_div.slideUp('fast');
-            if (g_feedback_mode == 'manual' && category != 'functionality') {
-                category_add.style.display = 'none';
-            }
         } else {
             // open
             g_feedback_categories[category]['is_open'] = true;
             $(dropdown_button).removeClass("fa-caret-right").addClass("fa-caret-down");
             content_div.slideDown('fast');
-            if (g_feedback_mode == 'manual' && category != 'functionality') {
-                category_add.style.display = 'initial';
-            }
         }
     }
 
@@ -1052,14 +1045,29 @@ var FeedbackPlugin = (function () {
             g_feedback_categories[category]['tests'] = [];
         }
         tests = g_feedback_categories[category]['tests'];
-        new_test_num = tests.length + 1;
 
+        // find a unique test number
+        var new_test_num = 0;
+        var manual_test_exists = true;
+        while(manual_test_exists) {
+            new_test_num++;
+            var new_test_id = 'ManualTest' + new_test_num;
+            var exists = false;
+            tests.forEach(test => {
+                if (test['id'] == new_test_id) {
+                    exists  = true;
+                }
+            });
+            manual_test_exists = exists;
+        }
+        
+        console.log('new test num = %d', new_test_num);
         var new_test = {
             'category': category,
             'name': `Type ${category} title, for task ${taskid}, here...`,
             'id': 'ManualTest' + new_test_num,
             'taskid': taskid,
-            'message': `Type ${category} comment, for task ${taskid}, here...`,
+            'message': `Type ${category} comment ${new_test_num}, for task ${taskid}, here...`,
             'status': 'passed',
             'message_code': 0,
             'cout_text': 'N/A',
@@ -1069,14 +1077,17 @@ var FeedbackPlugin = (function () {
 
         g_feedback_categories[category]['tests'].push(new_test);
         send_save_request(is_draft=false, show_message=false);
+
         // if saved in local storge, remove draft to force reload from database
         if (typeof (Storage) !== "undefined") {
             localStorage.removeItem([g_submissionid]);
         } else {
             alert("Your browser doesn't support web storage");
         }
-        
-        location.reload();
+
+        setTimeout(() => {
+            location.reload();
+        }, 3000);          
     }
 
 
