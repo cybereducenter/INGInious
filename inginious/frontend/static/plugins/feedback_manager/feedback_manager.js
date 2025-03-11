@@ -1037,7 +1037,7 @@ var FeedbackPlugin = (function () {
         var taskid = g_current_taskid;
         var tests;
 
-        // document.body.style.cursor = 'progress';
+        document.body.style.cursor = 'progress';
 
         console.log('category = %s', category);
         console.log('taskid = %s', taskid);
@@ -1065,10 +1065,10 @@ var FeedbackPlugin = (function () {
         console.log('new test num = %d', new_test_num);
         var new_test = {
             'category': category,
-            'name': `Type ${category} title, for task ${taskid}, here...`,
+            'name': `Type ${category} comment title, for task ${taskid}, here...`,
             'id': 'ManualTest' + new_test_num,
             'taskid': taskid,
-            'message': `Type ${category} comment ${new_test_num}, for task ${taskid}, here...`,
+            'message': `Type ${category} comment, for task ${taskid}, here...`,
             'status': 'passed',
             'message_code': 0,
             'cout_text': 'N/A',
