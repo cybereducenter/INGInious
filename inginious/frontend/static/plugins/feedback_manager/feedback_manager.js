@@ -509,6 +509,43 @@ var FeedbackPlugin = (function () {
     }
 
     // Handlers for test edit buttons
+    function test_remove_handler(event) {
+        console.log("test_remove_handler - %O", event);
+
+        document.body.style.cursor = 'progress';
+
+        var category = event.dataset.category;
+        var test_id = event.dataset.testid;
+
+        for(var i = 0; i < g_feedback_categories[category]['tests'].length; i++){
+            if (g_feedback_categories[category]['tests'][i]['id'] == test_id) {
+                break;
+            }
+        }
+        g_feedback_categories[category]['tests'].splice(i, 1);
+
+        for (cat in g_feedback_categories) {
+            g_feedback_categories[cat]['is_open'] = false;
+        }
+        g_feedback_categories[category]['is_open'] = true;
+        g_feedback_categories['functionality']['current_taskid'] = g_current_taskid;
+        send_save_request(is_draft=false, show_message=false);
+
+        // if saved in local storge, remove draft to force reload from database
+        if (typeof (Storage) !== "undefined") {
+            localStorage.removeItem([g_submissionid]);
+        } else {
+            alert("Your browser doesn't support web storage");
+        }
+
+        setTimeout(() => {
+            location.reload();
+        }, 3000);   
+        // document.body.style.cursor = 'default';    
+
+
+
+    }
 
     function test_edit_handler(event) {
         console.log("test_edit_handler - %O", event);
@@ -1114,6 +1151,7 @@ var FeedbackPlugin = (function () {
         test_edit_handler: test_edit_handler,
         test_edit_cancel_handler: test_edit_cancel_handler,        
         test_edit_save_handler: test_edit_save_handler,
+        test_remove_handler: test_remove_handler,
         test_select_handler: test_select_handler,
         update_step: update_step
     }
