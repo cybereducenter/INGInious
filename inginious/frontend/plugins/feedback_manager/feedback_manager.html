@@ -210,6 +210,16 @@
                                             style="background-color: {{test_border_color(test)}};">
                                         <i class="fa fa-check"></i>
                                     </button>
+
+                                    {% if test['id'].startswith('ManualTest') %}
+                                    <!-- Remove button -->
+                                    <button type="button" class="remove_btn"  data-original-title="מחיקה" 
+                                            onclick="FeedbackPlugin.test_edit_remove_handler(this)" title="" data-toggle="tooltip" 
+                                            value="{{category_en}}-{{test['taskid']}}-{{loop.index}}"         
+                                            style="background-color: {{test_border_color(test)}};">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                    {% endif %}
                                 </div>
 
                                 <!-- test message -->

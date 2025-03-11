@@ -236,6 +236,12 @@ dialog {
     padding: 0 5px;
 }
 
+.remove_btn {
+    background-color: white;
+    border: none;
+    padding: 0 5px;
+}
+
 .disabled {
     color: lightgrey;
     opacity: 0.6;
