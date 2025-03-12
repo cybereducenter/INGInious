@@ -529,7 +529,7 @@ var FeedbackPlugin = (function () {
         }
         g_feedback_categories[category]['is_open'] = true;
         g_feedback_categories['functionality']['current_taskid'] = g_current_taskid;
-        send_save_request(is_draft=false, show_message=false);
+        send_save_request(is_draft=true, show_message=false);
 
         // if saved in local storge, remove draft to force reload from database
         if (typeof (Storage) !== "undefined") {
@@ -1119,7 +1119,7 @@ var FeedbackPlugin = (function () {
         }
         g_feedback_categories[category]['is_open'] = true;
         g_feedback_categories['functionality']['current_taskid'] = g_current_taskid;
-        send_save_request(is_draft=false, show_message=false);
+        send_save_request(is_draft=true, show_message=false);
 
         // if saved in local storge, remove draft to force reload from database
         if (typeof (Storage) !== "undefined") {

@@ -179,15 +179,18 @@ class FeedbackManagerPage(INGIniousAuthPage):
 
         feedback_html = submission.get('text')
         updated_feedback['draft'] = flask.request.args.to_dict().get('draft', 'false') == 'true'
-        if  updated_feedback['draft']:
-            categories = {}
-            for key in FEEDBACK_TEST_CATEGORIES.keys():
-                if key in updated_feedback['categories'].keys():
-                    value = updated_feedback['categories'][key]
-                    if value['tests']:
-                        categories[key] = value
-            updated_feedback['categories'] = categories
-            feedback_html = inject_html(courseid, taskid, submission_id, updated_feedback, True)
+        
+        # TODO not clear what this block is doing. Temporarily commented out
+        # if  updated_feedback['draft']:
+        #     categories = {}
+        #     for key in FEEDBACK_TEST_CATEGORIES.keys():
+        #         if key in updated_feedback['categories'].keys():
+        #             value = updated_feedback['categories'][key]
+        #             if value['tests']:
+        #                 categories[key] = value
+        #     updated_feedback['categories'] = categories
+        #     feedback_html = inject_html(courseid, taskid, submission_id, updated_feedback, True)
+        
         submission = self.submission_manager._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
             {"$set": {"custom": {'feedback_data': updated_feedback}, 'text': feedback_html}},
