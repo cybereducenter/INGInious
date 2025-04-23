@@ -128,7 +128,7 @@ class FeedbackManagerPage(INGIniousAuthPage):
         submission_feedback['categories'] = sorted_categories
 
         for category in submission_feedback['categories'].values():
-            category['name_he'] = FEEDBACK_TEST_CATEGORIES[category['name']]
+            category['name_he'] = FEEDBACK_TEST_CATEGORIES.get(category['name'], category['name'])
             total += len(category['tests'])
             passed += len([t for t in category['tests'] if t['result']['bool']])
             current_taskid = ''
