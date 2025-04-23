@@ -122,10 +122,10 @@ class FeedbackManagerPage(INGIniousAuthPage):
             }
 
         # sort categories
-        sorted_categories = {}
-        for cat in FEEDBACK_TEST_CATEGORIES.keys():
-            sorted_categories[cat] = submission_feedback['categories'][cat]
-        submission_feedback['categories'] = sorted_categories
+        # sorted_categories = {}
+        # for cat in FEEDBACK_TEST_CATEGORIES.keys():
+        #     sorted_categories[cat] = submission_feedback['categories'][cat]
+        # submission_feedback['categories'] = sorted_categories
 
         for category in submission_feedback['categories'].values():
             category['name_he'] = FEEDBACK_TEST_CATEGORIES.get(category['name'], category['name'])
